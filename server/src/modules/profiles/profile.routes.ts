@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { verifyToken } from '../../middleware/auth';
 import { requireRole } from '../../middleware/auth';
+import reviewRoutes from '../reviews/review.routes';
 import {
   createProfile,
   updateProfile,
@@ -18,6 +19,8 @@ const router = Router();
 
 // Public
 router.get('/slug/:slug', getProfileBySlug);
+
+router.use('/:profileId/reviews', reviewRoutes);
 
 // Protected — tutor/org/admin only
 router.get('/me', verifyToken, getMyProfile);
