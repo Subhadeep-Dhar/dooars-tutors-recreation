@@ -14,6 +14,7 @@ import authRoutes from './modules/auth/auth.routes';
 import profileRoutes from './modules/profiles/profile.routes';
 import searchRoutes from './modules/search/search.routes';
 import reviewRoutes  from './modules/reviews/review.routes';
+import adminRoutes   from './modules/admin/admin.routes';
 
 const app = express();
 
@@ -48,7 +49,7 @@ app.use('/api/v1/auth',     authRoutes);
 app.use('/api/v1/profiles', profileRoutes);
 app.use('/api/v1/search',   searchRoutes);
 app.use('/api/v1/reviews',  reviewRoutes);
-// app.use('/api/v1/admin',    adminRoutes);
+app.use('/api/v1/admin',    adminRoutes);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {
