@@ -10,6 +10,8 @@ import { connectRedis } from './config/redis';
 import { generalLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './middleware/errorHandler';
 
+import authRoutes from './modules/auth/auth.routes';
+
 const app = express();
 
 // ── Security middleware ──────────────────────────────────────────────────────
@@ -39,7 +41,7 @@ app.get('/health', (_req, res) => {
 });
 
 // ── API routes — added here as modules are built ─────────────────────────────
-// app.use('/api/v1/auth',     authRoutes);
+app.use('/api/v1/auth',     authRoutes);
 // app.use('/api/v1/profiles', profileRoutes);
 // app.use('/api/v1/search',   searchRoutes);
 // app.use('/api/v1/reviews',  reviewRoutes);

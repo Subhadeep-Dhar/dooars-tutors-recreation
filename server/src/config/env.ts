@@ -4,7 +4,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('4000').transform(Number),
 
-  MONGODB_URI: z.string().optional(),
+  MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
 
   REDIS_URL: z.string().optional(),
 
