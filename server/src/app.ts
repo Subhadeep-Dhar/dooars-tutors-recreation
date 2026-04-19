@@ -11,6 +11,7 @@ import { generalLimiter } from './middleware/rateLimiter';
 import { errorHandler } from './middleware/errorHandler';
 
 import authRoutes from './modules/auth/auth.routes';
+import profileRoutes from './modules/profiles/profile.routes';
 
 const app = express();
 
@@ -42,7 +43,7 @@ app.get('/health', (_req, res) => {
 
 // ── API routes — added here as modules are built ─────────────────────────────
 app.use('/api/v1/auth',     authRoutes);
-// app.use('/api/v1/profiles', profileRoutes);
+app.use('/api/v1/profiles', profileRoutes);
 // app.use('/api/v1/search',   searchRoutes);
 // app.use('/api/v1/reviews',  reviewRoutes);
 // app.use('/api/v1/admin',    adminRoutes);
