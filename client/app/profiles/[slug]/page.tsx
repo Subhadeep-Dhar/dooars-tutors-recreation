@@ -10,6 +10,9 @@ import { Separator } from '@/components/ui/separator';
 import api from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 import MiniMap from '@/components/profile/MiniMap';
+import { useAuthStore } from '@/store/authStore';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 const typeLabels: Record<string, string> = {
     tutor: 'Private Tutor',
@@ -25,14 +28,18 @@ export default function ProfilePage() {
     const [reviews, setReviews] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
+    const { user } = useAuthStore();
+    const [submitting, setSubmitting] = useState(false);
+    const { register, handleSubmit, reset } = useForm();
+
     useEffect(() => {
         async function load() {
             try {
-                const [profileRes, reviewsRes] = await Promise.all([
-                    api.get(`/profiles/slug/${slug}`),
-                    api.get(`/profiles/${slug}/reviews`).catch(() => ({ data: { data: { reviews: [] } } })),
-                ]);
-                setProfile(profileRes.data.data.profile);
+                const profileRes = await api.get(`/profiles/slug/${slug}`);
+                const p = profileRes.data.data.profile;
+                setProfile(p);
+
+                const reviewsRes = await api.get(`/profiles/${p._id}/reviews`).catch(() => ({ data: { data: { reviews: [] } } }));
                 setReviews(reviewsRes.data.data.reviews ?? []);
             } catch {
                 setProfile(null);
@@ -179,10 +186,71 @@ export default function ProfilePage() {
                         </Card>
                     )}
 
+                    {/* Media gallery */}
+                    {profile.media?.length > 0 && (
+                        <Card>
+                            <CardHeader><CardTitle className="text-base">Photos & Videos</CardTitle></CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    {profile.media.map((item: any) => (
+                                        <div key={item._id} className="rounded-xl overflow-hidden bg-slate-100 aspect-video">
+                                            {item.type === 'image' ? (
+                                                <img src={item.url} alt={item.caption || ''} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <video src={item.url} controls className="w-full h-full object-cover" />
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
                     {/* Reviews */}
                     <Card>
                         <CardHeader><CardTitle className="text-base">Reviews ({reviews.length})</CardTitle></CardHeader>
                         <CardContent>
+                            {/* Review form — students only */}
+                            {user?.role === 'student' && (
+                                <form onSubmit={handleSubmit(async (data) => {
+                                    setSubmitting(true);
+                                    try {
+                                        await api.post(`/profiles/${profile._id}/reviews`, {
+                                            rating: Number(data.rating),
+                                            text: data.text,
+                                        });
+                                        toast.success('Review submitted');
+                                        const res = await api.get(`/profiles/${profile._id}/reviews`);
+                                        setReviews(res.data.data.reviews);
+                                        reset();
+                                    } catch (err: any) {
+                                        toast.error(err?.response?.data?.message || 'Failed to submit');
+                                    } finally {
+                                        setSubmitting(false);
+                                    }
+                                })} className="mb-6 p-4 bg-slate-50 rounded-xl space-y-3">
+                                    <p className="text-sm font-medium">Write a review</p>
+                                    <select {...register('rating')} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+                                        {[5, 4, 3, 2, 1].map(n => <option key={n} value={n}>{n} star{n !== 1 ? 's' : ''}</option>)}
+                                    </select>
+                                    <textarea
+                                        {...register('text', { required: true, minLength: 10 })}
+                                        rows={3}
+                                        placeholder="Share your experience (min 10 characters)..."
+                                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-slate-300"
+                                    />
+                                    <Button type="submit" size="sm" disabled={submitting}>
+                                        {submitting ? 'Submitting...' : 'Submit Review'}
+                                    </Button>
+                                </form>
+                            )}
+
+                            {!user && (
+                                <p className="text-sm text-slate-400 mb-4">
+                                    <a href="/login" className="text-slate-700 underline">Login as a student</a> to write a review.
+                                </p>
+                            )}
+
                             {reviews.length === 0 ? (
                                 <p className="text-slate-400 text-sm">No reviews yet.</p>
                             ) : (
@@ -217,7 +285,17 @@ export default function ProfilePage() {
                         <CardContent className="text-sm text-slate-600 space-y-3">
 
                             {/* MAP */}
-                            <MiniMap location={profile.location} />
+                            {/* <MiniMap location={profile.location} /> */}
+                            {profile.location?.coordinates && (
+                                <div className="h-40 rounded-xl overflow-hidden mb-3">
+                                    <iframe
+                                        width="100%"
+                                        height="100%"
+                                        style={{ border: 0 }}
+                                        src={`https://www.google.com/maps?q=${profile.location.coordinates[1]},${profile.location.coordinates[0]}&z=14&output=embed`}
+                                    />
+                                </div>
+                            )}
 
                             {/* ADDRESS */}
                             <div>

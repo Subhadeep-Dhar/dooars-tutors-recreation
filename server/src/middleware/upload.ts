@@ -1,17 +1,21 @@
 import multer from 'multer';
 import { AppError } from './errorHandler';
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'video/mp4'];
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50MB
+const storage = multer.memoryStorage();
 
 export const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_VIDEO_SIZE },
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB (adjust if needed)
+  },
   fileFilter: (_req, file, cb) => {
-    if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      return cb(new AppError('Only JPEG, PNG, WebP images and MP4 videos are allowed', 400));
+    if (
+      file.mimetype.startsWith('image/') ||
+      file.mimetype === 'video/mp4'
+    ) {
+      cb(null, true);
+    } else {
+      cb(new AppError('Invalid file type', 400) as any, false);
     }
-    cb(null, true);
   },
 });
