@@ -9,7 +9,7 @@ export async function connectRedis(): Promise<void> {
     console.info('ℹ️  Redis skipped in local dev — cache disabled');
     return;
   }
-
+  
   try {
     if (!env.REDIS_URL) {
       console.info('ℹ️  Redis URL not set — cache disabled');
