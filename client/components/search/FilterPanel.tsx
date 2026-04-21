@@ -9,7 +9,7 @@ const types = [
   { label: 'All', value: '' },
   { label: 'Private Tutors', value: 'tutor' },
   { label: 'Coaching Centers', value: 'coaching_center' },
-  { label: 'Sports Trainers', value: 'sports_trainer' },
+  { label: 'Sports', value: 'sports_trainer' },
   { label: 'Arts & Culture', value: 'arts_trainer' },
   { label: 'Gym & Yoga', value: 'gym_yoga' },
 ];
@@ -67,7 +67,7 @@ export default function FilterPanel() {
       <div className="space-y-2">
         <Label className="text-xs text-slate-500 uppercase tracking-wide">Subject</Label>
         <Input
-          placeholder="e.g. Mathematics"
+          placeholder="e.g. Mathematics, cricket, yoga..."
           value={params.subject ?? ''}
           onChange={(e) => apply({ subject: e.target.value || undefined })}
           className="text-sm"

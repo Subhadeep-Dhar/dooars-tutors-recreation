@@ -33,8 +33,8 @@ export default function HomePage() {
   const [allProfiles, setAllProfiles] = useState<any[]>([]);
 
   useEffect(() => {
-    api.get('/search?limit=3&sort=rating').then((res) => setFeatured(res.data.data)).catch(() => {});
-    api.get('/search?limit=50').then((res) => setAllProfiles(res.data.data)).catch(() => {});
+    api.get('/search?limit=3&sort=rating').then((res) => setFeatured(res.data.data)).catch(() => { });
+    api.get('/search?limit=50').then((res) => setAllProfiles(res.data.data)).catch(() => { });
   }, []);
 
   function handleSearch(e: React.FormEvent) {
@@ -170,18 +170,31 @@ export default function HomePage() {
             <p className="text-slate-500">Tutors and trainers spread across the region — find one near you</p>
           </div>
           <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm" style={{ height: '420px' }}>
-            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
-              <Map defaultCenter={{ lat: 26.75, lng: 89.25 }} defaultZoom={10} mapId="dooars-community-map"
-                style={{ width: '100%', height: '100%' }} gestureHandling="greedy" disableDefaultUI={true}>
-                {validProfiles.map((profile) => (
-                  <AdvancedMarker key={profile._id}
-                    position={{ lat: profile.location.coordinates[1], lng: profile.location.coordinates[0] }}
-                    onClick={() => router.push(`/profiles/${profile.slug}`)}>
-                    <Pin background={typeColors[profile.type] ?? '#1e293b'} borderColor="#fff" glyphColor="#fff" scale={0.8} />
-                  </AdvancedMarker>
-                ))}
-              </Map>
-            </APIProvider>
+            {validProfiles.length > 0 ? (
+              <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
+                <Map
+                  defaultCenter={{
+                    lat: validProfiles.reduce((s, p) => s + p.location.coordinates[1], 0) / validProfiles.length,
+                    lng: validProfiles.reduce((s, p) => s + p.location.coordinates[0], 0) / validProfiles.length,
+                  }}
+                  defaultZoom={10.5}
+                  mapId="dooars-community-map"
+                  style={{ width: '100%', height: '100%' }}
+                  gestureHandling="greedy"
+                  disableDefaultUI={true}
+                >
+                  {validProfiles.map((profile) => (
+                    <AdvancedMarker
+                      key={profile._id}
+                      position={{ lat: profile.location.coordinates[1], lng: profile.location.coordinates[0] }}
+                      onClick={() => router.push(`/profiles/${profile.slug}`)}
+                    >
+                      <Pin background={typeColors[profile.type] ?? '#1e293b'} borderColor="#fff" glyphColor="#fff" scale={0.8} />
+                    </AdvancedMarker>
+                  ))}
+                </Map>
+              </APIProvider>
+            ) : null}
           </div>
           <div className="flex flex-wrap gap-4 justify-center mt-4">
             {Object.entries(typeColors).map(([type, color]) => (

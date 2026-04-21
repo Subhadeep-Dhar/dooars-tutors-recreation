@@ -5,6 +5,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Star, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
+import { useMap } from '@vis.gl/react-google-maps';
 
 const typeColors: Record<string, string> = {
   tutor: '#1e40af',
