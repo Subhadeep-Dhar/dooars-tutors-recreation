@@ -116,18 +116,24 @@ for (const group of SYNONYM_GROUPS) {
 }
 
 export function expandQuery(term: string): string[] {
-    const lower = term.toLowerCase().trim();
-    const group = synonymMap.get(lower);
-    if (group) return group;
+  const lower = term.toLowerCase().trim();
+  if (!lower) return [];
 
-    // Partial match — find any group that contains a term starting with the input
-    for (const [key, group] of synonymMap.entries()) {
-        if (key.startsWith(lower) || lower.startsWith(key)) {
-            return group;
-        }
+  // Exact match first
+  const exact = synonymMap.get(lower);
+  if (exact) return exact;
+
+  // Partial match — any group containing a term that starts with input OR input starts with term
+  const matches = new Set<string>();
+  for (const [key, group] of synonymMap.entries()) {
+    if (key.startsWith(lower) || lower.startsWith(key)) {
+      group.forEach(t => matches.add(t));
     }
+  }
+  if (matches.size > 0) return Array.from(matches);
 
-    return [lower]; // no synonym found, return as-is
+  // Last resort — return the raw term so regex still runs against DB
+  return [lower];
 }
 
 // Class number normalization

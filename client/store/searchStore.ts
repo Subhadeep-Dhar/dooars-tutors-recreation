@@ -15,7 +15,7 @@ interface SearchState {
 
 const defaultParams: SearchParams = {
   page: 1,
-  limit: 20,
+  limit: 10,
   sort: 'rating',
 };
 
@@ -33,8 +33,9 @@ export const useSearchStore = create<SearchState>((set, get) => ({
   search: async (overrideParams) => {
     set({ isLoading: true });
     try {
-      const params = { ...get().params, ...overrideParams };
-      // Remove undefined values
+      const params = overrideParams
+        ? { ...get().params, ...overrideParams }
+        : get().params;
       const clean = Object.fromEntries(
         Object.entries(params).filter(([, v]) => v !== undefined && v !== '')
       );
