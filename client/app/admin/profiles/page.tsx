@@ -46,40 +46,40 @@ export default function AdminProfilesPage() {
     }
   }
 
-  if (loading) return <div className="text-slate-400">Loading...</div>;
+  if (loading) return <div style={{ color: 'var(--text-muted)' }}>Loading...</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Profiles ({total})</h1>
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Profiles ({total})</h1>
       <div className="space-y-3">
         {profiles.map((profile) => (
-          <Card key={profile._id}>
+          <Card key={profile._id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-semibold">
+                <div className="w-10 h-10 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold">
                   {profile.displayName.charAt(0)}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{profile.displayName}</span>
+                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{profile.displayName}</span>
                     <Badge variant="outline" className="text-xs">{profile.type}</Badge>
                     {profile.isApproved
                       ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">Approved</Badge>
                       : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Pending</Badge>}
                     {profile.isFeatured && <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Featured</Badge>}
                   </div>
-                  <p className="text-xs text-slate-500">{profile.address?.town}, {profile.address?.district}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{profile.address?.town}, {profile.address?.district}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Link href={`/profiles/${profile.slug}`} target="_blank">
-                  <Button size="sm" variant="outline" className="h-8 gap-1 text-xs">
+                  <Button size="sm" variant="outline" className="h-8 gap-1 text-xs btn-secondary">
                     <ExternalLink size={12} /> View
                   </Button>
                 </Link>
                 <Button
                   size="sm" variant="outline"
-                  className="h-8 gap-1 text-xs"
+                  className="h-8 gap-1 text-xs btn-secondary"
                   onClick={() => toggleFeatured(profile._id)}
                 >
                   <Star size={12} /> {profile.isFeatured ? 'Unfeature' : 'Feature'}
@@ -95,7 +95,7 @@ export default function AdminProfilesPage() {
                 ) : (
                   <Button
                     size="sm" variant="outline"
-                    className="h-8 gap-1 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                    className="h-8 gap-1 text-xs text-red-500 border-red-500/30 hover:bg-red-500/10"
                     onClick={() => approve(profile._id, false)}
                   >
                     <XCircle size={12} /> Reject

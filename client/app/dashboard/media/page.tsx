@@ -57,33 +57,34 @@ export default function MediaPage() {
     }
   }
 
-  if (loading) return <div className="text-slate-400">Loading...</div>;
+  if (loading) return <div style={{ color: 'var(--text-muted)' }}>Loading...</div>;
   if (!profile) return (
     <div className="text-center py-12">
-      <p className="text-slate-500">Create your profile first.</p>
+      <p style={{ color: 'var(--text-muted)' }}>Create your profile first.</p>
     </div>
   );
 
   return (
     <div className="max-w-3xl">
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Media</h1>
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Media</h1>
 
       {/* Upload card */}
-      <Card className="mb-6">
+      <Card className="mb-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <CardHeader><CardTitle className="text-base">Upload new media</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Category</label>
+            <label className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Category</label>
             <div className="flex gap-2 flex-wrap">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-sm border capitalize transition-colors ${
-                    category === cat
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'text-slate-600 border-slate-200 hover:border-slate-400'
-                  }`}
+                  className="px-3 py-1.5 rounded-lg text-sm transition-colors"
+                  style={{
+                    background: category === cat ? 'var(--gradient-to)' : 'transparent',
+                    color: category === cat ? '#fff' : 'var(--text-secondary)',
+                    border: `1px solid ${category === cat ? 'var(--gradient-to)' : 'var(--border)'}`
+                  }}
                 >
                   {cat}
                 </button>
@@ -102,33 +103,33 @@ export default function MediaPage() {
           <Button
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="w-full gap-2"
+            className="w-full gap-2 btn-secondary"
             variant="outline"
           >
             <Upload size={16} />
             {uploading ? 'Uploading...' : 'Choose image or video'}
           </Button>
-          <p className="text-xs text-slate-400">Supported: JPEG, PNG, WebP (max 10MB), MP4 (max 50MB)</p>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Supported: JPEG, PNG, WebP (max 10MB), MP4 (max 50MB)</p>
         </CardContent>
       </Card>
 
       {/* Media grid */}
       {profile.media?.length > 0 ? (
-        <Card>
+        <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <CardHeader>
             <CardTitle className="text-base">Uploaded media ({profile.media.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {profile.media.map((item: any) => (
-                <div key={item._id} className="relative group rounded-xl overflow-hidden bg-slate-100 aspect-video">
+                <div key={item._id} className="relative group rounded-xl overflow-hidden aspect-video" style={{ background: 'var(--bg-elevated)' }}>
                   {item.type === 'image' ? (
                     <img src={item.url} alt={item.caption || ''} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center gap-2">
                       {item.thumbnailUrl
                         ? <img src={item.thumbnailUrl} alt="" className="w-full h-full object-cover" />
-                        : <Video size={32} className="text-slate-400" />
+                        : <Video size={32} style={{ color: 'var(--text-muted)' }} />
                       }
                     </div>
                   )}
@@ -152,7 +153,7 @@ export default function MediaPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="text-center py-12 text-slate-400">
+        <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
           <Image size={32} className="mx-auto mb-3 opacity-40" />
           <p>No media uploaded yet</p>
         </div>

@@ -9,6 +9,13 @@ export async function getPendingProfiles(req: Request, res: Response, next: Next
   } catch (err) { next(err); }
 }
 
+export async function getAdminStats(req: Request, res: Response, next: NextFunction) {
+  try {
+    const stats = await AdminService.getAdminStats();
+    res.json({ success: true, data: stats });
+  } catch (err) { next(err); }
+}
+
 export async function getAllProfiles(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await AdminService.getAllProfiles(

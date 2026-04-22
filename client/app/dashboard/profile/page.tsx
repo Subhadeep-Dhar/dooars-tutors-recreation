@@ -92,105 +92,105 @@ export default function ProfileEditorPage() {
     }
   }
 
-  if (loading) return <div className="text-slate-400">Loading...</div>;
+  if (loading) return <div style={{ color: 'var(--text-muted)' }}>Loading...</div>;
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
         {isNew ? 'Create Profile' : 'Edit Profile'}
       </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card>
+        <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <CardHeader><CardTitle className="text-base">Basic info</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <Label>Profile type</Label>
-              <select {...register('type')} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Profile type</Label>
+              <select {...register('type')} className="input-base">
                 {PROFILE_TYPES.map(({ value, label }) => (
-                  <option key={value} value={value}>{label}</option>
+                  <option key={value} value={value} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{label}</option>
                 ))}
               </select>
             </div>
-            <div className="space-y-1">
-              <Label>Display name</Label>
-              <Input placeholder="Your name or organization name" {...register('displayName', { required: true })} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Display name</Label>
+              <input className="input-base" placeholder="Your name or organization name" {...register('displayName', { required: true })} />
             </div>
-            <div className="space-y-1">
-              <Label>Tagline</Label>
-              <Input placeholder="Short description shown in search results" {...register('tagline')} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Tagline</Label>
+              <input className="input-base" placeholder="Short description shown in search results" {...register('tagline')} />
             </div>
-            <div className="space-y-1">
-              <Label>Bio</Label>
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Bio</Label>
               <textarea
                 {...register('bio')}
                 rows={4}
                 placeholder="Tell students about yourself, your experience, and teaching style..."
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-slate-300"
+                className="input-base resize-none"
               />
             </div>
-            <div className="space-y-1">
-              <Label>Years of experience</Label>
-              <Input type="number" placeholder="e.g. 5" {...register('experience')} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Years of experience</Label>
+              <input className="input-base" type="number" placeholder="e.g. 5" {...register('experience')} />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <CardHeader><CardTitle className="text-base">Address</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <Label>Address line 1</Label>
-              <Input placeholder="House/flat number, street" {...register('address.line1', { required: true })} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Address line 1</Label>
+              <input className="input-base" placeholder="House/flat number, street" {...register('address.line1', { required: true })} />
             </div>
-            <div className="space-y-1">
-              <Label>Area / Locality</Label>
-              <Input placeholder="Area or locality" {...register('address.area')} />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>Town</Label>
-                <Input placeholder="e.g. Jalpaiguri" {...register('address.town', { required: true })} />
-              </div>
-              <div className="space-y-1">
-                <Label>District</Label>
-                <Input placeholder="e.g. Jalpaiguri" {...register('address.district', { required: true })} />
-              </div>
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Area / Locality</Label>
+              <input className="input-base" placeholder="Area or locality" {...register('address.area')} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>State</Label>
-                <Input placeholder="e.g. West Bengal" {...register('address.state', { required: true })} />
+              <div className="space-y-1.5">
+                <Label style={{ color: 'var(--text-primary)' }}>Town</Label>
+                <input className="input-base" placeholder="e.g. Jalpaiguri" {...register('address.town', { required: true })} />
               </div>
-              <div className="space-y-1">
-                <Label>Pincode</Label>
-                <Input placeholder="e.g. 735101" {...register('address.pincode', { required: true })} />
+              <div className="space-y-1.5">
+                <Label style={{ color: 'var(--text-primary)' }}>District</Label>
+                <input className="input-base" placeholder="e.g. Jalpaiguri" {...register('address.district', { required: true })} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label style={{ color: 'var(--text-primary)' }}>State</Label>
+                <input className="input-base" placeholder="e.g. West Bengal" {...register('address.state', { required: true })} />
+              </div>
+              <div className="space-y-1.5">
+                <Label style={{ color: 'var(--text-primary)' }}>Pincode</Label>
+                <input className="input-base" placeholder="e.g. 735101" {...register('address.pincode', { required: true })} />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <CardHeader><CardTitle className="text-base">Contact</CardTitle></CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <Label>Phone number</Label>
-              <Input placeholder="10-digit mobile number" {...register('contact.phone')} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Phone number</Label>
+              <input className="input-base" placeholder="10-digit mobile number" {...register('contact.phone')} />
             </div>
-            <div className="space-y-1">
-              <Label>WhatsApp number</Label>
-              <Input placeholder="WhatsApp number (if different)" {...register('contact.whatsapp')} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>WhatsApp number</Label>
+              <input className="input-base" placeholder="WhatsApp number (if different)" {...register('contact.whatsapp')} />
             </div>
-            <div className="space-y-1">
-              <Label>Contact email</Label>
-              <Input type="email" placeholder="Public contact email" {...register('contact.email')} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Contact email</Label>
+              <input className="input-base" type="email" placeholder="Public contact email" {...register('contact.email')} />
             </div>
           </CardContent>
         </Card>
 
-        <Button type="submit" disabled={saving} className="w-full">
+        <button type="submit" disabled={saving} className="btn-primary w-full py-2.5">
           {saving ? 'Saving...' : isNew ? 'Create Profile' : 'Save Changes'}
-        </Button>
+        </button>
       </form>
     </div>
   );

@@ -51,69 +51,76 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-slate-50 px-4 py-8">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-2">
-            <GraduationCap size={32} className="text-slate-700" />
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-8" style={{ background: 'var(--bg-base)' }}>
+      <div className="w-full max-w-md p-8 rounded-2xl shadow-token-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center gradient-primary text-white shadow-token-md">
+              <GraduationCap size={24} />
+            </div>
           </div>
-          <CardTitle className="text-2xl">Create an account</CardTitle>
-          <CardDescription>Join Dooars Tutors today</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {/* Role selector */}
-            <div className="space-y-1">
-              <Label>I am a</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {(['student', 'tutor', 'org'] as const).map((role) => (
-                  <label
-                    key={role}
-                    className={`flex items-center justify-center p-2 rounded-lg border cursor-pointer text-sm font-medium transition-colors ${
-                      selectedRole === role
-                        ? 'bg-slate-900 text-white border-slate-900'
-                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
-                    }`}
-                  >
-                    <input type="radio" value={role} {...register('role')} className="sr-only" />
-                    {role === 'student' ? 'Student' : role === 'tutor' ? 'Tutor' : 'Organization'}
-                  </label>
-                ))}
-              </div>
+          <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Create an account</h1>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Join Dooars Tutors today</p>
+        </div>
+        
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* Role selector */}
+          <div className="space-y-2">
+            <Label style={{ color: 'var(--text-primary)' }}>I am a</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {(['student', 'tutor', 'org'] as const).map((role) => (
+                <label
+                  key={role}
+                  className="flex items-center justify-center p-2 rounded-lg cursor-pointer text-sm font-medium transition-colors"
+                  style={{
+                    background: selectedRole === role ? 'var(--bg-elevated)' : 'transparent',
+                    border: `1px solid ${selectedRole === role ? 'var(--gradient-to)' : 'var(--border)'}`,
+                    color: selectedRole === role ? 'var(--gradient-to)' : 'var(--text-secondary)',
+                  }}
+                >
+                  <input type="radio" value={role} {...register('role')} className="sr-only" />
+                  {role === 'student' ? 'Student' : role === 'tutor' ? 'Tutor' : 'Organization'}
+                </label>
+              ))}
             </div>
+          </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="name">Full name</Label>
-              <Input id="name" placeholder="Your full name" {...register('name')} />
-              {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+          <div className="space-y-1.5">
+            <Label htmlFor="name" style={{ color: 'var(--text-primary)' }}>Full name</Label>
+            <input id="name" placeholder="Your full name" {...register('name')} className="input-base" />
+            {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="email" style={{ color: 'var(--text-primary)' }}>Email</Label>
+            <input id="email" type="email" placeholder="you@example.com" {...register('email')} className="input-base" />
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="password" style={{ color: 'var(--text-primary)' }}>Password</Label>
+            <input id="password" type="password" placeholder="Min 8 chars, upper + lower + number" {...register('password')} className="input-base" />
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+          </div>
+
+          {error && (
+            <div className="p-3 rounded-lg text-sm text-red-400 border border-red-500/20 bg-red-500/10">
+              {error}
             </div>
+          )}
 
-            <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="you@example.com" {...register('email')} />
-              {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" placeholder="Min 8 chars, upper + lower + number" {...register('password')} />
-              {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
-            </div>
-
-            {error && <p className="text-sm text-red-500 bg-red-50 p-3 rounded-lg">{error}</p>}
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating account...' : 'Create account'}
-            </Button>
-          </form>
-          <p className="text-center text-sm text-slate-500 mt-4">
-            Already have an account?{' '}
-            <Link href="/login" className="text-slate-900 font-medium hover:underline">
-              Login
-            </Link>
-          </p>
-        </CardContent>
-      </Card>
+          <button type="submit" className="btn-primary w-full mt-2 py-3 text-sm" disabled={isLoading}>
+            {isLoading ? 'Creating account...' : 'Create account'}
+          </button>
+        </form>
+        
+        <p className="text-center text-sm mt-6" style={{ color: 'var(--text-secondary)' }}>
+          Already have an account?{' '}
+          <Link href="/login" className="font-medium hover:underline" style={{ color: 'var(--gradient-to)' }}>
+            Login
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }

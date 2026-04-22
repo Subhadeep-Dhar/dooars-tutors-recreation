@@ -35,19 +35,19 @@ export default function AdminReviewsPage() {
     }
   }
 
-  if (loading) return <div className="text-slate-400">Loading...</div>;
+  if (loading) return <div style={{ color: 'var(--text-muted)' }}>Loading...</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Reviews ({total})</h1>
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Reviews ({total})</h1>
       <div className="space-y-3">
         {reviews.map((review) => (
-          <Card key={review._id}>
+          <Card key={review._id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <CardContent className="p-4">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="font-medium text-sm">{review.reviewerId?.name ?? 'Student'}</span>
+                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{review.reviewerId?.name ?? 'Student'}</span>
                     <div className="flex items-center gap-0.5">
                       {Array.from({ length: review.rating }).map((_, i) => (
                         <Star key={i} size={11} className="fill-amber-400 text-amber-400" />
@@ -57,14 +57,14 @@ export default function AdminReviewsPage() {
                       ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">Visible</Badge>
                       : <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs">Hidden</Badge>}
                   </div>
-                  <p className="text-sm text-slate-600">{review.text}</p>
-                  <p className="text-xs text-slate-400 mt-1">
+                  <p className="text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>{review.text}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                     On: {(review.profileId as any)?.displayName ?? review.profileId}
                   </p>
                 </div>
                 <Button
                   size="sm" variant="outline"
-                  className="h-8 gap-1 text-xs shrink-0"
+                  className="h-8 gap-1 text-xs shrink-0 btn-secondary"
                   onClick={() => toggleVisibility(review._id)}
                 >
                   {review.isVisible ? <><EyeOff size={12} /> Hide</> : <><Eye size={12} /> Show</>}

@@ -67,38 +67,38 @@ export default function SlotsPage() {
     }
   }
 
-  if (loading) return <div className="text-slate-400">Loading...</div>;
+  if (loading) return <div style={{ color: 'var(--text-muted)' }}>Loading...</div>;
   if (!profile) return (
     <div className="text-center py-12">
-      <p className="text-slate-500">Create your profile first before adding slots.</p>
+      <p style={{ color: 'var(--text-muted)' }}>Create your profile first before adding slots.</p>
     </div>
   );
 
   return (
     <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-slate-900 mb-6">Teaching Slots</h1>
+      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Teaching Slots</h1>
 
       {/* Existing slots */}
       {profile.teachingSlots?.length > 0 && (
-        <Card className="mb-6">
+        <Card className="mb-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <CardHeader><CardTitle className="text-base">Current slots</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             {profile.teachingSlots.map((slot: any, index: number) => (
-              <div key={slot._id ?? index} className="flex items-start justify-between p-3 bg-slate-50 rounded-xl">
+              <div key={slot._id ?? index} className="flex items-start justify-between p-3 rounded-xl" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                 <div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <BookOpen size={14} className="text-slate-400" />
-                    <span className="font-medium text-sm">{slot.subject || slot.activity}</span>
+                    <BookOpen size={14} style={{ color: 'var(--text-muted)' }} />
+                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{slot.subject || slot.activity}</span>
                     {slot.board && <Badge variant="outline" className="text-xs">{slot.board}</Badge>}
                     {slot.medium && <Badge variant="outline" className="text-xs">{slot.medium}</Badge>}
                   </div>
                   {slot.classes?.length > 0 && (
-                    <p className="text-xs text-slate-500 mt-1 ml-5">{slot.classes.join(', ')}</p>
+                    <p className="text-xs mt-1 ml-5" style={{ color: 'var(--text-secondary)' }}>{slot.classes.join(', ')}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   {slot.feePerMonth && <span className="text-sm font-semibold">₹{slot.feePerMonth}/mo</span>}
-                  <button onClick={() => deleteSlot(slot._id)} className="text-red-400 hover:text-red-600">
+                  <button onClick={() => deleteSlot(slot._id)} className="hover:text-red-600 transition-colors" style={{ color: '#ef4444' }}>
                     <Trash2 size={15} />
                   </button>
                 </div>
@@ -109,27 +109,28 @@ export default function SlotsPage() {
       )}
 
       {/* Add slot form */}
-      <Card>
+      <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <CardHeader><CardTitle className="text-base">Add new slot</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-1">
-              <Label>Subject</Label>
-              <Input placeholder="e.g. Mathematics" {...register('subject', { required: true })} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Subject</Label>
+              <input className="input-base" placeholder="e.g. Mathematics" {...register('subject', { required: true })} />
             </div>
 
             <div className="space-y-2">
-              <Label>Classes</Label>
+              <Label style={{ color: 'var(--text-primary)' }}>Classes</Label>
               <div className="grid grid-cols-4 gap-2">
                 {CLASS_OPTIONS.map((cls) => (
                   <button
                     key={cls} type="button"
                     onClick={() => toggleClass(cls)}
-                    className={`px-2 py-1.5 rounded-lg text-xs border transition-colors ${
-                      selectedClasses.includes(cls)
-                        ? 'bg-slate-900 text-white border-slate-900'
-                        : 'text-slate-600 border-slate-200 hover:border-slate-400'
-                    }`}
+                    className="px-2 py-1.5 rounded-lg text-xs transition-colors"
+                    style={{
+                      background: selectedClasses.includes(cls) ? 'var(--gradient-to)' : 'transparent',
+                      color: selectedClasses.includes(cls) ? '#fff' : 'var(--text-secondary)',
+                      border: `1px solid ${selectedClasses.includes(cls) ? 'var(--gradient-to)' : 'var(--border)'}`
+                    }}
                   >
                     {cls.replace('Class ', '')}
                   </button>
@@ -138,29 +139,29 @@ export default function SlotsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label>Board</Label>
-                <select {...register('board')} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
-                  {BOARD_OPTIONS.map((b) => <option key={b}>{b}</option>)}
+              <div className="space-y-1.5">
+                <Label style={{ color: 'var(--text-primary)' }}>Board</Label>
+                <select {...register('board')} className="input-base">
+                  {BOARD_OPTIONS.map((b) => <option key={b} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{b}</option>)}
                 </select>
               </div>
-              <div className="space-y-1">
-                <Label>Medium</Label>
-                <select {...register('medium')} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
-                  {MEDIUM_OPTIONS.map((m) => <option key={m}>{m}</option>)}
+              <div className="space-y-1.5">
+                <Label style={{ color: 'var(--text-primary)' }}>Medium</Label>
+                <select {...register('medium')} className="input-base">
+                  {MEDIUM_OPTIONS.map((m) => <option key={m} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{m}</option>)}
                 </select>
               </div>
             </div>
 
-            <div className="space-y-1">
-              <Label>Fee per month (₹)</Label>
-              <Input type="number" placeholder="e.g. 1000" {...register('feePerMonth')} />
+            <div className="space-y-1.5">
+              <Label style={{ color: 'var(--text-primary)' }}>Fee per month (₹)</Label>
+              <input className="input-base" type="number" placeholder="e.g. 1000" {...register('feePerMonth')} />
             </div>
 
-            <Button type="submit" disabled={saving} className="w-full gap-2">
+            <button type="submit" disabled={saving} className="btn-primary w-full py-2.5 flex items-center justify-center gap-2">
               <Plus size={16} />
               {saving ? 'Adding...' : 'Add Slot'}
-            </Button>
+            </button>
           </form>
         </CardContent>
       </Card>

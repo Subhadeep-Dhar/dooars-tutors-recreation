@@ -66,3 +66,50 @@ export async function toggleUserStatus(userId: string) {
   await user.save();
   return user;
 }
+
+export async function getAdminStats() {
+  const [
+    totalUsers,
+    totalProfiles,
+    pendingProfiles,
+    totalReviews,
+    rolesData,
+    profileTypesData,
+    districtData,
+    subjectData
+  ] = await Promise.all([
+    User.countDocuments({}),
+    Profile.countDocuments({}),
+    Profile.countDocuments({ isApproved: false }),
+    Review.countDocuments({}),
+    User.aggregate([{ $group: { _id: '$role', count: { $sum: 1 } } }]),
+    Profile.aggregate([{ $group: { _id: '$type', count: { $sum: 1 } } }]),
+    Profile.aggregate([
+      { $match: { 'address.district': { $exists: true, $ne: '' } } },
+      { $group: { _id: '$address.district', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]),
+    Profile.aggregate([
+      { $unwind: '$teachingSlots' },
+      { $project: { topic: { $cond: [ { $ifNull: ['$teachingSlots.subject', false] }, '$teachingSlots.subject', '$teachingSlots.activity' ] } } },
+      { $match: { topic: { $exists: true, $ne: '' } } },
+      { $group: { _id: '$topic', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ])
+  ]);
+
+  return {
+    overview: {
+      users: totalUsers,
+      profiles: totalProfiles,
+      pending: pendingProfiles,
+      reviews: totalReviews,
+    },
+    usersByRole: rolesData.map(d => ({ name: d._id || 'Unknown', value: d.count })),
+    profilesByType: profileTypesData.map(d => ({ name: d._id || 'Unknown', value: d.count })),
+    profilesByDistrict: districtData.map(d => ({ name: d._id, value: d.count })),
+    profilesBySubject: subjectData.map(d => ({ name: d._id, value: d.count }))
+  };
+}

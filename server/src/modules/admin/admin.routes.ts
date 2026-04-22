@@ -10,12 +10,14 @@ import {
   toggleReview,
   getAllUsers,
   toggleUserStatus,
+  getAdminStats,
 } from './admin.controller';
 
 const router = Router();
 
 router.use(verifyToken, requireRole('admin'));
 
+router.get('/stats', getAdminStats);
 router.get('/profiles/pending', getPendingProfiles);
 router.get('/profiles', getAllProfiles);
 router.patch('/profiles/:id/approve', approveProfile);

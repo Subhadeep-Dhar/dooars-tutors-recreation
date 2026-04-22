@@ -49,9 +49,7 @@ api.interceptors.response.use(
         useAuthStore.getState().setAccessToken(null);
         useAuthStore.getState().logout();
 
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
+        // Removed auto-redirect. Protected routes handle redirection via their layout components.
       }
     }
 
