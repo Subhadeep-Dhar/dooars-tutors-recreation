@@ -4,6 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
+import { useTheme } from 'next-themes';
+import { Sun, Moon } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +21,12 @@ import { GraduationCap } from 'lucide-react';
 export default function Navbar() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   async function handleLogout() {
     await logout();
@@ -39,6 +49,17 @@ export default function Navbar() {
           <Link href="/search">
             <Button variant="ghost" size="sm">Browse</Button>
           </Link>
+
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {!mounted ? null : theme === 'dark'
+              ? <Sun size={16} className="text-yellow-400" />
+              : <Moon size={16} className="text-slate-600" />
+            }
+          </button>
 
           {user ? (
             <DropdownMenu>
