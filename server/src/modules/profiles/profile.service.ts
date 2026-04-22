@@ -1,4 +1,5 @@
 import slugify from 'slugify';
+import mongoose from 'mongoose';
 import { Profile } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
 import { ProfileType, BoardType, MediumType } from '@dooars/shared';
@@ -142,6 +143,34 @@ export async function getProfileBySlug(slug: string) {
   const profile = await Profile.findOne({ slug, isActive: true }).lean();
   if (!profile) throw new AppError('Profile not found', 404);
   return profile;
+}
+
+/**
+ * Resolve a profile by either ObjectId or slug.
+ * Used by routes that accept a flexible identifier (e.g. /:identifier).
+ */
+export async function getProfileByIdentifier(identifier: string) {
+  let profile;
+  if (mongoose.Types.ObjectId.isValid(identifier)) {
+    profile = await Profile.findOne({ _id: identifier, isActive: true }).lean();
+  }
+  if (!profile) {
+    profile = await Profile.findOne({ slug: identifier, isActive: true }).lean();
+  }
+  if (!profile) throw new AppError('Profile not found', 404);
+  return profile;
+}
+
+/**
+ * Resolve profileId param — if it's a slug, look up the real _id.
+ */
+export async function resolveProfileId(identifier: string): Promise<string> {
+  if (mongoose.Types.ObjectId.isValid(identifier)) {
+    return identifier;
+  }
+  const profile = await Profile.findOne({ slug: identifier }).select('_id').lean();
+  if (!profile) throw new AppError('Profile not found', 404);
+  return String(profile._id);
 }
 
 export async function getMyProfile(userId: string) {

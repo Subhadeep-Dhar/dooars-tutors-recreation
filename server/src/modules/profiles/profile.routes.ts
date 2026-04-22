@@ -6,6 +6,7 @@ import {
   createProfile,
   updateProfile,
   getProfileBySlug,
+  getProfileByIdentifier,
   getMyProfile,
   addSlot,
   updateSlot,
@@ -17,10 +18,8 @@ import {
 
 const router = Router();
 
-// Public
+// Public — specific routes first
 router.get('/slug/:slug', getProfileBySlug);
-
-router.use('/:profileId/reviews', reviewRoutes);
 
 // Protected — tutor/org/admin only
 router.get('/me', verifyToken, getMyProfile);
@@ -31,5 +30,11 @@ router.put('/:id', verifyToken, requireRole('tutor', 'org', 'admin'), updateProf
 router.post('/:id/slots', verifyToken, requireRole('tutor', 'org', 'admin'), academicSlotValidation, addSlot);
 router.put('/:id/slots/:slotId', verifyToken, requireRole('tutor', 'org', 'admin'), updateSlot);
 router.delete('/:id/slots/:slotId', verifyToken, requireRole('tutor', 'org', 'admin'), deleteSlot);
+
+// Reviews sub-route — accepts slug or ObjectId as :profileId
+router.use('/:profileId/reviews', reviewRoutes);
+
+// Flexible public lookup — accepts slug or ObjectId (must be LAST to avoid swallowing other routes)
+router.get('/:identifier', getProfileByIdentifier);
 
 export default router;

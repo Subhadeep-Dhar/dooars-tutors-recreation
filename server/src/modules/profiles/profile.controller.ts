@@ -59,6 +59,13 @@ export async function getProfileBySlug(req: Request, res: Response, next: NextFu
   } catch (err) { next(err); }
 }
 
+export async function getProfileByIdentifier(req: Request, res: Response, next: NextFunction) {
+  try {
+    const profile = await ProfileService.getProfileByIdentifier(req.params.identifier);
+    res.json({ success: true, data: { profile } });
+  } catch (err) { next(err); }
+}
+
 export async function getMyProfile(req: Request, res: Response, next: NextFunction) {
   try {
     const profile = await ProfileService.getMyProfile(req.user!.userId);

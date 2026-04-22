@@ -1,7 +1,11 @@
 import { Review, Profile } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
+import { resolveProfileId } from '../profiles/profile.service';
 
-export async function getProfileReviews(profileId: string) {
+export async function getProfileReviews(profileIdOrSlug: string) {
+  // Resolve slug → ObjectId if needed (prevents CastError)
+  const profileId = await resolveProfileId(profileIdOrSlug);
+
   const reviews = await Review.find({ profileId, isVisible: true })
     .populate('reviewerId', 'name avatar')
     .sort({ createdAt: -1 })
@@ -10,10 +14,13 @@ export async function getProfileReviews(profileId: string) {
 }
 
 export async function createReview(
-  profileId: string,
+  profileIdOrSlug: string,
   reviewerId: string,
   data: { rating: number; text: string }
 ) {
+  // Resolve slug → ObjectId if needed
+  const profileId = await resolveProfileId(profileIdOrSlug);
+
   const profile = await Profile.findOne({ _id: profileId, isApproved: true, isActive: true });
   if (!profile) throw new AppError('Profile not found', 404);
 
