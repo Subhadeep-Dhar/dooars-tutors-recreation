@@ -84,12 +84,13 @@ export async function createProfile(userId: string, data: {
   };
   experience?: number;
   languages?: string[];
+  location?: [number, number];
 }) {
   const existing = await Profile.findOne({ userId });
   if (existing) throw new AppError('Profile already exists for this account', 409);
 
   const slug = await generateUniqueSlug(data.displayName);
-  const coordinates = await geocodeAddress(data.address);
+  const coordinates = data.location || await geocodeAddress(data.address);
 
   const profile = await Profile.create({
     userId,
@@ -115,6 +116,7 @@ export async function updateProfile(profileId: string, userId: string, data: Par
   contact: any;
   experience: number;
   languages: string[];
+  location: [number, number];
 }>) {
   const profile = await Profile.findOne({ _id: profileId, userId });
   if (!profile) throw new AppError('Profile not found', 404);
@@ -125,7 +127,9 @@ export async function updateProfile(profileId: string, userId: string, data: Par
   }
 
   // Re-geocode if address changed
-  if (data.address) {
+  if (data.location) {
+    (data as any).location = { type: 'Point', coordinates: data.location };
+  } else if (data.address) {
     const coordinates = await geocodeAddress(data.address);
     (data as any).location = { type: 'Point', coordinates };
   }
