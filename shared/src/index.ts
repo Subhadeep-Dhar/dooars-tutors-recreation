@@ -144,6 +144,8 @@ export interface SearchParams {
   radius?: number;          // km, default 10
   minFee?: number;
   maxFee?: number;
+  minRating?: number;        // filter: rating.average >= this
+  place?: string;            // filter: town/area/district name
   sort?: 'rating' | 'distance' | 'newest' | 'fee_asc';
   page?: number;
   limit?: number;

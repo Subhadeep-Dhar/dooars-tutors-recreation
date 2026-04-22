@@ -49,7 +49,7 @@ function score(profile: any, subjects: string[], cls?: string): number {
 }
 
 export async function searchProfiles(params: SearchParams) {
-  const { q, type, subject, class: cls, board, lat, lng, radius = 10, minFee, maxFee, sort = 'rating', page = 1, limit = 10 } = params;
+  const { q, type, subject, class: cls, board, lat, lng, radius = 10, minFee, maxFee, minRating, place, sort = 'rating', page = 1, limit = 10 } = params;
   const safePage = Math.max(1, page);
   const safeLimit = Math.min(100, Math.max(1, limit));
 
@@ -85,6 +85,22 @@ export async function searchProfiles(params: SearchParams) {
     base._classIndex = { $in: [new RegExp(n, 'i')] };
   }
 
+  // ── NEW: minRating filter ──────────────────────────────────────────────
+  if (minRating != null && minRating > 0) {
+    base['rating.average'] = { $gte: minRating };
+  }
+
+  // ── NEW: place filter (town / area / district) ────────────────────────
+  if (place && place.trim()) {
+    const placeRe = new RegExp(place.trim(), 'i');
+    base.$or = [
+      ...(base.$or ?? []),
+      { 'address.town': placeRe },
+      { 'address.area': placeRe },
+      { 'address.district': placeRe },
+    ];
+  }
+
   // Fetch profiles
   let profiles: any[] = [];
 
@@ -107,6 +123,7 @@ export async function searchProfiles(params: SearchParams) {
       profiles = await Profile.find({
         ...fallbackBase,
         $or: [
+          ...(fallbackBase.$or ?? []),
           { displayName: { $in: regs } },
           { tagline: { $in: regs } },
           { bio: { $in: regs } },
@@ -119,6 +136,7 @@ export async function searchProfiles(params: SearchParams) {
     profiles = await Profile.find({
       ...base,
       $or: [
+        ...(base.$or ?? []),
         { displayName: { $in: regs } },
         { tagline: { $in: regs } },
         { bio: { $in: regs } },

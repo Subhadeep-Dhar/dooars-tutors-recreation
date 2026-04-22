@@ -15,6 +15,8 @@ export async function search(req: Request, res: Response, next: NextFunction) {
       radius: req.query.radius ? Number(req.query.radius) : 10,
       minFee: req.query.minFee ? Number(req.query.minFee) : undefined,
       maxFee: req.query.maxFee ? Number(req.query.maxFee) : undefined,
+      minRating: req.query.minRating ? Number(req.query.minRating) : undefined,
+      place: req.query.place as string,
       sort: (req.query.sort as any) ?? 'rating',
       page: req.query.page ? Number(req.query.page) : 1,
       limit: req.query.limit ? Number(req.query.limit) : 20,

@@ -232,6 +232,7 @@ interface FPProps {
   sortBy: string; setSortBy: (v: string) => void;
   minRating: string; setMinRating: (v: string) => void;
   maxFee: string; setMaxFee: (v: string) => void;
+  place: string; setPlace: (v: string) => void;
   clearAll: () => void;
   onApply?: () => void;
 }
@@ -331,6 +332,20 @@ function FilterPanel(p: FPProps) {
         </div>
       </div>
 
+      
+      {hr}
+
+      {/* Place */}
+      <div>
+        <p style={secLabel}>Place</p>
+        <input style={inp} placeholder="e.g. Jalpaiguri, Siliguri"
+          value={p.place} onChange={e => p.setPlace(e.target.value)}
+          onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.45)'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.08)'; }}
+          onBlur={e  => { e.target.style.borderColor = 'var(--border)';          e.target.style.boxShadow = 'none'; }}
+        />
+        <p style={{ fontSize: '0.71rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Town, area, or district</p>
+      </div>
+
       {hr}
 
       {/* Sort */}
@@ -364,6 +379,7 @@ function FilterPanel(p: FPProps) {
           ))}
         </div>
       </div>
+
 
       {p.onApply && (
         <button onClick={p.onApply} style={{
@@ -562,11 +578,13 @@ function SearchPageInner() {
   const [selBoards,  setSelBoards]  = useState<string[]>([]);
   const [minRating,  setMinRating]  = useState('');
   const [maxFee,     setMaxFee]     = useState('');
+  const [place,      setPlace]      = useState('');
   const [sortBy,     setSortBy]     = useState('highest rated');
 
   // Debounce free-text inputs so API isn't called on every keystroke
   const dQuery    = useDebounce(query,    500);
   const dSubjects = useDebounce(subjects, 600);
+  const dPlace    = useDebounce(place,    500);
 
   const [profiles,    setProfiles]    = useState<any[]>([]);
   const [total,       setTotal]       = useState(0);
@@ -583,15 +601,16 @@ function SearchPageInner() {
     if (type)        p.set('type',    type);
     if (dQuery)      p.set('q',       dQuery);
     if (dSubjects)   p.set('subject', dSubjects);
-    if (selClasses.length) p.set('classes', selClasses.join(','));
-    if (selBoards.length)  p.set('boards',  selBoards.join(','));
+    if (selClasses.length) p.set('class', selClasses.join(','));
+    if (selBoards.length)  p.set('board',  selBoards[0]);
     if (minRating)   p.set('minRating', minRating);
     if (maxFee)      p.set('maxFee',    maxFee);
+    if (dPlace)      p.set('place',     dPlace);
     p.set('sort',  sortBy === 'highest rated' ? 'rating' : 'newest');
     p.set('page',  String(page));
     p.set('limit', '10');
     return p.toString();
-  }, [type, dQuery, dSubjects, selClasses, selBoards, minRating, maxFee, sortBy]);
+  }, [type, dQuery, dSubjects, selClasses, selBoards, minRating, maxFee, dPlace, sortBy]);
 
   // Fetch page 1 on every filter change
   useEffect(() => {
@@ -632,7 +651,7 @@ function SearchPageInner() {
   function clearAll() {
     setType(''); setQuery(''); setSubjects('');
     setSelClasses([]); setSelBoards([]); setMinRating(''); setMaxFee('');
-    setSortBy('highest rated');
+    setPlace(''); setSortBy('highest rated');
   }
 
   const hasMore = profiles.length < total;
@@ -642,11 +661,11 @@ function SearchPageInner() {
         lng: validGeo.reduce((s, p) => s + p.location.coordinates[0], 0) / validGeo.length }
     : { lat: 26.55, lng: 89.5 };
 
-  const activeCount = [type, subjects, minRating, maxFee, ...selClasses, ...selBoards].filter(Boolean).length;
+  const activeCount = [type, subjects, minRating, maxFee, place, ...selClasses, ...selBoards].filter(Boolean).length;
 
   const fp = { type, setType, subjects, setSubjects, selClasses, toggleClass,
     selBoards, toggleBoard, sortBy, setSortBy, minRating, setMinRating,
-    maxFee, setMaxFee, clearAll };
+    maxFee, setMaxFee, place, setPlace, clearAll };
 
   return (
     <div style={{ display: 'flex', minHeight: 'calc(100vh - 4rem)', background: 'var(--bg-base)' }}>
