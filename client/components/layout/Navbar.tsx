@@ -144,22 +144,22 @@ export default function Navbar() {
     <nav className="navbar-glass sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
-          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
             <GraduationCap size={18} className="text-white" />
           </div>
-          <span>Dooars Tutors</span>
+          <span className="hidden sm:inline">Dooars Tutors</span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <Link href="/search">
-            <button className="btn-secondary text-sm px-4 py-2">Browse</button>
+            <button className="btn-secondary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2">Browse</button>
           </Link>
 
           {/* Theme toggle */}
           {mounted && (
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center transition-all duration-200"
               style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
               aria-label="Toggle theme"
             >
@@ -173,7 +173,7 @@ export default function Navbar() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <button className="flex items-center gap-2 hover:opacity-80 transition-opacity ml-1">
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="text-xs text-white gradient-primary">{initials}</AvatarFallback>
                   </Avatar>
@@ -196,14 +196,14 @@ export default function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
+            <div className="flex items-center gap-1.5 sm:gap-2 ml-0 sm:ml-1">
               <Link href="/login">
-                <button className="btn-secondary text-sm px-4 py-2">Login</button>
+                <button className="btn-secondary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2">Login</button>
               </Link>
               <Link href="/register">
-                <button className="btn-primary text-sm px-4 py-2">Register</button>
+                <button className="btn-primary text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2">Register</button>
               </Link>
-            </>
+            </div>
           )}
         </div>
       </div>
