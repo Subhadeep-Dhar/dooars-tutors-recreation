@@ -351,7 +351,7 @@ export default function HomePage() {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 animate-fade-in"
             style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-            Dooars & Terai Region
+            Dooars Region
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold mb-5 leading-tight animate-fade-up" style={{ color: 'var(--text-primary)' }}>
@@ -533,7 +533,7 @@ export default function HomePage() {
           <div>
             <h2 className="text-2xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Why Choose Dooars Tutors</h2>
             <p className="leading-relaxed mb-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
-              A local initiative connecting students with the best tutors, coaches, and trainers across the Dooars and Terai region of West Bengal.
+              A local initiative connecting students with the best tutors, coaches, and trainers across the Dooars region of West Bengal.
             </p>
             <p className="leading-relaxed mb-6 text-sm" style={{ color: 'var(--text-secondary)' }}>
               Whether you need help with academics, want to learn a sport, explore arts and culture, or stay fit — we have verified professionals ready to guide you.
@@ -546,7 +546,7 @@ export default function HomePage() {
           <div className="grid grid-cols-2 gap-3">
             {[
               { icon: TrendingUp, title: 'Verified Profiles', desc: 'All tutors go through admin verification before appearing in search.' },
-              { icon: MapPin, title: 'Hyper Local', desc: 'Focused exclusively on the Dooars and Terai region.' },
+              { icon: MapPin, title: 'Hyper Local', desc: 'Focused exclusively on the Dooars region.' },
               { icon: Star, title: 'Rated & Reviewed', desc: 'Real reviews from real students help you choose confidently.' },
               { icon: Phone, title: 'Direct Contact', desc: 'Connect via WhatsApp or phone — no middlemen.' },
             ].map(({ icon: Icon, title, desc }) => (
