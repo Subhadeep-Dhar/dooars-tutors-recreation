@@ -130,11 +130,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Sidebar content
   const sidebar = (
     <aside
-      className="admin-sidebar w-64 max-w-full bg-[#101828] text-white fixed md:static z-40 top-0 left-0 h-full md:h-screen md:top-0 md:self-start overflow-y-auto p-4 flex flex-col transition-transform duration-200 md:translate-x-0"
-      style={{
-        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-        boxShadow: sidebarOpen ? '0 0 0 9999px rgba(0,0,0,0.4)' : 'none',
-      }}
+      className={`admin-sidebar w-64 max-w-full bg-[#101828] text-white fixed md:static z-40 top-0 left-0 h-full md:h-screen md:top-0 md:self-start overflow-y-auto p-4 flex flex-col transition-transform duration-200 ${sidebarOpen ? 'translate-x-0 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]' : '-translate-x-full'} md:translate-x-0 md:shadow-none`}
     >
       <div className="mb-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-white">
@@ -232,7 +228,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       {/* Main content */}
-      <main className="flex-1 min-w-0 p-6 md:p-8 ml-0 md:ml-0">
+      <main className="flex-1 min-w-0 p-6 md:p-8 pt-16 md:pt-8 ml-0 md:ml-0 overflow-auto">
         {children}
       </main>
     </div>
