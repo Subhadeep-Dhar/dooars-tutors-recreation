@@ -130,10 +130,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Sidebar content
   const sidebar = (
     <aside
-      className={`admin-sidebar w-64 max-w-full bg-[#101828] text-white fixed md:sticky z-40 top-0 left-0 h-full md:h-screen md:top-0 overflow-y-auto p-4 flex flex-col transition-all duration-500 cubic-bezier[0.4,0,0.2,1] ${sidebarOpen ? 'translate-x-0 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]' : '-translate-x-full'} md:translate-x-0 md:shadow-none`}
+      className={`admin-sidebar w-64 max-w-full fixed md:sticky z-40 top-0 left-0 h-full md:h-screen md:top-0 overflow-y-auto p-4 flex flex-col transition-all duration-500 cubic-bezier[0.4,0,0.2,1] ${sidebarOpen ? 'translate-x-0 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]' : '-translate-x-full'} md:translate-x-0 md:shadow-none`}
+      style={{ backgroundColor: 'var(--bg-card)', borderRight: '1px solid var(--border)', color: 'var(--text-primary)' }}
     >
       <div className="mb-6 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-bold text-white">
+        <Link href="/" className="flex items-center gap-2 font-bold" style={{ color: 'var(--text-primary)' }}>
           <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
             <GraduationCap size={18} className="text-white" />
           </div>
@@ -148,14 +149,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       <div className="mb-6">
-        <p className="text-xs font-bold mb-1">Admin Panel</p>
-        <p className="text-xs truncate opacity-60">{user.email}</p>
+        <p className="text-xs font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Admin Panel</p>
+        <p className="text-xs truncate" style={{ color: 'var(--text-secondary)', opacity: 0.8 }}>{user.email}</p>
       </div>
 
       <nav className="flex flex-col gap-1 flex-1">
         <Link
           href="/"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/10 opacity-80"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+          style={{ color: 'var(--text-secondary)' }}
           onClick={() => setSidebarOpen(false)}
         >
           <Home size={16} />
@@ -163,18 +165,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </Link>
         <Link
           href="/search"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/10 opacity-80"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+          style={{ color: 'var(--text-secondary)' }}
           onClick={() => setSidebarOpen(false)}
         >
           <Search size={16} />
           Browse Tutors
         </Link>
-        <div className="my-2 h-px bg-white/10" />
+        <div className="my-2 h-px" style={{ backgroundColor: 'var(--border)', opacity: 0.5 }} />
         {navItems.map(({ label, href, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            className={`admin-nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${pathname === href ? 'bg-white/10 font-semibold' : 'hover:bg-white/5 opacity-80'}`}
+            className={`admin-nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${pathname === href ? 'bg-black/5 dark:bg-white/10 font-semibold' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+            style={{ color: 'var(--text-secondary)' }}
             onClick={() => setSidebarOpen(false)}
           >
             <Icon size={16} />
@@ -186,7 +190,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Theme Toggle in Sidebar */}
       <button
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors w-full mb-1 opacity-80"
+        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-black/5 dark:hover:bg-white/5 transition-colors w-full mb-1"
+        style={{ color: 'var(--text-secondary)' }}
       >
         {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
