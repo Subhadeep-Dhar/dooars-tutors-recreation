@@ -13,81 +13,85 @@ import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './modules/auth/auth.routes';
 import profileRoutes from './modules/profiles/profile.routes';
 import searchRoutes from './modules/search/search.routes';
-import reviewRoutes  from './modules/reviews/review.routes';
-import adminRoutes   from './modules/admin/admin.routes';
+import reviewRoutes from './modules/reviews/review.routes';
+import adminRoutes from './modules/admin/admin.routes';
 import mediaRoutes from './modules/media/media.routes';
 
 const app = express();
 
-// ── Security middleware ──────────────────────────────────────────────────────
+// ── Security ─────────────────────────────────────────
 app.use(helmet());
 app.use(
   cors({
     origin: env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()),
-    credentials: true, // required for httpOnly cookie refresh tokens
+    credentials: true,
   })
 );
 
-// ── Body parsing ─────────────────────────────────────────────────────────────
+// ── Body parsing ─────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// ── Rate limiting ─────────────────────────────────────────────────────────────
+// ── Rate limiting ────────────────────────────────────
 app.use('/api', generalLimiter);
 
-// ── Health check — used by Railway for deployment verification ───────────────
-app.get('/health', (_req, res) => {
+// ── Health check (USED BY RENDER + UPTIME ROBOT) ─────
+app.get('/api/v1/health', (_req, res) => {
   res.json({
-    status: 'ok',
+    ok: true,
     env: env.NODE_ENV,
     timestamp: new Date().toISOString(),
   });
 });
 
-// ── API routes — added here as modules are built ─────────────────────────────
-app.use('/api/v1/auth',     authRoutes);
+// ── API Routes ───────────────────────────────────────
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/profiles', profileRoutes);
-app.use('/api/v1/search',   searchRoutes);
-app.use('/api/v1/reviews',  reviewRoutes);
-app.use('/api/v1/admin',    adminRoutes);
+app.use('/api/v1/search', searchRoutes);
+app.use('/api/v1/reviews', reviewRoutes);
+app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1', mediaRoutes);
-import healthRoutes from './routes/health';
 
-// ── 404 handler ───────────────────────────────────────────────────────────────
+// ── 404 handler ──────────────────────────────────────
 app.use((_req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
 
-// ── Global error handler — must be last ──────────────────────────────────────
+// ── Error handler ────────────────────────────────────
 app.use(errorHandler);
 
-app.use('/api/v1', healthRoutes);
-
-// ── Start server ─────────────────────────────────────────────────────────────
+// ── Start server ─────────────────────────────────────
 async function start() {
-  if (env.MONGODB_URI) {
-    await connectDB();
-  } else {
-    console.warn('⚠️  MONGODB_URI not provided — skipping database connection');
-  }
-  if (env.REDIS_URL) {
-    await connectRedis();
-  } else {
-    console.warn('⚠️  REDIS_URL not provided — running without cache');
-  }
+  try {
+    if (env.MONGODB_URI) {
+      await connectDB();
+    } else {
+      console.warn('⚠️  No MongoDB URI');
+    }
 
-  app.listen(env.PORT, () => {
-    console.info(`🚀 Server running on http://localhost:${env.PORT}`);
-    console.info(`   Environment: ${env.NODE_ENV}`);
-    console.info(`   Health check: http://localhost:${env.PORT}/health`);
-  });
+    if (env.REDIS_URL) {
+      await connectRedis();
+    } else {
+      console.warn('⚠️  No Redis (cache disabled)');
+    }
+
+    const PORT = env.PORT || 4000;
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`Health: /api/v1/health`);
+    });
+  } catch (err) {
+    console.error('❌ Server failed to start:', err);
+    process.exit(1);
+  }
 }
 
 start();
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.info('SIGTERM received. Shutting down gracefully...');
+// ── Graceful shutdown ────────────────────────────────
+process.on('SIGTERM', () => {
+  console.info('SIGTERM received. Shutting down...');
   process.exit(0);
 });
