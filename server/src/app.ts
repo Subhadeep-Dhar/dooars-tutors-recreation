@@ -52,6 +52,7 @@ app.use('/api/v1/search',   searchRoutes);
 app.use('/api/v1/reviews',  reviewRoutes);
 app.use('/api/v1/admin',    adminRoutes);
 app.use('/api/v1', mediaRoutes);
+import healthRoutes from './routes/health';
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((_req, res) => {
@@ -60,6 +61,8 @@ app.use((_req, res) => {
 
 // ── Global error handler — must be last ──────────────────────────────────────
 app.use(errorHandler);
+
+app.use('/api/v1', healthRoutes);
 
 // ── Start server ─────────────────────────────────────────────────────────────
 async function start() {
