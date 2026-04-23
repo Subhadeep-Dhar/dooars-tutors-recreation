@@ -73,11 +73,12 @@
 
 'use client';
 
+
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Star, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Star, Users, LogOut, Menu } from 'lucide-react';
 
 const navItems = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
@@ -86,11 +87,13 @@ const navItems = [
   { label: 'Users', href: '/admin/users', icon: Users },
 ];
 
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout, isLoading, accessToken } = useAuthStore();
+  const { user, logout, isLoading } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
   const [hydrated, setHydrated] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
@@ -98,12 +101,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!hydrated || isLoading) return;
-
     if (!user) {
       router.push('/login');
       return;
     }
-
     if (user.role !== 'admin') {
       router.push('/');
     }
@@ -122,47 +123,80 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
     );
   }
-
   if (!user) return null;
 
-  return (
-    <div className="page-wrapper flex" style={{ minHeight: 'calc(100vh - 4rem)' }}>
-      {/* Sidebar */}
-      <aside className="admin-sidebar w-52 shrink-0 sticky top-16 self-start h-[calc(100vh-4rem)] overflow-y-auto p-4 flex flex-col">
-        <div className="mb-6">
-          <p className="text-xs font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
-            Admin Panel
-          </p>
-          <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>
-            {user.email}
-          </p>
+  // Sidebar content
+  const sidebar = (
+    <aside
+      className="admin-sidebar w-64 max-w-full bg-[#101828] text-white fixed md:static z-40 top-0 left-0 h-full md:h-[calc(100vh-4rem)] md:top-16 md:self-start overflow-y-auto p-4 flex flex-col transition-transform duration-200 md:translate-x-0"
+      style={{
+        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+        boxShadow: sidebarOpen ? '0 0 0 9999px rgba(0,0,0,0.4)' : 'none',
+      }}
+    >
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <p className="text-xs font-bold mb-1">Admin Panel</p>
+          <p className="text-xs truncate opacity-80">{user.email}</p>
         </div>
-
-        <nav className="flex flex-col gap-1 flex-1">
-          {navItems.map(({ label, href, icon: Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={`admin-nav-item ${pathname === href ? 'active' : ''}`}
-            >
-              <Icon size={15} />
-              {label}
-            </Link>
-          ))}
-        </nav>
-
         <button
-          onClick={handleLogout}
-          className="admin-nav-item mt-2"
-          style={{ color: '#ef4444' }}
+          className="md:hidden p-2 ml-2 rounded hover:bg-white/10"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Close sidebar"
         >
-          <LogOut size={15} />
-          Logout
+          <Menu size={20} />
         </button>
-      </aside>
+      </div>
+      <nav className="flex flex-col gap-1 flex-1">
+        {navItems.map(({ label, href, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`admin-nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${pathname === href ? 'bg-white/10 font-semibold' : 'hover:bg-white/5 opacity-80'}`}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <Icon size={16} />
+            {label}
+          </Link>
+        ))}
+      </nav>
+      <button
+        onClick={handleLogout}
+        className="admin-nav-item mt-2 flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors w-full"
+      >
+        <LogOut size={16} />
+        Logout
+      </button>
+    </aside>
+  );
 
-      {/* Content */}
-      <main className="flex-1 min-w-0 p-6 md:p-8">
+  return (
+    <div className="relative min-h-[calc(100vh-4rem)] flex">
+      {/* Hamburger for mobile */}
+      <button
+        className="fixed top-4 left-4 z-50 md:hidden bg-[#101828] text-white p-2 rounded shadow-lg"
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open sidebar"
+        style={{ display: sidebarOpen ? 'none' : 'block' }}
+      >
+        <Menu size={24} />
+      </button>
+
+      {/* Sidebar for desktop and mobile */}
+      <div
+        className={`fixed inset-0 z-30 bg-black/40 transition-opacity md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+      <div
+        className={`md:relative md:translate-x-0 ${sidebarOpen ? '' : 'hidden md:block'}`}
+        style={{ zIndex: 40 }}
+      >
+        {sidebar}
+      </div>
+
+      {/* Main content */}
+      <main className="flex-1 min-w-0 p-6 md:p-8 ml-0 md:ml-0">
         {children}
       </main>
     </div>
