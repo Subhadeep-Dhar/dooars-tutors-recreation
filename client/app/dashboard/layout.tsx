@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
@@ -17,9 +17,14 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, logout, isLoading } = useAuthStore();
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    if (isLoading) return;
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || isLoading) return;
 
     if (!user) {
       router.push('/login');
@@ -29,15 +34,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (user.role === 'student') {
       router.push('/');
     }
-  }, [user, isLoading]);
-
-  if (isLoading) return null;
-  if (!user) return null;
+  }, [hydrated, user, isLoading, router]);
 
   async function handleLogout() {
     await logout();
     router.push('/');
   }
+
+  // Show loading while hydrating or checking auth
+  if (!hydrated || isLoading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex" style={{ background: 'var(--bg-base)' }}>

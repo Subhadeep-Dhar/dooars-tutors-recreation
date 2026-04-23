@@ -73,7 +73,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import Link from 'next/link';
@@ -87,37 +87,43 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout, isLoading } = useAuthStore();
+  const { user, logout, isLoading, accessToken } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    // ✅ Restored: fetchMe() so the layout works correctly on hard refresh.
-    // Without this, user is null on reload and the page breaks.
-    const { user, logout, isLoading } = useAuthStore();
+    setHydrated(true);
+  }, []);
 
-    useEffect(() => {
-      if (isLoading) return;
+  useEffect(() => {
+    if (!hydrated || isLoading) return;
 
-      if (!user) {
-        router.push('/login');
-        return;
-      }
+    if (!user) {
+      router.push('/login');
+      return;
+    }
 
-      if (user.role !== 'admin') {
-        router.push('/');
-      }
-    }, [user, isLoading]);
-  }, []);                    // eslint-disable-line react-hooks/exhaustive-deps
+    if (user.role !== 'admin') {
+      router.push('/');
+    }
+  }, [hydrated, user, isLoading, router]);
 
   async function handleLogout() {
     await logout();
     router.push('/');
   }
 
-  // ✅ Restored: null guard — don't render anything while auth is resolving
+  // Show loading while hydrating or checking auth
+  if (!hydrated || isLoading) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   if (!user) return null;
-  if (isLoading) return null;
 
   return (
     <div className="page-wrapper flex" style={{ minHeight: 'calc(100vh - 4rem)' }}>
