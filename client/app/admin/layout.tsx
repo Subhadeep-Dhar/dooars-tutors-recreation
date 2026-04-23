@@ -77,8 +77,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Star, Users, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Star, Users, LogOut, Menu, Sun, Moon, Home, Search, GraduationCap } from 'lucide-react';
 
 const navItems = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
@@ -90,6 +91,7 @@ const navItems = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, logout, isLoading } = useAuthStore();
+  const { theme, setTheme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const [hydrated, setHydrated] = useState(false);
@@ -128,26 +130,50 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Sidebar content
   const sidebar = (
     <aside
-      className="admin-sidebar w-64 max-w-full bg-[#101828] text-white fixed md:static z-40 top-0 left-0 h-full md:h-[calc(100vh-4rem)] md:top-16 md:self-start overflow-y-auto p-4 flex flex-col transition-transform duration-200 md:translate-x-0"
+      className="admin-sidebar w-64 max-w-full bg-[#101828] text-white fixed md:static z-40 top-0 left-0 h-full md:h-screen md:top-0 md:self-start overflow-y-auto p-4 flex flex-col transition-transform duration-200 md:translate-x-0"
       style={{
         transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
         boxShadow: sidebarOpen ? '0 0 0 9999px rgba(0,0,0,0.4)' : 'none',
       }}
     >
       <div className="mb-6 flex items-center justify-between">
-        <div>
-          <p className="text-xs font-bold mb-1">Admin Panel</p>
-          <p className="text-xs truncate opacity-80">{user.email}</p>
-        </div>
+        <Link href="/" className="flex items-center gap-2 font-bold text-white">
+          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+            <GraduationCap size={18} className="text-white" />
+          </div>
+          <span>Dooars Tutors</span>
+        </Link>
         <button
-          className="md:hidden p-2 ml-2 rounded hover:bg-white/10"
+          className="md:hidden p-2 rounded hover:bg-white/10"
           onClick={() => setSidebarOpen(false)}
-          aria-label="Close sidebar"
         >
           <Menu size={20} />
         </button>
       </div>
+
+      <div className="mb-6">
+        <p className="text-xs font-bold mb-1">Admin Panel</p>
+        <p className="text-xs truncate opacity-60">{user.email}</p>
+      </div>
+
       <nav className="flex flex-col gap-1 flex-1">
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/10 opacity-80"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <Home size={16} />
+          Home
+        </Link>
+        <Link
+          href="/search"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/10 opacity-80"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <Search size={16} />
+          Browse Tutors
+        </Link>
+        <div className="my-2 h-px bg-white/10" />
         {navItems.map(({ label, href, icon: Icon }) => (
           <Link
             key={href}
@@ -160,6 +186,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
         ))}
       </nav>
+
+      {/* Theme Toggle in Sidebar */}
+      <button
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors w-full mb-1 opacity-80"
+      >
+        {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+      </button>
+
       <button
         onClick={handleLogout}
         className="admin-nav-item mt-2 flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors w-full"
@@ -171,7 +207,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] flex">
+    <div className="relative min-h-screen flex">
       {/* Hamburger for mobile */}
       <button
         className="fixed top-4 left-4 z-50 md:hidden bg-[#101828] text-white p-2 rounded shadow-lg"

@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, User, BookOpen, Image, LogOut, Menu } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { LayoutDashboard, User, BookOpen, Image, LogOut, Menu, Sun, Moon, Home, Search, GraduationCap } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const navItems = [
@@ -17,6 +18,7 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, logout, isLoading } = useAuthStore();
+  const { theme, setTheme } = useTheme();
   const [hydrated, setHydrated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -53,32 +55,55 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Sidebar content
   const sidebar = (
     <aside
-      className="w-64 max-w-full bg-[#101828] text-white fixed md:static z-40 top-0 left-0 h-full md:h-[calc(100vh-4rem)] md:top-16 md:self-start overflow-y-auto p-4 flex flex-col transition-transform duration-200 md:translate-x-0"
+      className="w-64 max-w-full bg-[#101828] text-white fixed md:static z-40 top-0 left-0 h-full md:h-screen md:top-0 md:self-start overflow-y-auto p-4 flex flex-col transition-transform duration-200 md:translate-x-0"
       style={{
         transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
         boxShadow: sidebarOpen ? '0 0 0 9999px rgba(0,0,0,0.4)' : 'none',
       }}
     >
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
-          <p className="text-xs capitalize opacity-80" style={{ color: 'var(--text-secondary)' }}>{user.role}</p>
-        </div>
+      <div className="mb-6 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 font-bold text-white">
+          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+            <GraduationCap size={18} className="text-white" />
+          </div>
+          <span>Dooars Tutors</span>
+        </Link>
         <button
-          className="md:hidden p-2 ml-2 rounded hover:bg-white/10"
+          className="md:hidden p-2 rounded hover:bg-white/10"
           onClick={() => setSidebarOpen(false)}
-          aria-label="Close sidebar"
         >
           <Menu size={20} />
         </button>
       </div>
+
+      <div className="mb-4">
+        <p className="font-semibold truncate text-sm" style={{ color: 'var(--text-primary)' }}>{user.name}</p>
+        <p className="text-xs capitalize opacity-60" style={{ color: 'var(--text-secondary)' }}>{user.role}</p>
+      </div>
       <Separator className="mb-4" style={{ backgroundColor: 'var(--border)' }} />
       <nav className="space-y-1 flex-1">
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/10 opacity-80"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <Home size={16} />
+          Home
+        </Link>
+        <Link
+          href="/search"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/10 opacity-80"
+          onClick={() => setSidebarOpen(false)}
+        >
+          <Search size={16} />
+          Browse Tutors
+        </Link>
+        <Separator className="my-2 opacity-10" />
         {navItems.map(({ label, href, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-black/5 dark:hover:bg-white/5 opacity-80"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-white/10 opacity-80"
             style={{ color: 'var(--text-secondary)' }}
             onClick={() => setSidebarOpen(false)}
           >
@@ -87,7 +112,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Link>
         ))}
       </nav>
-      <Separator className="my-4" style={{ backgroundColor: 'var(--border)' }} />
+      <Separator className="my-4 opacity-10" />
+      
+      {/* Theme Toggle in Sidebar */}
+      <button
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors w-full mb-1 opacity-80"
+      >
+        {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+      </button>
+
       <button
         onClick={handleLogout}
         className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-red-500/10 transition-colors w-full"
@@ -100,7 +135,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   );
 
   return (
-    <div className="relative min-h-[calc(100vh-64px)] flex" style={{ background: 'var(--bg-base)' }}>
+    <div className="relative min-h-screen flex" style={{ background: 'var(--bg-base)' }}>
       {/* Hamburger for mobile */}
       <button
         className="fixed top-4 left-4 z-50 md:hidden bg-[#101828] text-white p-2 rounded shadow-lg"
