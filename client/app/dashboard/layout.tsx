@@ -16,16 +16,22 @@ const navItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, logout, fetchMe } = useAuthStore();
+  const { user, logout, isLoading } = useAuthStore();
 
   useEffect(() => {
-    fetchMe().then(() => {
-      const u = useAuthStore.getState().user;
-      if (!u) { router.push('/login'); return; }
-      if (u.role === 'student') { router.push('/'); return; }
-    });
-  }, []);
+    if (isLoading) return;
 
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    if (user.role === 'student') {
+      router.push('/');
+    }
+  }, [user, isLoading]);
+
+  if (isLoading) return null;
   if (!user) return null;
 
   async function handleLogout() {

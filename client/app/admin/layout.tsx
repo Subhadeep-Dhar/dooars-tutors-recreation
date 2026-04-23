@@ -80,30 +80,34 @@ import Link from 'next/link';
 import { LayoutDashboard, BookOpen, Star, Users, LogOut } from 'lucide-react';
 
 const navItems = [
-  { label: 'Overview', href: '/admin',          icon: LayoutDashboard },
+  { label: 'Overview', href: '/admin', icon: LayoutDashboard },
   { label: 'Profiles', href: '/admin/profiles', icon: BookOpen },
-  { label: 'Reviews',  href: '/admin/reviews',  icon: Star },
-  { label: 'Users',    href: '/admin/users',    icon: Users },
+  { label: 'Reviews', href: '/admin/reviews', icon: Star },
+  { label: 'Users', href: '/admin/users', icon: Users },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, logout, fetchMe } = useAuthStore();
-  const router   = useRouter();
+  const { user, logout, isLoading } = useAuthStore();
+  const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     // ✅ Restored: fetchMe() so the layout works correctly on hard refresh.
     // Without this, user is null on reload and the page breaks.
-    fetchMe().then(() => {
-      const u = useAuthStore.getState().user;
-      if (!u) {
+    const { user, logout, isLoading } = useAuthStore();
+
+    useEffect(() => {
+      if (isLoading) return;
+
+      if (!user) {
         router.push('/login');
         return;
       }
-      if (u.role !== 'admin') {
+
+      if (user.role !== 'admin') {
         router.push('/');
       }
-    });
+    }, [user, isLoading]);
   }, []);                    // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleLogout() {
@@ -113,6 +117,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // ✅ Restored: null guard — don't render anything while auth is resolving
   if (!user) return null;
+  if (isLoading) return null;
 
   return (
     <div className="page-wrapper flex" style={{ minHeight: 'calc(100vh - 4rem)' }}>

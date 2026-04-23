@@ -68,11 +68,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   fetchMe: async () => {
+    set({ isLoading: true });
     try {
       const { data } = await api.get('/auth/me');
-      set({ user: data.data.user });
-    } catch {
-      set({ user: null, accessToken: null });
+      set({ user: data.data.user, isLoading: false });
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        // not logged in
+        set({ user: null, accessToken: null, isLoading: false });
+        return;
+      }
+      console.error('fetchMe error:', err);
+      set({ isLoading: false });
     }
   },
 }));
