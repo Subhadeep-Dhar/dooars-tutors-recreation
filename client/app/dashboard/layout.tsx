@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
-import { LayoutDashboard, User, BookOpen, Image, LogOut } from 'lucide-react';
+import { LayoutDashboard, User, BookOpen, Image, LogOut, Menu } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const navItems = [
