@@ -75,7 +75,7 @@ export default function AdminOverviewPage() {
   useEffect(() => {
     api.get('/admin/stats')
       .then((res) => setData(res.data.data))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
@@ -92,10 +92,10 @@ export default function AdminOverviewPage() {
   const { overview, profilesByType, profilesByDistrict, profilesBySubject } = data;
 
   const cards = [
-    { label: 'Total users',      value: overview.users,    icon: Users,    href: '/admin/users' },
-    { label: 'Total profiles',   value: overview.profiles, icon: BookOpen, href: '/admin/profiles' },
-    { label: 'Pending approval', value: overview.pending,  icon: Clock,    href: '/admin/profiles?filter=pending' },
-    { label: 'Total reviews',    value: overview.reviews,  icon: Star,     href: '/admin/reviews' },
+    { label: 'Total users', value: overview.users, icon: Users, href: '/admin/users' },
+    { label: 'Total profiles', value: overview.profiles, icon: BookOpen, href: '/admin/profiles' },
+    { label: 'Pending approval', value: overview.pending, icon: Clock, href: '/admin/profiles?filter=pending' },
+    { label: 'Total reviews', value: overview.reviews, icon: Star, href: '/admin/reviews' },
   ];
 
   return (
@@ -138,13 +138,15 @@ export default function AdminOverviewPage() {
                   paddingAngle={5}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) =>
+                    `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+                  }
                 >
                   {profilesByDistrict.map((entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }}
                   itemStyle={{ color: 'var(--text-primary)' }}
                 />
@@ -162,7 +164,7 @@ export default function AdminOverviewPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                 <XAxis type="number" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis dataKey="name" type="category" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} width={100} />
-                <Tooltip 
+                <Tooltip
                   cursor={{ fill: 'var(--bg-elevated)' }}
                   contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }}
                   itemStyle={{ color: 'var(--text-primary)' }}
@@ -188,7 +190,7 @@ export default function AdminOverviewPage() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                 <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} angle={-45} textAnchor="end" />
                 <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip 
+                <Tooltip
                   cursor={{ fill: 'var(--bg-elevated)' }}
                   contentStyle={{ background: 'var(--bg-card)', borderColor: 'var(--border)', borderRadius: '8px' }}
                   itemStyle={{ color: 'var(--text-primary)' }}
