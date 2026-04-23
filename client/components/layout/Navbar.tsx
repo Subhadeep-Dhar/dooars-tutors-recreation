@@ -136,9 +136,18 @@ export default function Navbar() {
     router.push('/');
   }
 
+  // const initials = user?.name
+  //   ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  //   : '';
+
   const initials = user?.name
-    ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : '';
+  ? user.name
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  : '';
 
   return (
     <nav className="navbar-glass sticky top-0 z-50">
