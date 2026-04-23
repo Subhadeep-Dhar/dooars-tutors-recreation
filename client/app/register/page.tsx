@@ -32,7 +32,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema as any),
     defaultValues: { role: 'student' },
   });
 
