@@ -338,7 +338,7 @@ function FilterPanel(p: FPProps) {
       {/* Place */}
       <div>
         <p style={secLabel}>Place</p>
-        <input style={inp} placeholder="e.g. Jalpaiguri, Siliguri"
+        <input style={inp} placeholder="e.g. Alipurduar, Coochbehar"
           value={p.place} onChange={e => p.setPlace(e.target.value)}
           onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.45)'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.08)'; }}
           onBlur={e  => { e.target.style.borderColor = 'var(--border)';          e.target.style.boxShadow = 'none'; }}
