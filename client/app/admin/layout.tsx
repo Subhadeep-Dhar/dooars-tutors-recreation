@@ -130,7 +130,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Sidebar content
   const sidebar = (
     <aside
-      className={`admin-sidebar w-64 max-w-full bg-[#101828] text-white fixed md:static z-40 top-0 left-0 h-full md:h-screen md:top-0 md:self-start overflow-y-auto p-4 flex flex-col transition-all duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]' : '-translate-x-full'} md:translate-x-0 md:shadow-none`}
+      className={`admin-sidebar w-64 max-w-full bg-[#101828] text-white fixed md:sticky z-40 top-0 left-0 h-full md:h-screen md:top-0 overflow-y-auto p-4 flex flex-col transition-all duration-500 cubic-bezier[0.4,0,0.2,1] ${sidebarOpen ? 'translate-x-0 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]' : '-translate-x-full'} md:translate-x-0 md:shadow-none`}
     >
       <div className="mb-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-white">
@@ -206,7 +206,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="relative min-h-screen flex">
       {/* Hamburger for mobile */}
       <button
-        className={`fixed top-4 left-4 z-50 md:hidden bg-[#101828] text-white p-2 rounded shadow-lg transition-all duration-300 ${sidebarOpen ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'}`}
+        className={`fixed top-4 left-4 z-50 md:hidden bg-[#101828] text-white p-2 rounded shadow-lg transition-all duration-500 ${sidebarOpen ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'}`}
         onClick={() => setSidebarOpen(true)}
         aria-label="Open sidebar"
       >
@@ -215,7 +215,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Sidebar for desktop and mobile */}
       <div
-        className={`fixed inset-0 z-30 bg-black/40 transition-opacity duration-300 md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 z-30 bg-black/40 transition-opacity duration-500 md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setSidebarOpen(false)}
         aria-hidden="true"
       />
