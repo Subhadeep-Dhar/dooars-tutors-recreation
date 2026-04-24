@@ -48,6 +48,54 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* ── Custom Animation Keyframes ─────────────────────────────────────────── */
+@keyframes slide-in-from-right-16 {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-out-to-right-16 {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes slide-in-from-left-16 {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-out-to-left-16 {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Animation utility classes */
+.animate-in {
+  animation: fade-in 300ms ease-out forwards;
+}
+
+.animate-out {
+  animation: fade-out 250ms ease-in forwards;
+}
+
+.slide-in-from-right-16 {
+  animation: slide-in-from-right-16 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.slide-out-to-right-16 {
+  animation: slide-out-to-right-16 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -984,12 +1032,13 @@ body {
 }
 
 /* ── Mobile Navbar Sheet Animation - Smooth slide in/out ───────────────────── */
-[data-state="open"] > div:first-child {
-  animation: overlayFadeIn 300ms ease-out forwards;
+/* Override radix-ui default animations with smoother custom ones */
+[data-state="open"] > [data-radix-dialog-overlay] {
+  animation: overlayFadeIn 350ms ease-out forwards;
 }
 
-[data-state="closed"] > div:first-child {
-  animation: overlayFadeOut 200ms ease-in forwards;
+[data-state="closed"] > [data-radix-dialog-overlay] {
+  animation: overlayFadeOut 280ms ease-in forwards;
 }
 
 @keyframes overlayFadeIn {
@@ -1002,29 +1051,88 @@ body {
   to { opacity: 0; }
 }
 
-/* Sheet content slide animation */
-[data-state="open"] .sheet-content {
-  animation: sheetSlideIn 350ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+/* Sheet content slide animation - override radix defaults */
+[data-state="open"][data-slot="sheet"] [data-side="right"],
+[data-state="open"][data-slot="sheet-content"][data-side="right"] {
+  animation: sheetSlideIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
-[data-state="closed"] .sheet-content {
-  animation: sheetSlideOut 280ms cubic-bezier(0.72, 0.32, 0, 1) forwards;
+[data-state="closed"][data-slot="sheet"] [data-side="right"],
+[data-state="closed"][data-slot="sheet-content"][data-side="right"] {
+  animation: sheetSlideOut 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 @keyframes sheetSlideIn {
   from {
     transform: translateX(100%);
+    opacity: 0.5;
   }
   to {
     transform: translateX(0);
+    opacity: 1;
   }
 }
 
 @keyframes sheetSlideOut {
   from {
     transform: translateX(0);
+    opacity: 1;
   }
   to {
     transform: translateX(100%);
+    opacity: 0.5;
   }
+}
+
+/* ── Dashboard Sidebar Animation ─────────────────────────────────────────── */
+.dashboard-sidebar {
+  transition: transform 450ms cubic-bezier(0.16, 1, 0.3, 1), opacity 350ms ease-out;
+}
+
+.dashboard-sidebar.translate-x-0 {
+  animation: sidebarSlideIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dashboard-sidebar.-translate-x-full {
+  animation: sidebarSlideOut 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sidebarSlideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.3;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sidebarSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0.3;
+  }
+}
+
+/* Hamburger button animation */
+.sidebar-hamburger {
+  transition: transform 350ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 250ms ease-out;
+}
+
+.sidebar-hamburger.opacity-0 {
+  transform: scale(0.8);
+}
+
+.sidebar-hamburger.opacity-100 {
+  transform: scale(1);
+}
+
+/* ── Overlay backdrop for mobile sidebar ─────────────────────────────────── */
+.sidebar-overlay {
+  transition: opacity 350ms ease-out;
 }
