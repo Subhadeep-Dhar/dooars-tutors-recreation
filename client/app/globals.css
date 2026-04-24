@@ -528,12 +528,14 @@
   transition: transform 450ms cubic-bezier(0.16, 1, 0.3, 1), opacity 350ms ease-out;
 }
 
-.dashboard-sidebar.translate-x-0 {
-  animation: sidebarSlideIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+@media (max-width: 767px) {
+  .dashboard-sidebar.translate-x-0 {
+    animation: sidebarSlideIn 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 
-.dashboard-sidebar.-translate-x-full {
-  animation: sidebarSlideOut 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  .dashboard-sidebar.-translate-x-full {
+    animation: sidebarSlideOut 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 }
 
 @keyframes sidebarSlideIn {
