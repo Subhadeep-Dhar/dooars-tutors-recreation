@@ -351,7 +351,7 @@ export default function HomePage() {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 animate-fade-in"
             style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#818cf8' }}>
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-            Dooars Region
+            Dooars Tutors
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold mb-5 leading-tight animate-fade-up" style={{ color: 'var(--text-primary)' }}>
