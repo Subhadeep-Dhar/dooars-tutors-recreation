@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { useTheme } from 'next-themes';
-import { LayoutDashboard, User, BookOpen, Image, LogOut, Menu, Sun, Moon, Home, Search, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, User, BookOpen, Image, LogOut, Menu, Sun, Moon, Home, Search, GraduationCap, AlertTriangle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 const navItems = [
   { label: 'Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -21,6 +23,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const { theme, setTheme } = useTheme();
   const [hydrated, setHydrated] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
@@ -38,6 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [hydrated, user, isLoading, router]);
 
   async function handleLogout() {
+    setLogoutDialogOpen(false);
     await logout();
     router.push('/');
   }
@@ -55,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Sidebar content
   const sidebar = (
     <aside
-      className={`w-64 max-w-full fixed md:sticky z-40 top-0 left-0 h-full md:h-screen md:top-0 overflow-y-auto p-4 flex flex-col transition-all duration-500 cubic-bezier[0.4,0,0.2,1] ${sidebarOpen ? 'translate-x-0 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]' : '-translate-x-full'} md:translate-x-0 md:shadow-none`}
+      className={`w-64 max-w-full fixed md:sticky z-40 top-0 left-0 h-full md:h-screen md:top-0 overflow-y-auto p-4 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] ${sidebarOpen ? 'translate-x-0 shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]' : '-translate-x-full'} md:translate-x-0 md:shadow-none`}
       style={{ backgroundColor: 'var(--bg-card)', borderRight: '1px solid var(--border)', color: 'var(--text-primary)' }}
     >
       <div className="mb-6 flex items-center justify-between">
@@ -124,7 +128,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </button>
 
       <button
-        onClick={handleLogout}
+        onClick={() => setLogoutDialogOpen(true)}
         className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-red-500/10 transition-colors w-full"
         style={{ color: '#ef4444' }}
       >
@@ -162,6 +166,37 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="flex-1 p-6 md:p-8 pt-16 md:pt-8 overflow-auto">
         {children}
       </main>
+
+      {/* Logout Confirmation Dialog */}
+      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <div className="mx-auto w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4">
+              <AlertTriangle className="text-red-600 dark:text-red-500" size={24} />
+            </div>
+            <DialogTitle className="text-center text-xl">Confirm Logout</DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              Are you sure you want to log out of your account? You will need to login again to access your dashboard.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-row gap-3 pt-4 px-0">
+            <Button
+              variant="secondary"
+              onClick={() => setLogoutDialogOpen(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleLogout}
+              className="flex-1 bg-red-600 hover:bg-red-700"
+            >
+              Logout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
