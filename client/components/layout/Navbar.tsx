@@ -239,7 +239,7 @@ export default function Navbar() {
                   <Menu size={20} />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] p-0" style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}>
+              <SheetContent side="right" className="w-[280px] p-0 sheet-content" style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}>
                 <SheetHeader className="p-6 border-b" style={{ borderColor: 'var(--border)' }}>
                   <SheetTitle className="flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                     <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">

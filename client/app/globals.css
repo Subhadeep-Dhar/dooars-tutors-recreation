@@ -982,3 +982,49 @@ body {
   background-color: var(--bg-base);
   min-height: 100vh;
 }
+
+/* ── Mobile Navbar Sheet Animation - Smooth slide in/out ───────────────────── */
+[data-state="open"] > div:first-child {
+  animation: overlayFadeIn 300ms ease-out forwards;
+}
+
+[data-state="closed"] > div:first-child {
+  animation: overlayFadeOut 200ms ease-in forwards;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes overlayFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Sheet content slide animation */
+[data-state="open"] .sheet-content {
+  animation: sheetSlideIn 350ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+
+[data-state="closed"] .sheet-content {
+  animation: sheetSlideOut 280ms cubic-bezier(0.72, 0.32, 0, 1) forwards;
+}
+
+@keyframes sheetSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheetSlideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
