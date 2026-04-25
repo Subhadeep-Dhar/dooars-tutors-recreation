@@ -108,7 +108,12 @@ export async function refreshAccessToken(refreshToken: string) {
   }
 
   const newAccessToken = generateAccessToken(String(user._id), user.role);
-  return { accessToken: newAccessToken };
+  const newRefreshToken = generateRefreshToken(String(user._id), user.role);
+
+  user.refreshTokenHash = crypto.createHash('sha256').update(newRefreshToken).digest('hex');
+  await user.save();
+
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 }
 
 export async function logoutUser(refreshToken: string) {

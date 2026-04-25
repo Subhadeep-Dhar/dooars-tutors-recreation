@@ -88,8 +88,9 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
     const refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) throw new AppError('No refresh token', 401);
 
-    const { accessToken } = await AuthService.refreshAccessToken(refreshToken);
+    const { accessToken, refreshToken: newRefreshToken } = await AuthService.refreshAccessToken(refreshToken);
 
+    res.cookie('refreshToken', newRefreshToken, REFRESH_COOKIE_OPTIONS);
     res.json({ success: true, data: { accessToken } });
   } catch (err) {
     next(err);
