@@ -21,6 +21,10 @@ const envSchema = z.object({
   GOOGLE_MAPS_API_KEY: z.string().optional(),
 
   ALLOWED_ORIGINS: z.string().default('http://localhost:3000'),
+  
+  IMPORTER_HEADLESS: z.preprocess((v) => v === 'true' || v === true, z.boolean()).default(true),
+  IMPORTER_DELAY_MIN: z.string().default('2000').transform(Number),
+  IMPORTER_DELAY_MAX: z.string().default('5000').transform(Number),
 });
 
 const parsed = envSchema.safeParse(process.env);

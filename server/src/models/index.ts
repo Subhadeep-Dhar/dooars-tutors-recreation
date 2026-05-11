@@ -9,3 +9,6 @@ export type { IReviewDocument } from './Review';
 
 export { Category } from './Category';
 export type { ICategoryDocument } from './Category';
+
+export { RawPlace } from './RawPlace';
+export type { IRawPlaceDocument } from './RawPlace';

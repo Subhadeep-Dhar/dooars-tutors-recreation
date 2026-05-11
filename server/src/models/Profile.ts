@@ -67,6 +67,13 @@ export interface IProfileDocument extends Document {
     isApproved: boolean;
     isFeatured: boolean;
     isActive: boolean;
+    
+    // Importer fields
+    source?: string;
+    verificationStatus?: 'pending' | 'verified' | 'rejected';
+    googlePlaceId?: string;
+    importedAt?: Date;
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -163,6 +170,16 @@ const ProfileSchema = new Schema<IProfileDocument>(
         isApproved: { type: Boolean, default: false },
         isFeatured: { type: Boolean, default: false },
         isActive: { type: Boolean, default: true },
+
+        // Importer fields
+        source: { type: String },
+        verificationStatus: { 
+            type: String, 
+            enum: ['pending', 'verified', 'rejected'], 
+            default: 'pending' 
+        },
+        googlePlaceId: { type: String, index: { unique: true, sparse: true } },
+        importedAt: { type: Date },
     },
     { timestamps: true }
 );
@@ -174,5 +191,6 @@ ProfileSchema.index({ type: 1, _subjectIndex: 1, _classIndex: 1 });
 ProfileSchema.index({ isApproved: 1, isActive: 1, _subjectIndex: 1, _classIndex: 1, 'rating.average': -1 });
 ProfileSchema.index({ slug: 1 }, { unique: true });
 ProfileSchema.index({ isFeatured: 1, isApproved: 1, isActive: 1 });
+ProfileSchema.index({ googlePlaceId: 1 }, { unique: true, sparse: true });
 
 export const Profile = mongoose.model<IProfileDocument>('Profile', ProfileSchema);
