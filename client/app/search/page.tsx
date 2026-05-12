@@ -51,22 +51,6 @@ function SearchContent() {
     setLoadingMore(false);
   }, [results, isLoading]);
 
-  // Update URL when params change
-  useEffect(() => {
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      return;
-    }
-    const urlParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value && value !== "") {
-        urlParams.set(key, String(value));
-      }
-    });
-    const newUrl = `/search${urlParams.toString() ? "?" + urlParams.toString() : ""}`;
-    router.replace(newUrl);
-  }, [params, router]);
-
   function handleFilter() {
     currentPage.current = 1;
     setPage(1);
