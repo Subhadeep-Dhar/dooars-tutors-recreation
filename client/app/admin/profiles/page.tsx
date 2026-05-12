@@ -112,4 +112,4 @@ export default function AdminProfilesPage() {
       </div>
     </div>
   );
-}
+}}
