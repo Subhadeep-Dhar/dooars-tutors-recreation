@@ -77,6 +77,29 @@ export interface IProfileDocument extends Document {
     sourcePriority?: number;
     importedAt?: Date;
 
+    // Enrichment fields (Optional)
+    subjects?: string[];
+    classes?: string[];
+    courses?: string[];
+    boards?: string[];
+    examPreparation?: string[];
+    skills?: string[];
+    whatsappNumber?: string;
+    socialLinks?: {
+        facebook?: string;
+        instagram?: string;
+        youtube?: string;
+    };
+    enrichedDescription?: string;
+
+    // AI Enrichment Metadata
+    autoExtracted: boolean;
+    extractionSource?: 'website' | 'reviews' | 'mixed';
+    extractionConfidence?: Record<string, number>;
+    lastEnrichedAt?: Date;
+    enrichmentVersion: number;
+    manuallyEditedFields: string[];
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -186,6 +209,29 @@ const ProfileSchema = new Schema<IProfileDocument>(
         importBatchId: { type: String, index: true },
         sourcePriority: { type: Number, default: 50 },
         importedAt: { type: Date },
+
+        // Enrichment fields
+        subjects: [{ type: String, trim: true }],
+        classes: [{ type: String, trim: true }],
+        courses: [{ type: String, trim: true }],
+        boards: [{ type: String, trim: true }],
+        examPreparation: [{ type: String, trim: true }],
+        skills: [{ type: String, trim: true }],
+        whatsappNumber: { type: String, trim: true },
+        socialLinks: {
+            facebook: { type: String, trim: true },
+            instagram: { type: String, trim: true },
+            youtube: { type: String, trim: true },
+        },
+        enrichedDescription: { type: String, trim: true },
+
+        // AI Enrichment Metadata
+        autoExtracted: { type: Boolean, default: false },
+        extractionSource: { type: String, enum: ['website', 'reviews', 'mixed'] },
+        extractionConfidence: { type: Schema.Types.Mixed },
+        lastEnrichedAt: { type: Date },
+        enrichmentVersion: { type: Number, default: 0 },
+        manuallyEditedFields: [{ type: String, default: [] }],
     },
     { timestamps: true }
 );

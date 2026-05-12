@@ -25,8 +25,6 @@ async function main() {
 
     const keywords = [
       'computer coaching alipurduar',
-      // 'martial arts alipurduar',
-      // 'yoga center alipurduar'
     ];
 
     const result = await worker.run(keywords);

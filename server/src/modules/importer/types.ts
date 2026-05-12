@@ -12,6 +12,7 @@ export interface RawScrapedData {
   longitude: number;
   googleMapsUrl: string;
   googlePlaceId: string;
+  reviews?: string[];
   warnings?: string[];
 }
 
@@ -42,4 +43,22 @@ export interface ImportStats {
   duplicatesSkipped: number;
   failed: number;
   partial: number;
+}
+
+export interface EnrichmentResult {
+  subjects?: string[];
+  classes?: string[];
+  courses?: string[];
+  boards?: string[];
+  examPreparation?: string[];
+  skills?: string[];
+  whatsappNumber?: string;
+  socialLinks?: {
+    facebook?: string;
+    instagram?: string;
+    youtube?: string;
+  };
+  enrichedDescription?: string;
+  confidence: Record<string, number>;
+  source: 'website' | 'reviews' | 'mixed';
 }

@@ -56,11 +56,31 @@ export class ParserService {
         longitude,
         googleMapsUrl: mapsUrl,
         googlePlaceId,
+        reviews: await this.extractReviews(page),
         warnings
       };
     } catch (err) {
       importerLogger.error('Error in ParserService.extractListingDetails', err);
       return null;
+    }
+  }
+
+  private async extractReviews(page: Page): Promise<string[]> {
+    try {
+      // Small wait for reviews to be visible in the details pane if any
+      const reviews: string[] = [];
+      const reviewSelectors = ['span.wiL7S', 'div.My579']; // Common review snippet selectors
+      
+      for (const selector of reviewSelectors) {
+        const elements = await page.$$(selector);
+        for (const el of elements.slice(0, 5)) {
+          const text = await el.innerText().catch(() => '');
+          if (text && text.length > 10) reviews.push(text);
+        }
+      }
+      return [...new Set(reviews)];
+    } catch {
+      return [];
     }
   }
 }

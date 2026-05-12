@@ -6,6 +6,8 @@ export type { IProfileDocument, IAcademicSlotDocument, INonAcademicSlotDocument,
 
 export { Review } from './Review';
 export type { IReviewDocument } from './Review';
+export * from './EnrichmentData';
+export * from './EnrichmentJob';
 
 export { Category } from './Category';
 export type { ICategoryDocument } from './Category';

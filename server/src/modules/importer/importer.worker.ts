@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { RawPlace, Profile, ImportSummary } from '../../models';
+import { RawPlace, Profile, ImportSummary, EnrichmentJob } from '../../models';
 import { importerLogger } from './logger';
 import { PlaywrightService } from './playwright.service';
 import { normalizeData } from './normalizer.service';
@@ -111,7 +111,22 @@ export class ImporterWorker {
             stats.imported++;
             importerLogger.info(`Successfully imported: ${profile.displayName}`);
 
-            // 6. Mark Raw as processed
+            // 6. Queue Enrichment Job (Graceful degradation - failure here doesn't stop import)
+            try {
+              await EnrichmentJob.create({
+                profileId: profile._id,
+                importBatchId: batchId,
+                metadata: {
+                  websiteUrl: raw.website,
+                  hasReviews: (raw.reviews?.length || 0) > 0
+                }
+              });
+              importerLogger.debug(`Queued enrichment job for: ${profile.displayName}`);
+            } catch (jobErr) {
+              importerLogger.error(`Failed to queue enrichment job for ${profile.displayName}`, jobErr);
+            }
+
+            // 7. Mark Raw as processed
             rawEntry.processed = true;
             await rawEntry.save();
 

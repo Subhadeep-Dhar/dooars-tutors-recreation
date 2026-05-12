@@ -28,6 +28,8 @@ const envSchema = z.object({
   IMPORTER_BATCH_SIZE: z.string().default('5').transform(Number),
   IMPORTER_MAX_SCROLLS: z.string().default('10').transform(Number),
   IMPORTER_CONTEXT_RESET_INTERVAL: z.string().default('10').transform(Number),
+
+  GEMINI_API_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
