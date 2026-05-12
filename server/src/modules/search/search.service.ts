@@ -72,7 +72,7 @@ export async function searchProfiles(params: SearchParams) {
   const effectiveType = type ?? parsed.type ?? undefined;
 
   // Base filter
-  const base: any = { isApproved: true, isActive: true };
+  const base: any = { verificationStatus: 'verified', isActive: true };
   if (effectiveType) base.type = effectiveType;
   if (lat != null && lng != null) {
     base.location = { $near: { $geometry: { type: 'Point', coordinates: [+lng, +lat] }, $maxDistance: radius * 1000 } };
@@ -195,7 +195,7 @@ async function trackSearch(params: SearchParams, resultsCount: number) {
 
 export async function getNearbyProfiles(lat: number, lng: number, radius = 10) {
   return Profile.find({
-    isApproved: true, isActive: true,
+    verificationStatus: 'verified', isActive: true,
     location: { $near: { $geometry: { type: 'Point', coordinates: [+lng, +lat] }, $maxDistance: radius * 1000 } },
   }).limit(50).lean();
 }
@@ -281,7 +281,7 @@ export async function getNearbyProfiles(lat: number, lng: number, radius = 10) {
 //   const effectiveClass = rawClass ? (normalizeClass(rawClass) ?? rawClass) : undefined;
 //   const effectiveType = type ?? parsed.type ?? undefined;
 
-//   const baseFilter: any = { isApproved: true, isActive: true };
+//   const baseFilter: any = { verificationStatus: 'verified', isActive: true };
 //   if (effectiveType) baseFilter.type = effectiveType;
 //   if (lat != null && lng != null) {
 //     baseFilter.location = { $near: { $geometry: { type: 'Point', coordinates: [+lng, +lat] }, $maxDistance: radius * 1000 } };
@@ -357,7 +357,7 @@ export async function getNearbyProfiles(lat: number, lng: number, radius = 10) {
 
 // export async function getNearbyProfiles(lat: number, lng: number, radius = 10) {
 //   return Profile.find({
-//     isApproved: true, isActive: true,
+//     verificationStatus: 'verified', isActive: true,
 //     location: { $near: { $geometry: { type: 'Point', coordinates: [+lng, +lat] }, $maxDistance: radius * 1000 } },
 //   }).limit(50).lean();
 // }

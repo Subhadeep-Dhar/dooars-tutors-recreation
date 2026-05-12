@@ -27,7 +27,6 @@ export async function mapToProfile(data: NormalizedData): Promise<any> {
     googlePlaceId: data.googlePlaceId,
     googleMapsUrl: data.googleMapsUrl,
     verificationStatus: 'pending',
-    isApproved: false, // Backward compatibility, unified with verificationStatus: pending
     isActive: true,
     sourcePriority: 50,
     importedAt: new Date(),

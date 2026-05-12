@@ -1,6 +1,67 @@
 import { Request, Response, NextFunction } from 'express';
 import * as AdminService from './admin.service';
 
+export async function getAdminStats(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await AdminService.getAdminStats();
+    res.json({ success: true, data });
+  } catch (err) { next(err); }
+}
+
+export async function getAllProfiles(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { page = '1', limit = '10' } = req.query;
+    const result = await AdminService.getAllProfiles({
+      page: parseInt(page as string),
+      limit: parseInt(limit as string)
+    });
+    res.json({ success: true, data: result });
+  } catch (err) { next(err); }
+}
+
+export async function getAllUsers(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { page = '1', limit = '10' } = req.query;
+    const result = await AdminService.getAllUsers({
+      page: parseInt(page as string),
+      limit: parseInt(limit as string)
+    });
+    res.json({ success: true, data: result });
+  } catch (err) { next(err); }
+}
+
+export async function getAllReviews(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { page = '1', limit = '10' } = req.query;
+    const result = await AdminService.getAllReviews({
+      page: parseInt(page as string),
+      limit: parseInt(limit as string)
+    });
+    res.json({ success: true, data: result });
+  } catch (err) { next(err); }
+}
+
+export async function toggleUserStatus(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await AdminService.toggleUserStatus(req.params.id);
+    res.json({ success: true, data: { user } });
+  } catch (err) { next(err); }
+}
+
+export async function toggleReviewVisibility(req: Request, res: Response, next: NextFunction) {
+  try {
+    const review = await AdminService.toggleReviewVisibility(req.params.id);
+    res.json({ success: true, data: { review } });
+  } catch (err) { next(err); }
+}
+
+export async function toggleProfileFeatured(req: Request, res: Response, next: NextFunction) {
+  try {
+    const profile = await AdminService.toggleProfileFeatured(req.params.id);
+    res.json({ success: true, data: { profile } });
+  } catch (err) { next(err); }
+}
+
 export async function getModerationQueue(req: Request, res: Response, next: NextFunction) {
   try {
     const { page = '1', limit = '10', status, source, batchId, lowConfidence, missingPhone, enrichmentFailed } = req.query;

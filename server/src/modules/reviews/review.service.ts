@@ -21,7 +21,7 @@ export async function createReview(
   // Resolve slug → ObjectId if needed
   const profileId = await resolveProfileId(profileIdOrSlug);
 
-  const profile = await Profile.findOne({ _id: profileId, isApproved: true, isActive: true });
+  const profile = await Profile.findOne({ _id: profileId, verificationStatus: 'verified', isActive: true });
   if (!profile) throw new AppError('Profile not found', 404);
 
   // One review per student per profile

@@ -1,4 +1,4 @@
-import { Profile, EnrichmentJob, SearchMetric, IProfileDocument } from '../../models';
+import { Profile, EnrichmentJob, SearchMetric, IProfileDocument, User, Review } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
 import mongoose from 'mongoose';
 
@@ -64,6 +64,96 @@ export async function getModerationQueue(filters: any, options: { page: number, 
     }
   };
 }
+
+// ── NEW: General Admin Lists (Restoring Visibility) ──────────────────────────
+
+export async function getAllProfiles(options: { page: number, limit: number }) {
+  const skip = (options.page - 1) * options.limit;
+  const [profiles, total] = await Promise.all([
+    Profile.find({}).sort({ createdAt: -1 }).skip(skip).limit(options.limit).lean(),
+    Profile.countDocuments({})
+  ]);
+  return { profiles, total };
+}
+
+export async function getAllUsers(options: { page: number, limit: number }) {
+  const skip = (options.page - 1) * options.limit;
+  const [users, total] = await Promise.all([
+    User.find({}).sort({ createdAt: -1 }).skip(skip).limit(options.limit).lean(),
+    User.countDocuments({})
+  ]);
+  return { users, total };
+}
+
+export async function getAllReviews(options: { page: number, limit: number }) {
+  const skip = (options.page - 1) * options.limit;
+  const [reviews, total] = await Promise.all([
+    Review.find({})
+      .populate('reviewerId', 'name email')
+      .populate('profileId', 'displayName slug')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(options.limit)
+      .lean(),
+    Review.countDocuments({})
+  ]);
+  return { reviews, total };
+}
+
+export async function getAdminStats() {
+  const [users, profiles, reviews, pending] = await Promise.all([
+    User.countDocuments({}),
+    Profile.countDocuments({}),
+    Review.countDocuments({}),
+    Profile.countDocuments({ verificationStatus: 'pending' })
+  ]);
+
+  // Aggregations for charts
+  const [profilesByType, profilesByDistrict] = await Promise.all([
+    Profile.aggregate([{ $group: { _id: '$type', value: { $sum: 1 } } }]),
+    Profile.aggregate([{ $group: { _id: '$address.district', value: { $sum: 1 } } }])
+  ]);
+
+  const profilesBySubject = await Profile.aggregate([
+    { $unwind: '$_subjectIndex' },
+    { $group: { _id: '$_subjectIndex', value: { $sum: 1 } } },
+    { $sort: { value: -1 } },
+    { $limit: 10 }
+  ]);
+
+  return {
+    overview: { users, profiles, reviews, pending },
+    profilesByType: profilesByType.map(i => ({ name: i._id, value: i.value })),
+    profilesByDistrict: profilesByDistrict.map(i => ({ name: i._id, value: i.value })),
+    profilesBySubject: profilesBySubject.map(i => ({ name: i._id, value: i.value }))
+  };
+}
+
+export async function toggleUserStatus(userId: string) {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('User not found', 404);
+  user.isActive = !user.isActive;
+  await user.save();
+  return user;
+}
+
+export async function toggleReviewVisibility(reviewId: string) {
+  const review = await Review.findById(reviewId);
+  if (!review) throw new AppError('Review not found', 404);
+  review.isVisible = !review.isVisible;
+  await review.save();
+  return review;
+}
+
+export async function toggleProfileFeatured(profileId: string) {
+  const profile = await Profile.findById(profileId);
+  if (!profile) throw new AppError('Profile not found', 404);
+  profile.isFeatured = !profile.isFeatured;
+  await profile.save();
+  return profile;
+}
+
+// ── Moderation specific ──────────────────────────────────────────────────────
 
 export async function approveProfile(profileId: string): Promise<IProfileDocument> {
   const profile = await Profile.findByIdAndUpdate(

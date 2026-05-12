@@ -101,7 +101,7 @@ export async function createProfile(userId: string, data: {
     _subjectIndex: [],
     _classIndex: [],
     rating: { average: 0, count: 0 },
-    isApproved: false,
+    verificationStatus: 'pending',
     isActive: true,
   });
 
