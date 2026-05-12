@@ -36,9 +36,10 @@ export class EnrichmentWorker {
   }
 
   private async processJob(job: any) {
-    importerLogger.info(`Processing job for profile: ${job.profileId}`);
-    job.status = 'processing';
-    await job.save();
+    if (!this.dryRun) {
+      job.status = 'processing';
+      await job.save();
+    }
 
     try {
       const profile = await Profile.findById(job.profileId);
@@ -55,8 +56,11 @@ export class EnrichmentWorker {
       let websiteHash = '';
 
       if (job.metadata.websiteUrl) {
+        importerLogger.info(`[CRAWL] Starting hybrid crawl for ${job.metadata.websiteUrl}`);
         const startTime = Date.now();
         const pages = await this.crawler.crawl(job.metadata.websiteUrl);
+        importerLogger.info(`[CRAWL] Finished. Pages found: ${pages.length}`);
+        
         crawlMetrics.crawlDurationMs = Date.now() - startTime;
         crawlMetrics.pagesVisited = pages.length;
         crawlMetrics.source = pages.some(p => p.source === 'playwright') ? 'playwright' : 'axios';
@@ -75,7 +79,14 @@ export class EnrichmentWorker {
         }
 
         // Store raw snippets
-        if (!this.dryRun) {
+        if (this.dryRun) {
+          importerLogger.info(`[DRY RUN] Extracted Content Summary for ${profile.displayName}:`);
+          importerLogger.info(`  - Headings count: ${processedPages.flatMap(p => p.headings).length}`);
+          importerLogger.info(`  - Services count: ${processedPages.flatMap(p => p.services).length}`);
+          importerLogger.info(`  - Courses count: ${processedPages.flatMap(p => p.courses).length}`);
+          importerLogger.info(`  - Contact blocks count: ${processedPages.flatMap(p => p.contactBlocks).length}`);
+          importerLogger.info(`  - About text (first 100 chars): ${processedPages[0]?.aboutText.substring(0, 100)}...`);
+        } else {
           await EnrichmentData.create({
             profileId: profile._id,
             websiteUrl: job.metadata.websiteUrl,
@@ -99,9 +110,26 @@ export class EnrichmentWorker {
       const enrichment = await this.ai.parseContent(websiteContent, reviews);
       const aiDurationMs = Date.now() - aiStartTime;
 
-      if (enrichment) {
+      // FOR INFRASTRUCTURE TESTING: Provide mock if key is missing in dry-run
+      const finalEnrichment = enrichment || (this.dryRun ? {
+        subjects: ['Mock Subject 1', 'Mock Subject 2'],
+        classes: ['Class 10', 'Class 12'],
+        confidence: { subjects: 0.9, classes: 0.8 },
+        source: 'website' as const
+      } : null);
+
+      if (finalEnrichment) {
         if (this.dryRun) {
-          importerLogger.info(`[DRY RUN] Enrichment for ${profile.displayName}:`, JSON.stringify(enrichment, null, 2));
+          importerLogger.info(`[DRY RUN] Enrichment Results for ${profile.displayName}:`);
+          importerLogger.info(`  - Subjects: ${finalEnrichment.subjects?.join(', ') || 'none'}`);
+          importerLogger.info(`  - Classes: ${finalEnrichment.classes?.join(', ') || 'none'}`);
+          importerLogger.info(`  - WhatsApp: ${finalEnrichment.whatsappNumber || 'none'}`);
+          importerLogger.info(`  - Social: ${JSON.stringify(finalEnrichment.socialLinks)}`);
+          importerLogger.info(`  - Confidence: ${JSON.stringify(finalEnrichment.confidence)}`);
+          
+          // Test merge logic even in dry run by calling applyEnrichment with a clone
+          const dummyProfile = JSON.parse(JSON.stringify(profile));
+          await this.applyEnrichment(dummyProfile, finalEnrichment);
         } else {
           await this.applyEnrichment(profile, enrichment);
           profile.lastEnrichedAt = new Date();
@@ -111,8 +139,10 @@ export class EnrichmentWorker {
         }
       }
 
-      job.status = 'completed';
-      await job.save();
+      if (!this.dryRun) {
+        job.status = 'completed';
+        await job.save();
+      }
       importerLogger.info(`Successfully enriched: ${profile.displayName}`);
 
     } catch (err: any) {
@@ -133,7 +163,7 @@ export class EnrichmentWorker {
     for (const field of fieldsToUpdate) {
       // Field-level manual protection
       if (profile.manuallyEditedFields.includes(field)) {
-        importerLogger.debug(`Skipping manually edited field: ${field} for ${profile.displayName}`);
+        importerLogger.info(`[PROTECTION] Skipping manually edited field: ${field} for ${profile.displayName}`);
         continue;
       }
 

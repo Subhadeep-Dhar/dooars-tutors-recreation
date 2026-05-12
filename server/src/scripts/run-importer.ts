@@ -16,7 +16,7 @@ async function main() {
 
     const worker = new ImporterWorker({
       headless: env.IMPORTER_HEADLESS,
-      maxListings: env.IMPORTER_BATCH_SIZE,
+      maxListings: 3,
       delayMs: [env.IMPORTER_DELAY_MIN, env.IMPORTER_DELAY_MAX],
       maxScrolls: env.IMPORTER_MAX_SCROLLS,
       contextResetInterval: env.IMPORTER_CONTEXT_RESET_INTERVAL,

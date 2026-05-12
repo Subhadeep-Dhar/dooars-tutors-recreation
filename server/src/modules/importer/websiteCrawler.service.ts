@@ -39,12 +39,22 @@ export class WebsiteCrawlerService {
   }
 
   async crawl(baseUrl: string): Promise<CrawlerOutput[]> {
-    if (!baseUrl || this.isBlocked(baseUrl)) return [];
+    if (!baseUrl || this.isBlocked(baseUrl)) {
+      if (baseUrl) importerLogger.debug(`[CRAWLER] URL blocked or empty: ${baseUrl}`);
+      return [];
+    }
 
     const results: CrawlerOutput[] = [];
     const visited = new Set<string>();
     const queue = [baseUrl];
-    const domain = new URL(baseUrl).hostname;
+    let domain = '';
+    
+    try {
+      domain = new URL(baseUrl).hostname;
+    } catch (e) {
+      importerLogger.error(`[CRAWLER] Invalid base URL: ${baseUrl}`);
+      return [];
+    }
 
     importerLogger.info(`Starting crawl for domain: ${domain}`);
 
@@ -65,15 +75,18 @@ export class WebsiteCrawlerService {
           });
           
           if (response.status === 200 && response.data) {
+            importerLogger.debug(`[AXIOS] Success: ${url}`);
             results.push({ url, html: response.data, source: 'axios' });
             this.extractLinks(response.data, baseUrl, queue, visited);
           }
-        } catch (axiosErr) {
-          importerLogger.warn(`Axios failed for ${url}, falling back to Playwright...`);
+        } catch (axiosErr: any) {
+          importerLogger.warn(`[AXIOS] Failed for ${url}: ${axiosErr.message}`);
           
           if (this.playwrightEnabled) {
+            importerLogger.info(`[PLAYWRIGHT] Fallback trigger for ${url}`);
             const pwResult = await this.crawlWithPlaywright(url);
             if (pwResult) {
+              importerLogger.debug(`[PLAYWRIGHT] Success: ${url}`);
               results.push({ url, html: pwResult, source: 'playwright' });
               this.extractLinks(pwResult, baseUrl, queue, visited);
             }
@@ -91,7 +104,10 @@ export class WebsiteCrawlerService {
 
   private extractLinks(html: string, baseUrl: string, queue: string[], visited: Set<string>) {
     const $ = cheerio.load(html);
-    const domain = new URL(baseUrl).hostname;
+    let domain = '';
+    try {
+      domain = new URL(baseUrl).hostname;
+    } catch { return; }
 
     $('a').each((_, el) => {
       let href = $(el).attr('href');
