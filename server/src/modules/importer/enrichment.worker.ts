@@ -28,14 +28,15 @@ export class EnrichmentWorker {
 
     importerLogger.info(`Found ${jobs.length} pending enrichment jobs.`);
 
+    let index = 0;
     for (const job of jobs) {
-      await this.processJob(job);
+      await this.processJob(job, index++);
     }
 
     await this.crawler.close();
   }
 
-  private async processJob(job: any) {
+  private async processJob(job: any, index: number) {
     if (!this.dryRun) {
       job.status = 'processing';
       await job.save();
@@ -106,30 +107,27 @@ export class EnrichmentWorker {
 
       // 2. AI Enrichment
       const reviews = profile.googlePlaceId ? await this.getRawReviews(profile) : [];
+      
+      // Initial delay to ensure a clean window
+      importerLogger.info(`Waiting 60s before processing ${profile.displayName} to ensure quota safety...`);
+      await new Promise(resolve => setTimeout(resolve, 60000));
+
       const aiStartTime = Date.now();
       const enrichment = await this.ai.parseContent(websiteContent, reviews);
       const aiDurationMs = Date.now() - aiStartTime;
 
-      // FOR INFRASTRUCTURE TESTING: Provide mock if key is missing in dry-run
-      const finalEnrichment = enrichment || (this.dryRun ? {
-        subjects: ['Mock Subject 1', 'Mock Subject 2'],
-        classes: ['Class 10', 'Class 12'],
-        confidence: { subjects: 0.9, classes: 0.8 },
-        source: 'website' as const
-      } : null);
-
-      if (finalEnrichment) {
+      if (enrichment) {
         if (this.dryRun) {
           importerLogger.info(`[DRY RUN] Enrichment Results for ${profile.displayName}:`);
-          importerLogger.info(`  - Subjects: ${finalEnrichment.subjects?.join(', ') || 'none'}`);
-          importerLogger.info(`  - Classes: ${finalEnrichment.classes?.join(', ') || 'none'}`);
-          importerLogger.info(`  - WhatsApp: ${finalEnrichment.whatsappNumber || 'none'}`);
-          importerLogger.info(`  - Social: ${JSON.stringify(finalEnrichment.socialLinks)}`);
-          importerLogger.info(`  - Confidence: ${JSON.stringify(finalEnrichment.confidence)}`);
+          importerLogger.info(`  - Subjects: ${enrichment.subjects?.join(', ') || 'none'}`);
+          importerLogger.info(`  - Classes: ${enrichment.classes?.join(', ') || 'none'}`);
+          importerLogger.info(`  - WhatsApp: ${enrichment.whatsappNumber || 'none'}`);
+          importerLogger.info(`  - Social: ${JSON.stringify(enrichment.socialLinks)}`);
+          importerLogger.info(`  - Confidence: ${JSON.stringify(enrichment.confidence)}`);
           
           // Test merge logic even in dry run by calling applyEnrichment with a clone
           const dummyProfile = JSON.parse(JSON.stringify(profile));
-          await this.applyEnrichment(dummyProfile, finalEnrichment);
+          await this.applyEnrichment(dummyProfile, enrichment);
         } else {
           await this.applyEnrichment(profile, enrichment);
           profile.lastEnrichedAt = new Date();
@@ -137,13 +135,19 @@ export class EnrichmentWorker {
           profile.autoExtracted = true;
           await profile.save();
         }
+        
+        if (!this.dryRun) {
+          job.status = 'completed';
+          await job.save();
+        }
+        importerLogger.info(`Successfully enriched: ${profile.displayName}`);
+      } else {
+        importerLogger.warn(`Enrichment yielded no data for: ${profile.displayName}`);
+        if (!this.dryRun) {
+          job.status = 'failed';
+          await job.save();
+        }
       }
-
-      if (!this.dryRun) {
-        job.status = 'completed';
-        await job.save();
-      }
-      importerLogger.info(`Successfully enriched: ${profile.displayName}`);
 
     } catch (err: any) {
       importerLogger.error(`Job failed for ${job.profileId}`, err);
