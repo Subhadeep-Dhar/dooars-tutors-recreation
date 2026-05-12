@@ -64,7 +64,6 @@ export interface IProfileDocument extends Document {
     languages: string[];
     media: IMediaDocument[];
     rating: { average: number; count: number };
-    isApproved: boolean;
     isFeatured: boolean;
     isActive: boolean;
     
@@ -193,7 +192,6 @@ const ProfileSchema = new Schema<IProfileDocument>(
             count: { type: Number, default: 0, min: 0 },
         },
 
-        isApproved: { type: Boolean, default: false },
         isFeatured: { type: Boolean, default: false },
         isActive: { type: Boolean, default: true },
 
@@ -240,9 +238,9 @@ const ProfileSchema = new Schema<IProfileDocument>(
 
 ProfileSchema.index({ location: '2dsphere' });
 ProfileSchema.index({ type: 1, _subjectIndex: 1, _classIndex: 1 });
-ProfileSchema.index({ isApproved: 1, isActive: 1, _subjectIndex: 1, _classIndex: 1, 'rating.average': -1 });
+ProfileSchema.index({ verificationStatus: 1, isActive: 1, _subjectIndex: 1, _classIndex: 1, 'rating.average': -1 });
 ProfileSchema.index({ slug: 1 }, { unique: true });
-ProfileSchema.index({ isFeatured: 1, isApproved: 1, isActive: 1 });
+ProfileSchema.index({ isFeatured: 1, verificationStatus: 1, isActive: 1 });
 ProfileSchema.index({ googlePlaceId: 1 }, { unique: true, sparse: true });
 
 export const Profile = mongoose.model<IProfileDocument>('Profile', ProfileSchema);

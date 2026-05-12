@@ -171,8 +171,26 @@ export async function searchProfiles(params: SearchParams) {
   const paginated = results.slice((safePage - 1) * safeLimit, safePage * safeLimit).map(({ _score, ...r }: any) => r);
 
   const response = { data: paginated, total, page: safePage, limit: safeLimit, totalPages: Math.ceil(total / safeLimit) };
+  
+  // Track search metrics asynchronously
+  trackSearch(params, total).catch(err => console.error('Metric tracking failed', err));
+
   await cacheSet(cacheKey, JSON.stringify(response), CACHE_TTL);
   return response;
+}
+
+async function trackSearch(params: SearchParams, resultsCount: number) {
+  try {
+    const { SearchMetric } = await import('../../models/SearchMetric');
+    await SearchMetric.create({
+      term: params.q || params.subject || params.class,
+      category: params.type,
+      resultsCount,
+      location: params.place
+    });
+  } catch (err) {
+    // Silent fail for metrics
+  }
 }
 
 export async function getNearbyProfiles(lat: number, lng: number, radius = 10) {

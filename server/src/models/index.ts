@@ -8,6 +8,7 @@ export { Review } from './Review';
 export type { IReviewDocument } from './Review';
 export * from './EnrichmentData';
 export * from './EnrichmentJob';
+export * from './SearchMetric';
 
 export { Category } from './Category';
 export type { ICategoryDocument } from './Category';

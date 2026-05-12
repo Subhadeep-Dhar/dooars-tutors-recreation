@@ -1,32 +1,24 @@
 import { Router } from 'express';
-import { verifyToken } from '../../middleware/auth';
-import { requireRole } from '../../middleware/auth';
+import { verifyToken, requireRole } from '../../middleware/auth';
 import {
-  getPendingProfiles,
-  getAllProfiles,
+  getModerationQueue,
+  getProfileForModeration,
   approveProfile,
-  toggleFeatured,
-  getAllReviews,
-  toggleReview,
-  getAllUsers,
-  toggleUserStatus,
-  getAdminStats,
+  rejectProfile,
+  mergeProfiles,
+  getModerationAnalytics
 } from './admin.controller';
 
 const router = Router();
 
+// All routes here require admin role
 router.use(verifyToken, requireRole('admin'));
 
-router.get('/stats', getAdminStats);
-router.get('/profiles/pending', getPendingProfiles);
-router.get('/profiles', getAllProfiles);
-router.patch('/profiles/:id/approve', approveProfile);
-router.patch('/profiles/:id/feature', toggleFeatured);
-
-router.get('/reviews', getAllReviews);
-router.patch('/reviews/:id/visibility', toggleReview);
-
-router.get('/users', getAllUsers);
-router.patch('/users/:id/status', toggleUserStatus);
+router.get('/moderation-queue', getModerationQueue);
+router.get('/moderation/:id', getProfileForModeration);
+router.post('/profiles/:id/approve', approveProfile);
+router.post('/profiles/:id/reject', rejectProfile);
+router.post('/profiles/:id/merge', mergeProfiles);
+router.get('/analytics', getModerationAnalytics);
 
 export default router;

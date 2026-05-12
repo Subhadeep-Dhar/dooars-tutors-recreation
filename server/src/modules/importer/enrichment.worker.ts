@@ -132,6 +132,7 @@ export class EnrichmentWorker {
           await this.applyEnrichment(profile, enrichment);
           profile.lastEnrichedAt = new Date();
           profile.enrichmentVersion = this.ENRICHMENT_VERSION;
+          profile.importBatchId = job.importBatchId; // Persist batch ID for rollback
           profile.autoExtracted = true;
           await profile.save();
         }
