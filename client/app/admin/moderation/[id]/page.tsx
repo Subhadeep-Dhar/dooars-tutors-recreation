@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -151,9 +152,11 @@ export default function ProfileReviewPage() {
                       <div>
                         <p className="text-[10px] font-bold text-primary opacity-70">SOCIAL LINKS</p>
                         <div className="flex gap-2 mt-1">
-                          {Object.entries(profile.socialLinks).map(([k, v]) => v && (
-                            <Badge key={k} variant="outline" className="text-[10px] h-4 lowercase">{k}</Badge>
-                          ))}
+                          {Object.entries(profile.socialLinks)
+                            .filter(([, v]) => v)
+                            .map(([k]) => (
+                              <Badge key={k} variant="outline" className="text-[10px] h-4 lowercase">{k}</Badge>
+                            ))}
                         </div>
                       </div>
                     )}

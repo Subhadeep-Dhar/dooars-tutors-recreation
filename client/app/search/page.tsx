@@ -59,7 +59,7 @@ function SearchContent() {
     }
     const urlParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
-      if (value && value !== ") {
+      if (value && value !== "") {
         urlParams.set(key, String(value));
       }
     });
