@@ -68,65 +68,101 @@ export async function getModerationQueue(filters: any, options: { page: number, 
 // ── NEW: General Admin Lists (Restoring Visibility) ──────────────────────────
 
 export async function getAllProfiles(options: { page: number, limit: number }) {
-  const skip = (options.page - 1) * options.limit;
-  const [profiles, total] = await Promise.all([
-    Profile.find({}).sort({ createdAt: -1 }).skip(skip).limit(options.limit).lean(),
-    Profile.countDocuments({})
-  ]);
-  return { profiles, total };
+  try {
+    const page = Math.max(1, options.page || 1);
+    const limit = Math.max(1, Math.min(100, options.limit || 10));
+    const skip = (page - 1) * limit;
+
+    const [profiles, total] = await Promise.all([
+      Profile.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Profile.countDocuments({})
+    ]);
+    return { profiles: profiles || [], total: total || 0 };
+  } catch (err) {
+    console.error('[AdminService] getAllProfiles failed:', err);
+    throw err;
+  }
 }
 
 export async function getAllUsers(options: { page: number, limit: number }) {
-  const skip = (options.page - 1) * options.limit;
-  const [users, total] = await Promise.all([
-    User.find({}).sort({ createdAt: -1 }).skip(skip).limit(options.limit).lean(),
-    User.countDocuments({})
-  ]);
-  return { users, total };
+  try {
+    const page = Math.max(1, options.page || 1);
+    const limit = Math.max(1, Math.min(100, options.limit || 10));
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      User.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      User.countDocuments({})
+    ]);
+    return { users: users || [], total: total || 0 };
+  } catch (err) {
+    console.error('[AdminService] getAllUsers failed:', err);
+    throw err;
+  }
 }
 
 export async function getAllReviews(options: { page: number, limit: number }) {
-  const skip = (options.page - 1) * options.limit;
-  const [reviews, total] = await Promise.all([
-    Review.find({})
-      .populate('reviewerId', 'name email')
-      .populate('profileId', 'displayName slug')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(options.limit)
-      .lean(),
-    Review.countDocuments({})
-  ]);
-  return { reviews, total };
+  try {
+    const page = Math.max(1, options.page || 1);
+    const limit = Math.max(1, Math.min(100, options.limit || 10));
+    const skip = (page - 1) * limit;
+
+    const [reviews, total] = await Promise.all([
+      Review.find({})
+        .populate('reviewerId', 'name email')
+        .populate('profileId', 'displayName slug')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Review.countDocuments({})
+    ]);
+    return { reviews: reviews || [], total: total || 0 };
+  } catch (err) {
+    console.error('[AdminService] getAllReviews failed:', err);
+    throw err;
+  }
 }
 
 export async function getAdminStats() {
-  const [users, profiles, reviews, pending] = await Promise.all([
-    User.countDocuments({}),
-    Profile.countDocuments({}),
-    Review.countDocuments({}),
-    Profile.countDocuments({ verificationStatus: 'pending' })
-  ]);
+  try {
+    const [users, profiles, reviews, pending] = await Promise.all([
+      User.countDocuments({}),
+      Profile.countDocuments({}),
+      Review.countDocuments({}),
+      Profile.countDocuments({ verificationStatus: 'pending' })
+    ]);
 
-  // Aggregations for charts
-  const [profilesByType, profilesByDistrict] = await Promise.all([
-    Profile.aggregate([{ $group: { _id: '$type', value: { $sum: 1 } } }]),
-    Profile.aggregate([{ $group: { _id: '$address.district', value: { $sum: 1 } } }])
-  ]);
+    // Aggregations for charts - with defensive matches
+    const [profilesByType, profilesByDistrict] = await Promise.all([
+      Profile.aggregate([
+        { $match: { type: { $exists: true, $ne: null } } },
+        { $group: { _id: '$type', value: { $sum: 1 } } }
+      ]),
+      Profile.aggregate([
+        { $match: { 'address.district': { $exists: true, $ne: null } } },
+        { $group: { _id: '$address.district', value: { $sum: 1 } } }
+      ])
+    ]);
 
-  const profilesBySubject = await Profile.aggregate([
-    { $unwind: '$_subjectIndex' },
-    { $group: { _id: '$_subjectIndex', value: { $sum: 1 } } },
-    { $sort: { value: -1 } },
-    { $limit: 10 }
-  ]);
+    const profilesBySubject = await Profile.aggregate([
+      { $match: { _subjectIndex: { $exists: true, $type: 'array', $ne: [] } } },
+      { $unwind: '$_subjectIndex' },
+      { $group: { _id: '$_subjectIndex', value: { $sum: 1 } } },
+      { $sort: { value: -1 } },
+      { $limit: 10 }
+    ]);
 
-  return {
-    overview: { users, profiles, reviews, pending },
-    profilesByType: profilesByType.map(i => ({ name: i._id, value: i.value })),
-    profilesByDistrict: profilesByDistrict.map(i => ({ name: i._id, value: i.value })),
-    profilesBySubject: profilesBySubject.map(i => ({ name: i._id, value: i.value }))
-  };
+    return {
+      overview: { users, profiles, reviews, pending },
+      profilesByType: (profilesByType || []).map(i => ({ name: i._id || 'Unknown', value: i.value })),
+      profilesByDistrict: (profilesByDistrict || []).map(i => ({ name: i._id || 'Unknown', value: i.value })),
+      profilesBySubject: (profilesBySubject || []).map(i => ({ name: i._id || 'Unknown', value: i.value }))
+    };
+  } catch (err) {
+    console.error('[AdminService] getAdminStats failed:', err);
+    throw err;
+  }
 }
 
 export async function toggleUserStatus(userId: string) {
@@ -270,56 +306,63 @@ export interface ModerationAnalytics {
 }
 
 export async function getModerationAnalytics(): Promise<ModerationAnalytics> {
-  const [moderationStats, enrichmentStats, topSearches]: [AggregationResult[], AggregationResult[], AggregationResult[]] = await Promise.all([
-    // Moderation Stats
-    Profile.aggregate([
+  try {
+    const [moderationStats, enrichmentStats, topSearches]: [AggregationResult[], AggregationResult[], AggregationResult[]] = await Promise.all([
+      // Moderation Stats
+      Profile.aggregate([
+        { $match: { verificationStatus: { $exists: true } } },
+        {
+          $group: {
+            _id: '$verificationStatus',
+            count: { $sum: 1 }
+          }
+        }
+      ]),
+      
+      // Enrichment Stats
+      EnrichmentJob.aggregate([
+        { $match: { status: { $exists: true } } },
+        {
+          $group: {
+            _id: '$status',
+            count: { $sum: 1 }
+          }
+        }
+      ]),
+
+      // Top Failed Searches (Zero Results)
+      SearchMetric.aggregate([
+        { $match: { resultsCount: 0, term: { $exists: true, $ne: null } } },
+        { $group: { _id: '$term', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 10 }
+      ])
+    ]);
+
+    // Confidence distribution
+    const confidenceStats: AggregationResult[] = await Profile.aggregate([
+      { $match: { autoExtracted: true, 'extractionConfidence.subjects': { $exists: true, $ne: null } } },
       {
-        $group: {
-          _id: '$verificationStatus',
-          count: { $sum: 1 }
+        $project: {
+          confidenceLevel: {
+            $cond: [
+              { $gte: ['$extractionConfidence.subjects', 0.8] }, 'High',
+              { $cond: [{ $gte: ['$extractionConfidence.subjects', 0.65] }, 'Medium', 'Low'] }
+            ]
+          }
         }
-      }
-    ]),
-    
-    // Enrichment Stats
-    EnrichmentJob.aggregate([
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
-    ]),
+      },
+      { $group: { _id: '$confidenceLevel', count: { $sum: 1 } } }
+    ]);
 
-    // Top Failed Searches (Zero Results)
-    SearchMetric.aggregate([
-      { $match: { resultsCount: 0 } },
-      { $group: { _id: '$term', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 10 }
-    ])
-  ]);
-
-  // Confidence distribution
-  const confidenceStats: AggregationResult[] = await Profile.aggregate([
-    { $match: { autoExtracted: true } },
-    {
-      $project: {
-        confidenceLevel: {
-          $cond: [
-            { $gte: ['$extractionConfidence.subjects', 0.8] }, 'High',
-            { $cond: [{ $gte: ['$extractionConfidence.subjects', 0.65] }, 'Medium', 'Low'] }
-          ]
-        }
-      }
-    },
-    { $group: { _id: '$confidenceLevel', count: { $sum: 1 } } }
-  ]);
-
-  return {
-    moderation: Object.fromEntries(moderationStats.map(s => [s._id, s.count])),
-    enrichment: Object.fromEntries(enrichmentStats.map(s => [s._id, s.count])),
-    confidence: Object.fromEntries(confidenceStats.map(s => [s._id, s.count])),
-    topFailedSearches: topSearches.map(s => ({ term: s._id, count: s.count }))
-  };
+    return {
+      moderation: Object.fromEntries((moderationStats || []).map(s => [s._id || 'Unknown', s.count || 0])),
+      enrichment: Object.fromEntries((enrichmentStats || []).map(s => [s._id || 'Unknown', s.count || 0])),
+      confidence: Object.fromEntries((confidenceStats || []).map(s => [s._id || 'Unknown', s.count || 0])),
+      topFailedSearches: (topSearches || []).map(s => ({ term: s._id || 'Unknown', count: s.count || 0 }))
+    };
+  } catch (err) {
+    console.error('[AdminService] getModerationAnalytics failed:', err);
+    throw err;
+  }
 }

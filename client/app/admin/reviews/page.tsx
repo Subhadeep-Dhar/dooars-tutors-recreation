@@ -16,8 +16,8 @@ export default function AdminReviewsPage() {
   async function load() {
     try {
       const res = await api.get('/admin/reviews?limit=50');
-      setReviews(res.data.reviews);
-      setTotal(res.data.total);
+      setReviews(res.data.data?.reviews || []);
+      setTotal(res.data.data?.total || 0);
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function AdminReviewsPage() {
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{review.reviewerId?.name ?? 'Student'}</span>
                     <div className="flex items-center gap-0.5">
-                      {Array.from({ length: review.rating }).map((_, i) => (
+                      {Array.from({ length: Math.min(5, Math.max(0, review.rating || 0)) }).map((_, i) => (
                         <Star key={i} size={11} className="fill-amber-400 text-amber-400" />
                       ))}
                     </div>

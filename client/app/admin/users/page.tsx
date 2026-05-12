@@ -15,8 +15,8 @@ export default function AdminUsersPage() {
   async function load() {
     try {
       const res = await api.get('/admin/users?limit=50');
-      setUsers(res.data.users);
-      setTotal(res.data.total);
+      setUsers(res.data.data?.users || []);
+      setTotal(res.data.data?.total || 0);
     } finally {
       setLoading(false);
     }
@@ -52,12 +52,12 @@ export default function AdminUsersPage() {
             <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full gradient-primary text-white flex items-center justify-center text-sm font-semibold">
-                  {user.name.charAt(0)}
+                  {user.name?.charAt(0) || 'U'}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{user.name}</span>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleColors[user.role]}`}>
+                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{user.name || 'No Name'}</span>
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleColors[user.role] || 'bg-slate-100 text-slate-700'}`}>
                       {user.role}
                     </span>
                     {!user.isActive && (

@@ -17,8 +17,8 @@ export default function AdminProfilesPage() {
   async function load() {
     try {
       const res = await api.get('/admin/profiles?limit=50');
-      setProfiles(res.data.profiles);
-      setTotal(res.data.total);
+      setProfiles(res.data.data?.profiles || []);
+      setTotal(res.data.data?.total || 0);
     } finally {
       setLoading(false);
     }
@@ -57,18 +57,20 @@ export default function AdminProfilesPage() {
             <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold">
-                  {profile.displayName.charAt(0)}
+                  {profile.displayName?.charAt(0) || 'P'}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{profile.displayName}</span>
+                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{profile.displayName || 'Unknown Profile'}</span>
                     <Badge variant="outline" className="text-xs">{profile.type}</Badge>
-                    {profile.isApproved
-                      ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">Approved</Badge>
-                      : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Pending</Badge>}
+                    {profile.verificationStatus === 'verified'
+                      ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">Verified</Badge>
+                      : profile.verificationStatus === 'rejected'
+                        ? <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs">Rejected</Badge>
+                        : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Pending</Badge>}
                     {profile.isFeatured && <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Featured</Badge>}
                   </div>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{profile.address?.town}, {profile.address?.district}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{profile.address?.town || 'No Town'}, {profile.address?.district || 'No District'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-wrap">

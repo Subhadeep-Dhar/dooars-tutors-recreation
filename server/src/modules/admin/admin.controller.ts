@@ -16,7 +16,10 @@ export async function getAllProfiles(req: Request, res: Response, next: NextFunc
       limit: parseInt(limit as string)
     });
     res.json({ success: true, data: result });
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error('[AdminController] getAllProfiles failed:', err);
+    next(err);
+  }
 }
 
 export async function getAllUsers(req: Request, res: Response, next: NextFunction) {
@@ -27,7 +30,10 @@ export async function getAllUsers(req: Request, res: Response, next: NextFunctio
       limit: parseInt(limit as string)
     });
     res.json({ success: true, data: result });
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error('[AdminController] getAllUsers failed:', err);
+    next(err);
+  }
 }
 
 export async function getAllReviews(req: Request, res: Response, next: NextFunction) {
@@ -38,7 +44,10 @@ export async function getAllReviews(req: Request, res: Response, next: NextFunct
       limit: parseInt(limit as string)
     });
     res.json({ success: true, data: result });
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error('[AdminController] getAllReviews failed:', err);
+    next(err);
+  }
 }
 
 export async function toggleUserStatus(req: Request, res: Response, next: NextFunction) {

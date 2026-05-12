@@ -40,8 +40,8 @@ export default function ModerationPage() {
         enrichmentFailed: filters.enrichmentFailed.toString()
       });
       const res = await api.get(`/admin/moderation-queue?${query}`);
-      setProfiles(res.data.profiles);
-      setTotal(res.data.pagination.total);
+      setProfiles(res.data.data?.profiles || []);
+      setTotal(res.data.data?.pagination?.total || 0);
     } catch {
       toast.error('Failed to load queue');
     } finally {
@@ -132,7 +132,7 @@ export default function ModerationPage() {
               <div className="p-4 flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-4 flex-1">
                   <div className="w-12 h-12 rounded-2xl gradient-primary text-white flex items-center justify-center font-bold text-lg shadow-lg">
-                    {profile.displayName.charAt(0)}
+                    {profile.displayName?.charAt(0) || 'P'}
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">

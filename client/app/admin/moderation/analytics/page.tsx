@@ -26,7 +26,7 @@ export default function AnalyticsPage() {
     try {
       setLoading(true);
       const res = await api.get('/admin/analytics');
-      setData(res.data);
+      setData(res.data.data || null);
     } catch {
       toast.error('Failed to load analytics');
     } finally {
@@ -37,7 +37,12 @@ export default function AnalyticsPage() {
   useEffect(() => { load(); }, []);
 
   if (loading && !data) return <div className="p-20 text-center animate-pulse" style={{ color: 'var(--text-muted)' }}>Loading analytics...</div>;
-  if (!data) return null;
+  if (!data) return <div className="p-20 text-center" style={{ color: 'var(--text-muted)' }}>No analytics data available.</div>;
+
+  const moderation = data.moderation || {};
+  const enrichment = data.enrichment || {};
+  const confidence = data.confidence || {};
+  const topFailedSearches = data.topFailedSearches || [];
 
   return (
     <div className="space-y-6">
@@ -56,25 +61,25 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard 
           title="Pending Queue" 
-          value={data.moderation.pending || 0} 
+          value={moderation.pending || 0} 
           icon={<TrendingUp className="text-amber-500" size={18} />}
           description="Awaiting review"
         />
         <MetricCard 
           title="Verified Profiles" 
-          value={data.moderation.verified || 0} 
+          value={moderation.verified || 0} 
           icon={<CheckCircle className="text-green-500" size={18} />}
           description="Live on platform"
         />
         <MetricCard 
           title="Enrichment Failures" 
-          value={data.enrichment.failed || 0} 
+          value={enrichment.failed || 0} 
           icon={<AlertTriangle className="text-red-500" size={18} />}
           description="AI parsing errors"
         />
         <MetricCard 
           title="Rejected Profiles" 
-          value={data.moderation.rejected || 0} 
+          value={moderation.rejected || 0} 
           icon={<XCircle className="text-gray-400" size={18} />}
           description="Spam or duplicates"
         />
@@ -90,9 +95,9 @@ export default function AnalyticsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <DistributionBar label="High (>80%)" count={data.confidence.High || 0} total={Object.values(data.confidence).reduce((a: any, b: any) => a + b, 0) as number} color="bg-green-500" />
-              <DistributionBar label="Medium (65-80%)" count={data.confidence.Medium || 0} total={Object.values(data.confidence).reduce((a: any, b: any) => a + b, 0) as number} color="bg-amber-500" />
-              <DistributionBar label="Low (<65%)" count={data.confidence.Low || 0} total={Object.values(data.confidence).reduce((a: any, b: any) => a + b, 0) as number} color="bg-red-500" />
+              <DistributionBar label="High (>80%)" count={confidence.High || 0} total={Object.values(confidence).reduce((a: any, b: any) => a + (Number(b) || 0), 0) as number} color="bg-green-500" />
+              <DistributionBar label="Medium (65-80%)" count={confidence.Medium || 0} total={Object.values(confidence).reduce((a: any, b: any) => a + (Number(b) || 0), 0) as number} color="bg-amber-500" />
+              <DistributionBar label="Low (<65%)" count={confidence.Low || 0} total={Object.values(confidence).reduce((a: any, b: any) => a + (Number(b) || 0), 0) as number} color="bg-red-500" />
             </div>
           </CardContent>
         </Card>
@@ -105,9 +110,9 @@ export default function AnalyticsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {data.topFailedSearches.length > 0 ? (
+            {topFailedSearches.length > 0 ? (
               <div className="space-y-2">
-                {data.topFailedSearches.map((s: any) => (
+                {topFailedSearches.map((s: any) => (
                   <div key={s.term} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 border">
                     <span className="text-sm font-medium">{s.term}</span>
                     <Badge variant="secondary" className="text-[10px]">{s.count} failed attempts</Badge>
