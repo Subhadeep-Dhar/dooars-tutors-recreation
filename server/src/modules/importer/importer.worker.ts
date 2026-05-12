@@ -123,7 +123,7 @@ export class ImporterWorker {
       }
     } catch (err: any) {
       importerLogger.error('Critical worker error', err);
-      summary.errors.push(err.message || 'Unknown critical error');
+      summary.importErrors.push(err.message || 'Unknown critical error');
     } finally {
       await this.playwright.close();
       

@@ -17,7 +17,7 @@ export interface IImportSummaryDocument extends Document {
     maxListings: number;
     delayMs: [number, number];
   };
-  errors: string[];
+  importErrors: string[];
 }
 
 const ImportSummarySchema = new Schema<IImportSummaryDocument>(
@@ -38,7 +38,7 @@ const ImportSummarySchema = new Schema<IImportSummaryDocument>(
       maxListings: { type: Number },
       delayMs: [{ type: Number }],
     },
-    errors: [{ type: String }],
+    importErrors: [{ type: String }],
   },
   { timestamps: true }
 );
