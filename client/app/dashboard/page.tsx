@@ -71,19 +71,21 @@ export default function DashboardPage() {
           <Card className="mb-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <CardContent className="p-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                {profile.isApproved ? (
+                {profile.verificationStatus === 'verified' ? (
                   <CheckCircle size={20} className="text-green-500" />
                 ) : (
                   <Clock size={20} className="text-amber-500" />
                 )}
                 <div>
                   <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                    {profile.isApproved ? 'Profile approved & live' : 'Pending admin approval'}
+                    {profile.verificationStatus === 'verified' ? 'Profile approved & live' : profile.verificationStatus === 'rejected' ? 'Profile rejected' : 'Pending admin approval'}
                   </p>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                    {profile.isApproved
+                    {profile.verificationStatus === 'verified'
                       ? 'Your profile is visible in search results'
-                      : 'You will be notified once approved'}
+                      : profile.verificationStatus === 'rejected'
+                        ? 'Please contact support to resolve issues.'
+                        : 'You will be notified once approved'}
                   </p>
                 </div>
               </div>

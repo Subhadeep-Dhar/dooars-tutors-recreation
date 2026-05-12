@@ -241,6 +241,5 @@ ProfileSchema.index({ type: 1, _subjectIndex: 1, _classIndex: 1 });
 ProfileSchema.index({ verificationStatus: 1, isActive: 1, _subjectIndex: 1, _classIndex: 1, 'rating.average': -1 });
 ProfileSchema.index({ slug: 1 }, { unique: true });
 ProfileSchema.index({ isFeatured: 1, verificationStatus: 1, isActive: 1 });
-ProfileSchema.index({ googlePlaceId: 1 }, { unique: true, sparse: true });
 
 export const Profile = mongoose.model<IProfileDocument>('Profile', ProfileSchema);

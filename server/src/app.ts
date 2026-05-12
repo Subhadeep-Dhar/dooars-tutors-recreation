@@ -19,6 +19,9 @@ import mediaRoutes from './modules/media/media.routes';
 
 const app = express();
 
+// Trust proxy for Render/reverse-proxies (Required for express-rate-limit)
+app.set('trust proxy', 1);
+
 // ── Security ─────────────────────────────────────────
 app.use(helmet());
 app.use(

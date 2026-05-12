@@ -86,7 +86,7 @@ export default function AdminProfilesPage() {
                 >
                   <Star size={12} /> {profile.isFeatured ? 'Unfeature' : 'Feature'}
                 </Button>
-                {!profile.isApproved ? (
+                {profile.verificationStatus !== 'verified' ? (
                   <Button
                     size="sm"
                     className="h-8 gap-1 text-xs bg-green-600 hover:bg-green-700"
