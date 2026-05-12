@@ -12,6 +12,7 @@ export interface RawScrapedData {
   longitude: number;
   googleMapsUrl: string;
   googlePlaceId: string;
+  warnings?: string[];
 }
 
 export interface NormalizedData extends Omit<RawScrapedData, 'category'> {
@@ -31,4 +32,14 @@ export interface ImporterConfig {
   headless: boolean;
   delayMs: [number, number]; // [min, max]
   maxListings: number;
+  maxScrolls: number;
+  contextResetInterval: number;
+}
+
+export interface ImportStats {
+  totalScraped: number;
+  imported: number;
+  duplicatesSkipped: number;
+  failed: number;
+  partial: number;
 }

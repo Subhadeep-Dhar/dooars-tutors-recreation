@@ -72,6 +72,9 @@ export interface IProfileDocument extends Document {
     source?: string;
     verificationStatus?: 'pending' | 'verified' | 'rejected';
     googlePlaceId?: string;
+    googleMapsUrl?: string;
+    importBatchId?: string;
+    sourcePriority?: number;
     importedAt?: Date;
 
     createdAt: Date;
@@ -179,6 +182,9 @@ const ProfileSchema = new Schema<IProfileDocument>(
             default: 'pending' 
         },
         googlePlaceId: { type: String, index: { unique: true, sparse: true } },
+        googleMapsUrl: { type: String },
+        importBatchId: { type: String, index: true },
+        sourcePriority: { type: Number, default: 50 },
         importedAt: { type: Date },
     },
     { timestamps: true }

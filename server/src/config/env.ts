@@ -25,6 +25,9 @@ const envSchema = z.object({
   IMPORTER_HEADLESS: z.preprocess((v) => v === 'true' || v === true, z.boolean()).default(true),
   IMPORTER_DELAY_MIN: z.string().default('2000').transform(Number),
   IMPORTER_DELAY_MAX: z.string().default('5000').transform(Number),
+  IMPORTER_BATCH_SIZE: z.string().default('5').transform(Number),
+  IMPORTER_MAX_SCROLLS: z.string().default('10').transform(Number),
+  IMPORTER_CONTEXT_RESET_INTERVAL: z.string().default('10').transform(Number),
 });
 
 const parsed = envSchema.safeParse(process.env);

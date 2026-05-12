@@ -12,3 +12,6 @@ export type { ICategoryDocument } from './Category';
 
 export { RawPlace } from './RawPlace';
 export type { IRawPlaceDocument } from './RawPlace';
+
+export { ImportSummary } from './ImportSummary';
+export type { IImportSummaryDocument } from './ImportSummary';

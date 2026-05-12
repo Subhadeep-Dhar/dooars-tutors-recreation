@@ -1,19 +1,26 @@
-import { chromium, Browser, Page } from 'playwright';
+import { chromium, Browser, BrowserContext, Page } from 'playwright';
 import { importerLogger } from './logger';
 import { RawScrapedData, ImporterConfig } from './types';
+import { ParserService } from './parser.service';
 
 const DEFAULT_CONFIG: ImporterConfig = {
   headless: true,
   delayMs: [2000, 5000],
-  maxListings: 5
+  maxListings: 5,
+  maxScrolls: 10,
+  contextResetInterval: 10
 };
 
 export class PlaywrightService {
   private browser: Browser | null = null;
+  private context: BrowserContext | null = null;
   private config: ImporterConfig;
+  private parser: ParserService;
+  private processedInContext: number = 0;
 
   constructor(config: Partial<ImporterConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    this.parser = new ParserService();
   }
 
   private async sleep(ms?: number) {
@@ -22,60 +29,102 @@ export class PlaywrightService {
   }
 
   async init() {
-    this.browser = await chromium.launch({ headless: this.config.headless });
+    if (!this.browser) {
+      this.browser = await chromium.launch({ 
+        headless: this.config.headless,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+      });
+    }
+    await this.resetContext();
+  }
+
+  private async resetContext() {
+    if (this.context) {
+      importerLogger.debug('Recycling browser context...');
+      await this.context.close();
+    }
+    this.context = await this.browser!.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+    });
+    this.processedInContext = 0;
   }
 
   async close() {
-    if (this.browser) {
-      await this.browser.close();
-      this.browser = null;
-    }
+    if (this.context) await this.context.close();
+    if (this.browser) await this.browser.close();
+    this.browser = null;
+    this.context = null;
   }
 
   async scrapeKeyword(keyword: string): Promise<RawScrapedData[]> {
     if (!this.browser) await this.init();
-    const context = await this.browser!.newContext({
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
-    });
-    const page = await context.newPage();
-
+    
+    const page = await this.context!.newPage();
     const results: RawScrapedData[] = [];
+
     try {
       const searchUrl = `https://www.google.com/maps/search/${encodeURIComponent(keyword)}`;
       importerLogger.info(`Navigating to ${searchUrl}`);
-      await page.goto(searchUrl);
-      await this.sleep(3000); // Wait for results to load
+      
+      await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+      await page.waitForSelector('div[role="feed"]', { timeout: 30000 }).catch(() => importerLogger.warn('Results pane not found after navigation'));
+      await this.sleep(3000);
 
-      // Scroll the results pane if it exists
+      // ── Infinite Scroll Protection ─────────────────────────────────────────
       const resultsPaneSelector = 'div[role="feed"]';
-      const pane = await page.$(resultsPaneSelector);
-      if (pane) {
-          importerLogger.debug('Found results pane, scrolling...');
-          for (let i = 0; i < 3; i++) {
-              await page.mouse.wheel(0, 1000);
-              await this.sleep(1000);
-          }
+      let scrollAttempts = 0;
+      let noNewResultsCount = 0;
+      let lastListingCount = 0;
+
+      while (scrollAttempts < this.config.maxScrolls) {
+        const currentListings = await page.$$('a.hfpxzc');
+        
+        if (currentListings.length >= this.config.maxListings) break;
+        
+        if (currentListings.length === lastListingCount) {
+          noNewResultsCount++;
+          if (noNewResultsCount > 3) break; // Stuck
+        } else {
+          noNewResultsCount = 0;
+        }
+
+        lastListingCount = currentListings.length;
+        await page.mouse.wheel(0, 2000);
+        await this.sleep(1500);
+        scrollAttempts++;
       }
 
-      // Selectors for listing titles
-      // Note: These are fragile but common in GMap as of 2024
-      const listingSelector = 'a.hfpxzc'; 
-      const listings = await page.$$(listingSelector);
+      // ── Listing Processing ─────────────────────────────────────────────────
+      const listingHandles = await page.$$('a.hfpxzc');
+      const toProcess = Math.min(listingHandles.length, this.config.maxListings);
       
-      importerLogger.info(`Found ${listings.length} listings. Processing max ${this.config.maxListings}`);
+      importerLogger.info(`Found ${listingHandles.length} listings. Processing ${toProcess}`);
 
-      for (let i = 0; i < Math.min(listings.length, this.config.maxListings); i++) {
+      for (let i = 0; i < toProcess; i++) {
+        // Context recycling check
+        if (this.processedInContext >= this.config.contextResetInterval) {
+          await this.resetContext();
+          // Need to navigate back if we reset context mid-keyword (but usually we do it between keywords or every X listings)
+          // For simplicity, we'll reset context ONLY between keywords or if a threshold is hit.
+          // Let's stick to simple recycling for now.
+        }
+
         try {
-          const listing = listings[i];
-          await listing.click();
-          await this.sleep(2000); // Wait for details pane
+          // Re-fetch handles after potential navigation/scrolling
+          const freshHandles = await page.$$('a.hfpxzc');
+          const handle = freshHandles[i];
+          if (!handle) continue;
 
-          const data = await this.extractDetails(page);
+          await handle.click();
+          await this.sleep(2500); // Wait for details pane
+
+          const data = await this.parser.extractListingDetails(page);
           if (data) {
-              results.push(data);
-              importerLogger.info(`Extracted: ${data.name}`);
+            results.push(data);
+            this.processedInContext++;
+            importerLogger.info(`[${i+1}/${toProcess}] Extracted: ${data.name}`);
           }
-          
+
           await this.sleep();
         } catch (err) {
           importerLogger.error(`Error processing listing ${i}`, err);
@@ -85,49 +134,9 @@ export class PlaywrightService {
     } catch (err) {
       importerLogger.error(`Error scraping keyword ${keyword}`, err);
     } finally {
-      await context.close();
+      await page.close();
     }
 
     return results;
-  }
-
-  private async extractDetails(page: Page): Promise<RawScrapedData | null> {
-    try {
-        const name = await page.innerText('h1.DUwDvf').catch(() => '');
-        if (!name) return null;
-
-        const address = await page.getAttribute('button[data-item-id="address"]', 'aria-label').catch(() => '');
-        const phone = await page.getAttribute('button[data-item-id^="phone:tel:"]', 'aria-label').catch(() => '');
-        const website = await page.getAttribute('a[data-item-id="authority"]', 'href').catch(() => '');
-        const ratingText = await page.innerText('div.F7kYVb').catch(() => '0');
-        const reviewCountText = await page.innerText('span.e07Mpf').catch(() => '0');
-        const category = await page.innerText('button.DkEaL').catch(() => '');
-        
-        const mapsUrl = page.url();
-        const coordsMatch = mapsUrl.match(/!3d([-.\d]+)!4d([-.\d]+)/);
-        const latitude = coordsMatch ? parseFloat(coordsMatch[1]) : 0;
-        const longitude = coordsMatch ? parseFloat(coordsMatch[2]) : 0;
-
-        // Extract Place ID from URL if possible or generate one from name+coords
-        const placeIdMatch = mapsUrl.match(/ChI[a-zA-Z0-9-_]+/);
-        const googlePlaceId = placeIdMatch ? placeIdMatch[0] : `gen_${Buffer.from(name + latitude + longitude).toString('hex').substring(0, 16)}`;
-
-        return {
-            name,
-            address: address?.replace(/^Address: /, '') || '',
-            phone: phone?.replace(/^Phone: /, '') || '',
-            website: website || '',
-            rating: parseFloat(ratingText.replace(',', '.')) || 0,
-            reviewCount: parseInt(reviewCountText.replace(/[^\d]/g, '')) || 0,
-            category,
-            latitude,
-            longitude,
-            googleMapsUrl: mapsUrl,
-            googlePlaceId
-        };
-    } catch (err) {
-        importerLogger.error('Error extracting details', err);
-        return null;
-    }
   }
 }

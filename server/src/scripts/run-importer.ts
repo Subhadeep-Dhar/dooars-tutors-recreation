@@ -1,31 +1,40 @@
 import 'dotenv/config';
-import mongoose from 'mongoose';
 import { env } from '../config/env';
 import { ImporterWorker } from '../modules/importer/importer.worker';
 import { connectDB } from '../config/db';
+import { importerLogger } from '../modules/importer/logger';
 
 async function main() {
   try {
     await connectDB();
-    console.log('✅ Connected to MongoDB');
+    importerLogger.info('Connected to MongoDB');
+
+    const isDryRun = process.argv.includes('--dry-run');
+    if (isDryRun) {
+      importerLogger.info('DRY RUN MODE ENABLED - No changes will be saved to profiles');
+    }
 
     const worker = new ImporterWorker({
-      headless: true, // Set to false to watch it work
-      maxListings: 3  // Safe small batch for testing
+      headless: env.IMPORTER_HEADLESS,
+      maxListings: env.IMPORTER_BATCH_SIZE,
+      delayMs: [env.IMPORTER_DELAY_MIN, env.IMPORTER_DELAY_MAX],
+      maxScrolls: env.IMPORTER_MAX_SCROLLS,
+      contextResetInterval: env.IMPORTER_CONTEXT_RESET_INTERVAL,
+      dryRun: isDryRun
     });
 
     const keywords = [
       'computer coaching alipurduar',
-      // 'dance classes alipurduar',
-      // 'music school alipurduar'
+      // 'martial arts alipurduar',
+      // 'yoga center alipurduar'
     ];
 
-    await worker.run(keywords);
+    const result = await worker.run(keywords);
 
-    console.log('✅ Import script finished successfully');
+    importerLogger.info('✅ Import session completed', result);
     process.exit(0);
   } catch (err) {
-    console.error('❌ Import script failed:', err);
+    importerLogger.error('❌ Import session failed', err);
     process.exit(1);
   }
 }
