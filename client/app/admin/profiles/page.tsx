@@ -27,8 +27,10 @@ export default function AdminProfilesPage() {
   useEffect(() => { load(); }, []);
 
   async function approve(id: string, approved: boolean) {
+  async function approve(id: string, approved: boolean) {
     try {
-      await api.patch(`/admin/profiles/${id}/approve`, { approved });
+      const type = approved ? 'approve' : 'reject';
+      await api.post(`/admin/profiles/${id}/${type}`);
       toast.success(approved ? 'Profile approved' : 'Profile rejected');
       load();
     } catch {

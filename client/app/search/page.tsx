@@ -621,8 +621,9 @@ function SearchPageInner() {
     api.get(`/search?${buildQS(1)}`)
       .then(res => {
         if (cancelled) return;
-        setProfiles(res.data.data ?? []);
-        setTotal(res.data.total   ?? res.data.data?.length ?? 0);
+        const result = res.data.data;
+        setProfiles(result?.data ?? []);
+        setTotal(result?.total ?? 0);
       })
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -636,11 +637,13 @@ function SearchPageInner() {
     setLoadingMore(true);
     api.get(`/search?${buildQS(next)}`)
       .then(res => {
+        const result = res.data.data;
         setProfiles(prev => {
+          const items = result?.data ?? [];
           const ids = new Set(prev.map((r: any) => r._id));
-          return [...prev, ...(res.data.data ?? []).filter((r: any) => !ids.has(r._id))];
+          return [...prev, ...items.filter((r: any) => !ids.has(r._id))];
         });
-        setTotal(res.data.total ?? 0);
+        setTotal(result?.total ?? 0);
       })
       .catch(() => {})
       .finally(() => setLoadingMore(false));
