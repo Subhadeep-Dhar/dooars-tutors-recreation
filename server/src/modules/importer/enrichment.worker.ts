@@ -46,14 +46,18 @@ export class EnrichmentWorker {
       const profile = await Profile.findById(job.profileId);
       if (!profile) {
         job.status = 'permanent_failure';
-        job.errors.push({ message: 'Profile not found', timestamp: new Date() });
+        job.jobErrors.push({ message: 'Profile not found', timestamp: new Date() });
         await job.save();
         return;
       }
 
       // 1. Crawl website if available
       let websiteContent = '';
-      let crawlMetrics = { crawlDurationMs: 0, pagesVisited: 0, source: 'axios' as const };
+      let crawlMetrics: { 
+        crawlDurationMs: number; 
+        pagesVisited: number; 
+        source: 'axios' | 'playwright';
+      } = { crawlDurationMs: 0, pagesVisited: 0, source: 'axios' };
       let websiteHash = '';
 
       if (job.metadata.websiteUrl) {
@@ -155,7 +159,7 @@ export class EnrichmentWorker {
       job.status = job.retries >= job.maxRetries ? 'permanent_failure' : 'failed';
       job.retries += 1;
       job.nextRunAt = new Date(Date.now() + Math.pow(2, job.retries) * 60000); // Exp backoff
-      job.errors.push({ message: err.message, timestamp: new Date() });
+      job.jobErrors.push({ message: err.message, timestamp: new Date() });
       await job.save();
     }
   }

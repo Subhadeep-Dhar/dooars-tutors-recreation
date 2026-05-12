@@ -10,7 +10,7 @@ export interface IEnrichmentJobDocument extends Document {
   retries: number;
   maxRetries: number;
   nextRunAt: Date;
-  errors: Array<{
+  jobErrors: Array<{
     message: string;
     timestamp: Date;
     code?: string;
@@ -37,7 +37,7 @@ const EnrichmentJobSchema = new Schema<IEnrichmentJobDocument>(
     retries: { type: Number, default: 0 },
     maxRetries: { type: Number, default: 3 },
     nextRunAt: { type: Date, default: Date.now, index: true },
-    errors: [{
+    jobErrors: [{
       message: { type: String },
       timestamp: { type: Date, default: Date.now },
       code: { type: String }

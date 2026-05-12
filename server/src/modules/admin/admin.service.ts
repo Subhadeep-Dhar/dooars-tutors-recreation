@@ -1,8 +1,18 @@
-import { Profile, EnrichmentJob, SearchMetric } from '../../models';
+import { Profile, EnrichmentJob, SearchMetric, IProfileDocument } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
 import mongoose from 'mongoose';
 
-export async function getModerationQueue(filters: any, options: { page: number, limit: number }) {
+export interface ModerationQueueResult {
+  profiles: any[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}
+
+export async function getModerationQueue(filters: any, options: { page: number, limit: number }): Promise<ModerationQueueResult> {
   const query: any = {
     verificationStatus: filters.status || 'pending'
   };
@@ -55,7 +65,7 @@ export async function getModerationQueue(filters: any, options: { page: number, 
   };
 }
 
-export async function approveProfile(profileId: string) {
+export async function approveProfile(profileId: string): Promise<IProfileDocument> {
   const profile = await Profile.findByIdAndUpdate(
     profileId,
     { verificationStatus: 'verified', isActive: true },
@@ -65,7 +75,7 @@ export async function approveProfile(profileId: string) {
   return profile;
 }
 
-export async function rejectProfile(profileId: string, reason?: string) {
+export async function rejectProfile(profileId: string, _reason?: string): Promise<IProfileDocument> {
   const profile = await Profile.findByIdAndUpdate(
     profileId,
     { verificationStatus: 'rejected', isActive: false },
@@ -75,7 +85,13 @@ export async function rejectProfile(profileId: string, reason?: string) {
   return profile;
 }
 
-export async function getProfileForModeration(profileId: string) {
+export interface ModerationProfileDetails {
+  profile: any;
+  enrichmentData: any;
+  duplicates: any[];
+}
+
+export async function getProfileForModeration(profileId: string): Promise<ModerationProfileDetails> {
   const profile = await Profile.findById(profileId).lean();
   if (!profile) throw new AppError('Profile not found', 404);
 
@@ -92,7 +108,7 @@ export async function getProfileForModeration(profileId: string) {
   };
 }
 
-async function detectDuplicates(profile: any) {
+async function detectDuplicates(profile: any): Promise<any[]> {
   const similarProfiles = await Profile.find({
     _id: { $ne: profile._id },
     'address.town': profile.address?.town,
@@ -118,7 +134,7 @@ function calculateSimilarity(s1: string, s2: string): number {
   return intersection.length / Math.max(set1.size, set2.size);
 }
 
-export async function mergeProfiles(targetId: string, sourceId: string, fieldsToKeep: string[]) {
+export async function mergeProfiles(targetId: string, sourceId: string, fieldsToKeep: string[]): Promise<IProfileDocument> {
   const [target, source] = await Promise.all([
     Profile.findById(targetId),
     Profile.findById(sourceId)
@@ -151,8 +167,20 @@ export async function mergeProfiles(targetId: string, sourceId: string, fieldsTo
   return target;
 }
 
-export async function getModerationAnalytics() {
-  const [moderationStats, enrichmentStats, topSearches] = await Promise.all([
+export interface AggregationResult {
+  _id: string;
+  count: number;
+}
+
+export interface ModerationAnalytics {
+  moderation: Record<string, number>;
+  enrichment: Record<string, number>;
+  confidence: Record<string, number>;
+  topFailedSearches: { term: string; count: number }[];
+}
+
+export async function getModerationAnalytics(): Promise<ModerationAnalytics> {
+  const [moderationStats, enrichmentStats, topSearches]: [AggregationResult[], AggregationResult[], AggregationResult[]] = await Promise.all([
     // Moderation Stats
     Profile.aggregate([
       {
@@ -183,7 +211,7 @@ export async function getModerationAnalytics() {
   ]);
 
   // Confidence distribution
-  const confidenceStats = await Profile.aggregate([
+  const confidenceStats: AggregationResult[] = await Profile.aggregate([
     { $match: { autoExtracted: true } },
     {
       $project: {
