@@ -621,9 +621,9 @@ function SearchPageInner() {
     api.get(`/search?${buildQS(1)}`)
       .then(res => {
         if (cancelled) return;
-        const result = res.data.data;
-        setProfiles(result?.data ?? []);
-        setTotal(result?.total ?? 0);
+        const result = res.data;
+        setProfiles(result.data ?? []);
+        setTotal(result.total ?? 0);
       })
       .catch(() => {})
       .finally(() => { if (!cancelled) setLoading(false); });
@@ -637,13 +637,13 @@ function SearchPageInner() {
     setLoadingMore(true);
     api.get(`/search?${buildQS(next)}`)
       .then(res => {
-        const result = res.data.data;
+        const result = res.data;
         setProfiles(prev => {
-          const items = result?.data ?? [];
+          const items = result.data ?? [];
           const ids = new Set(prev.map((r: any) => r._id));
           return [...prev, ...items.filter((r: any) => !ids.has(r._id))];
         });
-        setTotal(result?.total ?? 0);
+        setTotal(result.total ?? 0);
       })
       .catch(() => {})
       .finally(() => setLoadingMore(false));
