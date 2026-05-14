@@ -24,7 +24,7 @@ async function main() {
     });
 
     const keywords = [
-      'computer coaching alipurduar',
+      'dance classes alipurduar',
     ];
 
     const result = await worker.run(keywords);
