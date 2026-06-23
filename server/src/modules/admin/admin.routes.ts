@@ -12,6 +12,7 @@ import {
   getAllUsers,
   getAllReviews,
   toggleUserStatus,
+  deleteUser,
   toggleReviewVisibility,
   toggleProfileFeatured
 } from './admin.controller';
@@ -31,6 +32,7 @@ router.get('/reviews', getAllReviews);
 
 // Action Routes
 router.patch('/users/:id/status', toggleUserStatus);
+router.delete('/users/:id', deleteUser);
 router.patch('/reviews/:id/visibility', toggleReviewVisibility);
 router.patch('/profiles/:id/feature', toggleProfileFeatured);
 

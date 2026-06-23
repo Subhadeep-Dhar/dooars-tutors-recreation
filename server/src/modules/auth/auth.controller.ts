@@ -120,3 +120,32 @@ export async function getMe(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+
+export async function deleteAccount(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { User, Profile } = await import('../../models');
+    const userId = req.user!.userId;
+
+    const user = await User.findById(userId);
+    if (!user) throw new AppError('User not found', 404);
+
+    // Soft delete user
+    user.isActive = false;
+    user.email = `${user.email}_deleted_${Date.now()}`;
+    await user.save();
+
+    // Hard delete profile if exists
+    await Profile.deleteOne({ userId });
+
+    // Logout
+    const refreshToken = req.cookies?.refreshToken;
+    if (refreshToken) {
+      await AuthService.logoutUser(refreshToken).catch(() => {});
+    }
+    res.clearCookie('refreshToken', { path: '/' });
+
+    res.json({ success: true, message: 'Account deleted successfully' });
+  } catch (err) {
+    next(err);
+  }
+}

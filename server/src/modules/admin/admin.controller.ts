@@ -57,6 +57,13 @@ export async function toggleUserStatus(req: Request, res: Response, next: NextFu
   } catch (err) { next(err); }
 }
 
+export async function deleteUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    await AdminService.deleteUser(req.params.id);
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (err) { next(err); }
+}
+
 export async function toggleReviewVisibility(req: Request, res: Response, next: NextFunction) {
   try {
     const review = await AdminService.toggleReviewVisibility(req.params.id);

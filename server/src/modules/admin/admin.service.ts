@@ -173,6 +173,21 @@ export async function toggleUserStatus(userId: string) {
   return user;
 }
 
+export async function deleteUser(userId: string) {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('User not found', 404);
+  
+  // Soft delete user
+  user.isActive = false;
+  user.email = `${user.email}_deleted_${Date.now()}`;
+  await user.save();
+  
+  // Hard delete profile if exists
+  await Profile.deleteOne({ userId });
+  
+  return user;
+}
+
 export async function toggleReviewVisibility(reviewId: string) {
   const review = await Review.findById(reviewId);
   if (!review) throw new AppError('Review not found', 404);

@@ -448,11 +448,15 @@ export default function ProfilePage() {
   const [loading,    setLoading]    = useState(true);
   const [notFound,   setNotFound]   = useState(false);
 
-  // Review form
   const [rating,     setRating]     = useState(5);
   const [comment,    setComment]    = useState('');
   const [hoverStar,  setHoverStar]  = useState(0);
   const [submitting, setSubmitting] = useState(false);
+
+  // Delete profile
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     if (!slugOrId) return;
@@ -497,6 +501,23 @@ export default function ProfilePage() {
       toast.error(err?.response?.data?.message || 'Failed to submit review');
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (deleteConfirmText !== 'Confirm') {
+      toast.error('Please type "Confirm" to proceed');
+      return;
+    }
+    setDeletingAccount(true);
+    try {
+      await api.delete('/auth/me');
+      toast.success('Account deleted successfully');
+      useAuthStore.getState().logout();
+      router.push('/');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to delete account');
+      setDeletingAccount(false);
     }
   }
 
@@ -865,6 +886,60 @@ export default function ProfilePage() {
                 </div>
               )}
             </SCard>
+
+            {/* Danger Zone */}
+            {user && user._id === profile.userId && (
+              <SCard style={{ borderColor: 'rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.02)' }}>
+                <STitle><span style={{ color: '#ef4444' }}>Danger Zone</span></STitle>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                  Permanently delete your account and profile. This action cannot be undone.
+                </p>
+                {!showDeleteConfirm ? (
+                  <button onClick={() => setShowDeleteConfirm(true)} style={{
+                    padding: '0.5rem 1.25rem', fontSize: '0.875rem', fontWeight: 600,
+                    background: '#ef4444', color: '#fff', border: 'none', borderRadius: 'var(--radius-buttons)',
+                    cursor: 'pointer', transition: 'background 0.2s',
+                  }} onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = '#dc2626'} onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = '#ef4444'}>
+                    Delete Account
+                  </button>
+                ) : (
+                  <div style={{ padding: '1rem', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Are you absolutely sure?</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                      Please type <strong>Confirm</strong> to permanently delete your account.
+                    </p>
+                    <input
+                      type="text"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="Type Confirm"
+                      style={{
+                        width: '100%', padding: '0.5rem 0.75rem', marginBottom: '0.75rem',
+                        background: 'var(--bg-card)', border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius-md)', color: 'var(--text-primary)', fontSize: '0.875rem', outline: 'none'
+                      }}
+                    />
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                      <button onClick={handleDeleteAccount} disabled={deleteConfirmText !== 'Confirm' || deletingAccount} style={{
+                        padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 600,
+                        background: '#ef4444', color: '#fff', border: 'none', borderRadius: 'var(--radius-buttons)',
+                        cursor: deleteConfirmText !== 'Confirm' || deletingAccount ? 'not-allowed' : 'pointer',
+                        opacity: deleteConfirmText !== 'Confirm' || deletingAccount ? 0.5 : 1
+                      }}>
+                        {deletingAccount ? 'Deleting...' : 'Delete Permanently'}
+                      </button>
+                      <button onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }} style={{
+                        padding: '0.5rem 1rem', fontSize: '0.875rem', fontWeight: 600,
+                        background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 'var(--radius-buttons)',
+                        cursor: 'pointer'
+                      }}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </SCard>
+            )}
           </div>
 
           {/* Right column */}

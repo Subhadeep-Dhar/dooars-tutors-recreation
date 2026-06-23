@@ -7,6 +7,7 @@ import {
   refresh,
   logout,
   getMe,
+  deleteAccount,
   registerValidation,
   loginValidation,
 } from './auth.controller';
@@ -18,5 +19,6 @@ router.post('/login', authLimiter, loginValidation, login);
 router.post('/refresh', refresh);
 router.post('/logout', logout);
 router.get('/me', verifyToken, getMe);
+router.delete('/me', verifyToken, deleteAccount);
 
 export default router;
