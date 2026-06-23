@@ -54,7 +54,6 @@ export interface IProfileDocument extends Document {
         state?: string;
         pincode?: string;
     };
-    };
     contact: {
         phone?: string;
         whatsapp?: string;
