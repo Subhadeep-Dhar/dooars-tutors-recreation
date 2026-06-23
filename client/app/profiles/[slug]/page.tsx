@@ -724,7 +724,7 @@ export default function ProfilePage() {
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                           {slot.classes?.map((c: string, j: number) => (
                             <span key={j} style={{ fontSize: '0.72rem', padding: '0.14rem 0.5rem', borderRadius: '5px', background: 'var(--bg-card)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
-                              Class {c}
+                              {/^\s*class\b/i.test(c) ? c : `Class ${c}`}
                             </span>
                           ))}
                           {slot.boards?.map((b: string, j: number) => (
@@ -737,6 +737,24 @@ export default function ProfilePage() {
                         <p style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', flexShrink: 0, margin: 0 }}>
                           ₹{slot.feePerMonth}/mo
                         </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </SCard>
+            )}
+
+            {/* Media gallery */}
+            {profile.media?.length > 0 && (
+              <SCard>
+                <STitle>Photos & Videos</STitle>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem' }}>
+                  {profile.media.map((item: any) => (
+                    <div key={item._id} style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--bg-elevated)', aspectRatio: '16/9' }}>
+                      {item.type === 'image' ? (
+                        <img src={item.url} alt={item.caption || ''} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <video src={item.url} controls style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       )}
                     </div>
                   ))}
