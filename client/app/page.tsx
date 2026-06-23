@@ -36,10 +36,10 @@ export default function HomePage() {
     'নমস্কাৰ',       // Assamese (Spoken in the Eastern Dooars belt)
     'ᱡᱚᱦᱟᱨ',        // Santhali (Adivasi/Tea-tribe community)
     'जोहार',        // Sadri / Nagpuri (The primary lingua franca of Dooars tea gardens)
-    'ᱡᱚᱦᱟᱨ ᱜᱮ',      // Kurukh / Oraon (Major Adivasi language in the region)
-    'खोंलुमबाय',     // Bodo (Spoken heavily in Assam-Dooars border areas)
-    'फय्‍लाफि',      // Toto (An ultra-rare, indigenous language unique to Totopara, Dooars)
-    'गोजोनजों बरायबाय' // Mech / Rava greetings (Indigenous groups of the plains)
+    // 'ᱡᱚᱦᱟᱨ ᱜᱮ',      // Kurukh / Oraon (Major Adivasi language in the region)
+    // 'खोंलुमबाय',     // Bodo (Spoken heavily in Assam-Dooars border areas)
+    // 'फय्‍लाफि',      // Toto (An ultra-rare, indigenous language unique to Totopara, Dooars)
+    // 'गोजोनजों बरायबाय' // Mech / Rava greetings (Indigenous groups of the plains)
   ];
 
   useEffect(() => {
