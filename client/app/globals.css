@@ -215,6 +215,25 @@
   --chip-active-color:   #1a73e8;
 }
 
+@media (max-width: 768px) {
+  :root {
+    --text-display-lg:     36px;
+    --text-display:        28px;
+    --text-heading-lg:     24px;
+    --text-heading:        20px;
+    --text-heading-sm:     16px;
+    
+    --tracking-display-lg: 2.4px;
+    --tracking-display:    1.6px;
+    --tracking-heading-lg: 1.2px;
+    --tracking-heading:    0.8px;
+    
+    --section-gap:         48px;
+    --element-gap:         16px;
+    --card-padding:        20px;
+  }
+}
+
 .dark {
   --background: #111111;
   --foreground: #f0f0f0;

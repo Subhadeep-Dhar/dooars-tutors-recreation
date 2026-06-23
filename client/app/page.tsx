@@ -59,7 +59,7 @@ export default function HomePage() {
           </p>
 
           <h1 style={{
-            fontSize: 'clamp(3rem, 6vw, 4.5rem)',
+            fontSize: 'clamp(2.2rem, 6vw, 4.5rem)',
             fontWeight: 700,
             lineHeight: 1.05,
             letterSpacing: '-0.02em',
@@ -200,20 +200,20 @@ export default function HomePage() {
                       {profile.displayName.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{profile.displayName}</p>
-                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{profile.address?.town}</p>
+                      <p className="font-semibold text-[1.1rem] truncate" style={{ color: 'var(--text-primary)' }}>{profile.displayName}</p>
+                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{profile.address?.town}</p>
                     </div>
                     {profile.rating?.count > 0 && (
                       <div className="flex items-center gap-1 shrink-0">
                         <Star size={12} className="fill-amber-400 text-amber-400" />
-                        <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{profile.rating.average}</span>
+                        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{profile.rating.average}</span>
                       </div>
                     )}
                   </div>
-                  {profile.tagline && <p className="text-xs mb-4 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{profile.tagline}</p>}
+                  {profile.tagline && <p className="text-sm mb-4 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{profile.tagline}</p>}
                   <div className="flex flex-wrap gap-1.5 mb-5">
                     {profile.teachingSlots?.slice(0, 2).map((slot: any, i: number) => (
-                      <span key={i} className="text-xs px-2.5 py-1" style={{
+                      <span key={i} className="text-sm px-3 py-1" style={{
                         background: 'var(--bg-elevated)',
                         color: 'var(--text-secondary)',
                         border: '1px solid var(--border)',

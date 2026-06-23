@@ -214,7 +214,7 @@ function RatingBadge({ average, count }: { average: number; count: number }) {
       display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
       padding: '0.28rem 0.6rem', borderRadius: '9999px',
       background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)',
-      fontSize: '0.78rem', fontWeight: 600, color: '#f59e0b', flexShrink: 0,
+      fontSize: '0.85rem', fontWeight: 600, color: '#f59e0b', flexShrink: 0,
     }}>
       <Star size={12} fill="#f59e0b" />
       <span>{average}</span>
@@ -440,14 +440,14 @@ function TutorCard({ profile }: { profile: any }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontWeight: 600, fontSize: '0.97rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {profile.displayName}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
                 <TypeBadge type={profile.type} />
                 {profile.address?.town && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '0.73rem', color: 'var(--text-muted)' }}>
-                    <MapPin size={10} />
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    <MapPin size={12} />
                     {profile.address.town}{profile.address?.district ? `, ${profile.address.district}` : ''}
                   </span>
                 )}
@@ -461,8 +461,8 @@ function TutorCard({ profile }: { profile: any }) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.45rem', marginBottom: '0.55rem' }}>
               {slots.slice(0, 4).map((slot: any, i: number) => (
                 <span key={i} style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.22rem',
-                  fontSize: '0.72rem', padding: '0.17rem 0.52rem', borderRadius: '6px',
+                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                  fontSize: '0.85rem', padding: '0.2rem 0.6rem', borderRadius: '6px',
                   background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border)',
                 }}>
                   <BookOpen size={9} />
@@ -471,7 +471,7 @@ function TutorCard({ profile }: { profile: any }) {
                 </span>
               ))}
               {slots.length > 4 && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.72rem', padding: '0.17rem 0.52rem', borderRadius: '6px', opacity: 0.6, background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: '0.85rem', padding: '0.2rem 0.6rem', borderRadius: '6px', opacity: 0.6, background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                   +{slots.length - 4}
                 </span>
               )}
