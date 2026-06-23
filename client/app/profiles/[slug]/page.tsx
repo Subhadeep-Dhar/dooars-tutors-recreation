@@ -334,6 +334,7 @@ import {
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
+import { toast } from 'sonner';
 
 /* ── Helpers ───────────────────────────────────────────────────────────────── */
 const typeBadgeStyles: Record<string, { bg: string; color: string }> = {
@@ -366,14 +367,39 @@ function TypeBadge({ type }: { type: string }) {
   );
 }
 
+function PremiumStar({ size = 20, active = false, interactive = false }: { size?: number, active?: boolean, interactive?: boolean }) {
+  return (
+    <svg
+      width={size} height={size} viewBox="0 0 24 24"
+      fill={active ? 'url(#starGradient)' : 'none'}
+      stroke={active ? 'none' : 'currentColor'}
+      strokeWidth={active ? 0 : 2}
+      style={{
+        filter: active ? 'drop-shadow(0 2px 4px rgba(251, 191, 36, 0.4))' : 'none',
+        transition: interactive ? 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+        transform: interactive && active ? 'scale(1.15)' : 'scale(1)',
+        color: 'var(--text-muted)'
+      }}
+    >
+      {active && (
+        <defs>
+          <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FCD34D" />
+            <stop offset="50%" stopColor="#F59E0B" />
+            <stop offset="100%" stopColor="#D97706" />
+          </linearGradient>
+        </defs>
+      )}
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+    </svg>
+  );
+}
+
 function StarRow({ value }: { value: number }) {
   return (
-    <div style={{ display: 'flex', gap: '2px' }}>
+    <div style={{ display: 'flex', gap: '3px' }}>
       {[1,2,3,4,5].map(i => (
-        <Star key={i} size={13}
-          fill={i <= value ? '#f59e0b' : 'none'}
-          color={i <= value ? '#f59e0b' : 'var(--text-muted)'}
-        />
+        <PremiumStar key={i} size={14} active={i <= value} />
       ))}
     </div>
   );
@@ -462,16 +488,16 @@ export default function ProfilePage() {
     if (!profile) return;
     setSubmitting(true);
     try {
-      /*
-       * FIX: Post review using the profile's _id (not slug),
-       * since your backend route is POST /profiles/:id/reviews.
-       */
-      const res = await api.post(`/profiles/${profile._id}/reviews`, { rating, comment });
-      setReviews(prev => [res.data, ...prev]);
+      const res = await api.post(`/profiles/${profile._id}/reviews`, { rating, text: comment });
+      setReviews(prev => [res.data?.data?.review ?? res.data, ...prev]);
       setComment('');
       setRating(5);
-    } catch {}
-    setSubmitting(false);
+      toast.success('Review submitted successfully!');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to submit review');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   /* ── Loading ── */
@@ -588,7 +614,7 @@ export default function ProfilePage() {
                       background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)',
                       flexShrink: 0,
                     }}>
-                      <Star size={15} fill="#f59e0b" color="#f59e0b" />
+                      <PremiumStar size={17} active={true} />
                       <span style={{ fontSize: '1rem', fontWeight: 700, color: '#f59e0b' }}>{r_avg}</span>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 400 }}>
                         {r_cnt} {r_cnt === 1 ? 'review' : 'reviews'}
@@ -781,13 +807,8 @@ export default function ProfilePage() {
                         onMouseEnter={() => setHoverStar(i)}
                         onMouseLeave={() => setHoverStar(0)}
                         onClick={() => setRating(i)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', transition: 'transform 0.1s' }}
-                        onMouseDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.25)'; }}
-                        onMouseUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}>
-                        <Star size={22}
-                          fill={(hoverStar || rating) >= i ? '#f59e0b' : 'none'}
-                          color={(hoverStar || rating) >= i ? '#f59e0b' : 'var(--text-muted)'}
-                        />
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px' }}>
+                        <PremiumStar size={26} active={(hoverStar || rating) >= i} interactive={true} />
                       </button>
                     ))}
                   </div>
@@ -831,8 +852,8 @@ export default function ProfilePage() {
                         </p>
                         <StarRow value={review.rating} />
                       </div>
-                      {review.comment && (
-                        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>{review.comment}</p>
+                      {review.text && (
+                        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>{review.text}</p>
                       )}
                       {review.createdAt && (
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem', marginBottom: 0 }}>
@@ -908,7 +929,7 @@ export default function ProfilePage() {
                 {r_cnt > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                     <div style={{ width: '30px', height: '30px', borderRadius: 'var(--radius-sm)', background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <Star size={13} fill="#f59e0b" color="#f59e0b" />
+                      <PremiumStar size={15} active={true} />
                     </div>
                     <div>
                       <p style={{ fontSize: '0.71rem', color: 'var(--text-muted)', margin: '0 0 1px' }}>Rating</p>
