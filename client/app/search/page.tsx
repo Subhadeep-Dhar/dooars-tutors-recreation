@@ -163,16 +163,16 @@ const categories = [
 ];
 
 const typeColors: Record<string, string> = {
-  tutor: '#3b82f6', coaching_center: '#8b5cf6',
+  tutor: '#1a73e8', coaching_center: '#8b5cf6',
   sports_trainer: '#10b981', arts_trainer: '#ec4899', gym_yoga: '#f59e0b',
 };
 
 const typeBadgeStyles: Record<string, { bg: string; color: string }> = {
-  tutor:           { bg: 'rgba(59,130,246,0.12)',  color: '#60a5fa' },
-  coaching_center: { bg: 'rgba(139,92,246,0.12)',  color: '#a78bfa' },
-  sports_trainer:  { bg: 'rgba(16,185,129,0.12)',  color: '#34d399' },
-  arts_trainer:    { bg: 'rgba(236,72,153,0.12)',  color: '#f472b6' },
-  gym_yoga:        { bg: 'rgba(245,158,11,0.12)',  color: '#fbbf24' },
+  tutor:           { bg: 'rgba(26,115,232,0.1)',   color: '#1a73e8' },
+  coaching_center: { bg: 'rgba(139,92,246,0.1)',   color: '#8b5cf6' },
+  sports_trainer:  { bg: 'rgba(16,185,129,0.1)',   color: '#10b981' },
+  arts_trainer:    { bg: 'rgba(236,72,153,0.1)',   color: '#ec4899' },
+  gym_yoga:        { bg: 'rgba(245,158,11,0.1)',   color: '#f59e0b' },
 };
 
 const typeLabels: Record<string, string> = {
@@ -195,7 +195,7 @@ function useDebounce<T>(value: T, delay: number): T {
 
 /* ─── Tiny badge components ──────────────────────────────────────────────── */
 function TypeBadge({ type }: { type: string }) {
-  const s = typeBadgeStyles[type] ?? { bg: 'rgba(99,102,241,0.12)', color: '#818cf8' };
+  const s = typeBadgeStyles[type] ?? { bg: 'rgba(26,115,232,0.1)', color: '#1a73e8' };
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center',
@@ -246,21 +246,21 @@ function FilterPanel(p: FPProps) {
   };
   const catItem = (active: boolean): React.CSSProperties => ({
     width: '100%', textAlign: 'left', padding: '0.42rem 0.7rem',
-    borderRadius: 'var(--radius-md)', fontSize: '0.84rem',
+    borderRadius: 'var(--radius-inputs)', fontSize: '0.84rem',
     cursor: 'pointer', border: '1px solid transparent',
     display: 'flex', alignItems: 'center', gap: '0.45rem',
-    background: active ? 'linear-gradient(135deg,rgba(96,165,250,0.1),rgba(129,140,248,0.1))' : 'transparent',
-    color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-    borderColor: active ? 'rgba(99,102,241,0.2)' : 'transparent',
+    background: active ? 'var(--color-brand-light)' : 'transparent',
+    color: active ? 'var(--color-brand)' : 'var(--text-secondary)',
+    borderColor: active ? 'var(--color-brand-ring)' : 'transparent',
     fontWeight: active ? 500 : 400, transition: 'all 0.17s ease',
   });
   const chip = (active: boolean): React.CSSProperties => ({
     padding: '0.2rem 0.6rem', borderRadius: '9999px',
     fontSize: '0.77rem', fontWeight: 500, cursor: 'pointer',
-    background: active ? 'linear-gradient(135deg,var(--gradient-from),var(--gradient-to))' : 'transparent',
+    background: active ? 'var(--color-brand)' : 'transparent',
     color: active ? '#fff' : 'var(--text-secondary)',
     border: active ? 'none' : '1px solid var(--border)',
-    boxShadow: active ? '0 2px 8px rgba(99,102,241,0.22)' : 'none',
+    boxShadow: 'none',
     transition: 'all 0.17s ease',
   });
   const inp: React.CSSProperties = {
@@ -302,8 +302,8 @@ function FilterPanel(p: FPProps) {
         <p style={secLabel}>Subject</p>
         <input style={inp} placeholder="e.g. Maths, Physics"
           value={p.subjects} onChange={e => p.setSubjects(e.target.value)}
-          onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.45)'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.08)'; }}
-          onBlur={e  => { e.target.style.borderColor = 'var(--border)';          e.target.style.boxShadow = 'none'; }}
+          onFocus={e => { e.target.style.borderColor = 'var(--color-brand)'; e.target.style.boxShadow = '0 0 0 3px var(--color-brand-ring)'; }}
+          onBlur={e  => { e.target.style.borderColor = 'var(--border)';       e.target.style.boxShadow = 'none'; }}
         />
         <p style={{ fontSize: '0.71rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Separate with commas</p>
       </div>
@@ -340,8 +340,8 @@ function FilterPanel(p: FPProps) {
         <p style={secLabel}>Place</p>
         <input style={inp} placeholder="e.g. Alipurduar, Coochbehar"
           value={p.place} onChange={e => p.setPlace(e.target.value)}
-          onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.45)'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.08)'; }}
-          onBlur={e  => { e.target.style.borderColor = 'var(--border)';          e.target.style.boxShadow = 'none'; }}
+          onFocus={e => { e.target.style.borderColor = 'var(--color-brand)'; e.target.style.boxShadow = '0 0 0 3px var(--color-brand-ring)'; }}
+          onBlur={e  => { e.target.style.borderColor = 'var(--border)';       e.target.style.boxShadow = 'none'; }}
         />
         <p style={{ fontSize: '0.71rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Town, area, or district</p>
       </div>
@@ -365,8 +365,8 @@ function FilterPanel(p: FPProps) {
         <p style={secLabel}>Max Fee (₹/mo)</p>
         <input style={inp} type="number" placeholder="e.g. 2000"
           value={p.maxFee} onChange={e => p.setMaxFee(e.target.value)}
-          onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.45)'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.08)'; }}
-          onBlur={e  => { e.target.style.borderColor = 'var(--border)';          e.target.style.boxShadow = 'none'; }}
+          onFocus={e => { e.target.style.borderColor = 'var(--color-brand)'; e.target.style.boxShadow = '0 0 0 3px var(--color-brand-ring)'; }}
+          onBlur={e  => { e.target.style.borderColor = 'var(--border)';       e.target.style.boxShadow = 'none'; }}
         />
       </div>
 
@@ -384,10 +384,9 @@ function FilterPanel(p: FPProps) {
       {p.onApply && (
         <button onClick={p.onApply} style={{
           marginTop: '0.5rem', padding: '0.7rem', width: '100%',
-          background: 'linear-gradient(135deg,var(--gradient-from),var(--gradient-to))',
-          color: '#fff', border: 'none', borderRadius: 'var(--radius-md)',
+          background: 'var(--color-brand)',
+          color: '#fff', border: 'none', borderRadius: 'var(--radius-buttons)',
           fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer',
-          boxShadow: '0 2px 12px rgba(99,102,241,0.28)',
         }}>
           Apply Filters
         </button>
@@ -408,7 +407,7 @@ function TutorCard({ profile }: { profile: any }) {
       className="stagger-item"
       style={{
         background: 'var(--bg-card)', border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)',
+        borderRadius: 'var(--radius-cards)', boxShadow: 'var(--shadow-sm)',
         padding: '1.2rem 1.375rem', transition: 'transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease',
         position: 'relative', overflow: 'hidden',
       }}
@@ -416,7 +415,7 @@ function TutorCard({ profile }: { profile: any }) {
         const el = e.currentTarget as HTMLElement;
         el.style.transform = 'translateY(-2px)';
         el.style.boxShadow = 'var(--shadow-md)';
-        el.style.borderColor = 'rgba(99,102,241,0.18)';
+        el.style.borderColor = 'var(--color-brand-ring)';
       }}
       onMouseLeave={e => {
         const el = e.currentTarget as HTMLElement;
@@ -429,11 +428,10 @@ function TutorCard({ profile }: { profile: any }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.875rem' }}>
         {/* Avatar */}
         <div style={{
-          width: '44px', height: '44px', borderRadius: 'var(--radius-md)', flexShrink: 0,
-          background: 'linear-gradient(135deg,var(--gradient-from),var(--gradient-to))',
+          width: '44px', height: '44px', borderRadius: 'var(--radius-inputs)', flexShrink: 0,
+          background: 'var(--color-brand)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff', fontWeight: 700, fontSize: '1.05rem',
-          boxShadow: '0 3px 10px rgba(99,102,241,0.25)',
         }}>
           {profile.displayName?.charAt(0)?.toUpperCase() ?? '?'}
         </div>
@@ -526,7 +524,7 @@ function TutorCard({ profile }: { profile: any }) {
               background: 'var(--bg-elevated)', color: 'var(--text-primary)',
               border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.17s ease',
             }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-brand-ring)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
               <Phone size={12} /> Call
             </button>
@@ -542,14 +540,14 @@ function TutorCard({ profile }: { profile: any }) {
           onClick={e => { e.stopPropagation(); router.push(dest); }}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-            padding: '0.38rem 0.95rem', borderRadius: 'var(--radius-md)',
+            padding: '0.38rem 0.95rem', borderRadius: 'var(--radius-buttons)',
             fontSize: '0.79rem', fontWeight: 600,
-            background: 'linear-gradient(135deg,var(--gradient-from),var(--gradient-to))',
+            background: 'var(--color-brand)',
             color: '#fff', border: 'none', cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(99,102,241,0.25)', transition: 'all 0.17s ease',
+            transition: 'all 0.17s ease',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1.08)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.filter = 'none'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.9'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
           View Profile <ChevronRight size={12} />
         </button>
       </div>
@@ -726,15 +724,15 @@ function SearchPageInner() {
             display: 'flex', alignItems: 'center', gap: '0.35rem',
             padding: '0.48rem 0.8rem', borderRadius: 'var(--radius-lg)',
             fontSize: '0.8rem', fontWeight: 500, flexShrink: 0,
-            background: activeCount > 0 ? 'rgba(99,102,241,0.1)' : 'var(--bg-card)',
-            color: activeCount > 0 ? '#818cf8' : 'var(--text-secondary)',
-            border: `1px solid ${activeCount > 0 ? 'rgba(99,102,241,0.22)' : 'var(--border)'}`,
+            background: activeCount > 0 ? 'var(--color-brand-light)' : 'var(--bg-card)',
+            color: activeCount > 0 ? 'var(--color-brand)' : 'var(--text-secondary)',
+            border: `1px solid ${activeCount > 0 ? 'var(--color-brand-ring)' : 'var(--border)'}`,
             cursor: 'pointer',
           }}>
             <SlidersHorizontal size={13} />
             Filters
             {activeCount > 0 && (
-              <span style={{ width: '15px', height: '15px', borderRadius: '50%', background: '#818cf8', color: '#fff', fontSize: '0.58rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{activeCount}</span>
+              <span style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'var(--color-brand)', color: '#fff', fontSize: '0.58rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{activeCount}</span>
             )}
           </button>
         </div>
@@ -773,7 +771,7 @@ function SearchPageInner() {
                   <AdvancedMarker key={p._id}
                     position={{ lat: p.location.coordinates[1], lng: p.location.coordinates[0] }}
                     onClick={() => router.push(`/profiles/${p.slug || p._id}`)}>
-                    <Pin background={typeColors[p.type] ?? '#6366f1'} borderColor="#fff" glyphColor="#fff" scale={0.9} />
+                    <Pin background={typeColors[p.type] ?? '#1a73e8'} borderColor="#fff" glyphColor="#fff" scale={0.9} />
                   </AdvancedMarker>
                 ))}
               </Map>

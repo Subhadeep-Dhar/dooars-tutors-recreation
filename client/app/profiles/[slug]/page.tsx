@@ -337,23 +337,23 @@ import { useAuthStore } from '@/store/authStore';
 
 /* ── Helpers ───────────────────────────────────────────────────────────────── */
 const typeBadgeStyles: Record<string, { bg: string; color: string }> = {
-  tutor:           { bg: 'rgba(59,130,246,0.12)',  color: '#60a5fa' },
-  coaching_center: { bg: 'rgba(139,92,246,0.12)',  color: '#a78bfa' },
-  sports_trainer:  { bg: 'rgba(16,185,129,0.12)',  color: '#34d399' },
-  arts_trainer:    { bg: 'rgba(236,72,153,0.12)',  color: '#f472b6' },
-  gym_yoga:        { bg: 'rgba(245,158,11,0.12)',  color: '#fbbf24' },
+  tutor:           { bg: 'rgba(26,115,232,0.1)',   color: '#1a73e8' },
+  coaching_center: { bg: 'rgba(139,92,246,0.1)',   color: '#8b5cf6' },
+  sports_trainer:  { bg: 'rgba(16,185,129,0.1)',   color: '#10b981' },
+  arts_trainer:    { bg: 'rgba(236,72,153,0.1)',   color: '#ec4899' },
+  gym_yoga:        { bg: 'rgba(245,158,11,0.1)',   color: '#f59e0b' },
 };
 const typeLabels: Record<string, string> = {
   tutor: 'Private Tutor', coaching_center: 'Coaching Center',
   sports_trainer: 'Sports Trainer', arts_trainer: 'Arts & Culture', gym_yoga: 'Gym & Yoga',
 };
 const typeColors: Record<string, string> = {
-  tutor: '#3b82f6', coaching_center: '#8b5cf6',
+  tutor: '#1a73e8', coaching_center: '#8b5cf6',
   sports_trainer: '#10b981', arts_trainer: '#ec4899', gym_yoga: '#f59e0b',
 };
 
 function TypeBadge({ type }: { type: string }) {
-  const s = typeBadgeStyles[type] ?? { bg: 'rgba(99,102,241,0.12)', color: '#818cf8' };
+  const s = typeBadgeStyles[type] ?? { bg: 'rgba(26,115,232,0.1)', color: '#1a73e8' };
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center',
@@ -384,7 +384,7 @@ function SCard({ children, style }: { children: React.ReactNode; style?: React.C
   return (
     <div style={{
       background: 'var(--bg-card)', border: '1px solid var(--border)',
-      borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)',
+      borderRadius: 'var(--radius-cards)', boxShadow: 'var(--shadow-sm)',
       padding: '1.4rem',
       transition: 'box-shadow 0.2s ease',
       ...style,
@@ -501,9 +501,9 @@ export default function ProfilePage() {
           <button onClick={() => router.push('/search')} style={{
             display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
             padding: '0.55rem 1.5rem', fontSize: '0.875rem', fontWeight: 600,
-            background: 'linear-gradient(135deg,var(--gradient-from),var(--gradient-to))',
-            color: '#fff', border: 'none', borderRadius: 'var(--radius-md)',
-            cursor: 'pointer', boxShadow: '0 2px 10px rgba(99,102,241,0.28)',
+            background: 'var(--color-brand)',
+            color: '#fff', border: 'none', borderRadius: 'var(--radius-buttons)',
+            cursor: 'pointer',
           }}>
             Browse Tutors
           </button>
@@ -540,7 +540,7 @@ export default function ProfilePage() {
         {/* ── Header card ── */}
         <div style={{
           background: 'var(--bg-card)', border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-md)',
+          borderRadius: 'var(--radius-cards)', boxShadow: 'var(--shadow-md)',
           padding: '1.75rem',
           position: 'relative', overflow: 'hidden',
           marginBottom: '1.5rem',
@@ -548,8 +548,8 @@ export default function ProfilePage() {
           {/* Gradient accent line */}
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, height: '3px',
-            background: 'linear-gradient(90deg,var(--gradient-from),var(--gradient-to))',
-            opacity: 0.75,
+            background: 'var(--color-brand)',
+            opacity: 0.8,
           }} />
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -557,15 +557,14 @@ export default function ProfilePage() {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.25rem', flexWrap: 'wrap' }}>
               {/* Avatar */}
               <div style={{
-                width: '64px', height: '64px', borderRadius: 'var(--radius-lg)', flexShrink: 0,
-                background: 'linear-gradient(135deg,var(--gradient-from),var(--gradient-to))',
+                width: '64px', height: '64px', borderRadius: 'var(--radius-cards)', flexShrink: 0,
+                background: 'var(--color-brand)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontWeight: 700, fontSize: '1.6rem',
-                boxShadow: '0 4px 16px rgba(99,102,241,0.3)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
+                transition: 'transform 0.2s',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 22px rgba(99,102,241,0.4)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)';    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.3)'; }}>
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}>
                 {profile.displayName?.charAt(0)?.toUpperCase() ?? '?'}
               </div>
 
@@ -637,7 +636,7 @@ export default function ProfilePage() {
                     fontSize: '0.875rem', fontWeight: 600,
                     background: 'linear-gradient(135deg,#22c55e,#16a34a)',
                     color: '#fff', border: 'none', cursor: 'pointer',
-                    boxShadow: '0 2px 12px rgba(34,197,94,0.3)', transition: 'all 0.18s ease',
+                    transition: 'all 0.18s ease',
                   }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLElement).style.filter = 'brightness(1.07)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';    (e.currentTarget as HTMLElement).style.filter = 'none'; }}>
@@ -654,7 +653,7 @@ export default function ProfilePage() {
                     background: 'var(--bg-elevated)', color: 'var(--text-primary)',
                     border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.18s ease',
                   }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-brand-ring)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';        (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
                     <Phone size={14} /> {profile.contact.phone}
                   </button>
@@ -669,7 +668,7 @@ export default function ProfilePage() {
                     background: 'var(--bg-elevated)', color: 'var(--text-primary)',
                     border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.18s ease',
                   }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.3)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-brand-ring)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';        (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
                     <Mail size={14} /> Email
                   </button>
@@ -705,18 +704,18 @@ export default function ProfilePage() {
                   {slots.map((slot: any, i: number) => (
                     <div key={i} style={{
                       background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      borderRadius: 'var(--radius-md)', padding: '0.8rem 0.95rem',
+                      borderRadius: 'var(--radius-inputs)', padding: '0.8rem 0.95rem',
                       display: 'flex', alignItems: 'flex-start', gap: '0.75rem',
                       transition: 'border-color 0.18s, transform 0.18s',
                     }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.2)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-brand-ring)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';        (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
                       <div style={{
                         width: '28px', height: '28px', borderRadius: 'var(--radius-sm)', flexShrink: 0,
-                        background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.15)',
+                        background: 'var(--color-brand-light)', border: '1px solid var(--color-brand-ring)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
-                        <BookOpen size={13} style={{ color: '#818cf8' }} />
+                        <BookOpen size={13} style={{ color: 'var(--color-brand)' }} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--text-primary)', margin: '0 0 0.35rem' }}>
@@ -784,16 +783,15 @@ export default function ProfilePage() {
                       fontSize: '0.875rem', resize: 'vertical', outline: 'none',
                       transition: 'border-color 0.18s, box-shadow 0.18s', boxSizing: 'border-box',
                     }}
-                    onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.45)'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.08)'; }}
+                    onFocus={e => { e.target.style.borderColor = 'var(--color-brand)'; e.target.style.boxShadow = '0 0 0 3px var(--color-brand-ring)'; }}
                     onBlur={e  => { e.target.style.borderColor = 'var(--border)';          e.target.style.boxShadow = 'none'; }}
                   />
                   <button type="submit" disabled={submitting} style={{
                     padding: '0.5rem 1.25rem', fontSize: '0.875rem', fontWeight: 600,
-                    background: 'linear-gradient(135deg,var(--gradient-from),var(--gradient-to))',
-                    color: '#fff', border: 'none', borderRadius: 'var(--radius-md)',
+                    background: 'var(--color-brand)',
+                    color: '#fff', border: 'none', borderRadius: 'var(--radius-buttons)',
                     cursor: submitting ? 'not-allowed' : 'pointer',
                     opacity: submitting ? 0.7 : 1,
-                    boxShadow: '0 2px 10px rgba(99,102,241,0.25)',
                   }}>
                     {submitting ? 'Submitting…' : 'Submit Review'}
                   </button>

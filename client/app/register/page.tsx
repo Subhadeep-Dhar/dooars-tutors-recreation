@@ -52,14 +52,19 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4 py-8" style={{ background: 'var(--bg-base)' }}>
-      <div className="w-full max-w-md p-8 rounded-2xl shadow-token-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <div className="w-full max-w-md p-8" style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-cards)',
+      }}>
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center gradient-primary text-white shadow-token-md">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white"
+              style={{ backgroundColor: 'var(--color-brand)' }}>
               <GraduationCap size={24} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Create an account</h1>
+          <h1 style={{ fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Create an account</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Join Dooars Tutors today</p>
         </div>
         
@@ -71,11 +76,12 @@ export default function RegisterPage() {
               {(['student', 'tutor', 'org'] as const).map((role) => (
                 <label
                   key={role}
-                  className="flex items-center justify-center p-2 rounded-lg cursor-pointer text-sm font-medium transition-colors"
+                  className="flex items-center justify-center p-2.5 cursor-pointer text-sm font-medium transition-colors"
                   style={{
-                    background: selectedRole === role ? 'var(--bg-elevated)' : 'transparent',
-                    border: `1px solid ${selectedRole === role ? 'var(--gradient-to)' : 'var(--border)'}`,
-                    color: selectedRole === role ? 'var(--gradient-to)' : 'var(--text-secondary)',
+                    background: selectedRole === role ? 'var(--color-brand-light)' : 'transparent',
+                    border: `1px solid ${selectedRole === role ? 'var(--color-brand)' : 'var(--border)'}`,
+                    borderRadius: 'var(--radius-inputs)',
+                    color: selectedRole === role ? 'var(--color-brand)' : 'var(--text-secondary)',
                   }}
                 >
                   <input type="radio" value={role} {...register('role')} className="sr-only" />
@@ -116,7 +122,7 @@ export default function RegisterPage() {
         
         <p className="text-center text-sm mt-6" style={{ color: 'var(--text-secondary)' }}>
           Already have an account?{' '}
-          <Link href="/login" className="font-medium hover:underline" style={{ color: 'var(--gradient-to)' }}>
+          <Link href="/login" className="font-medium hover:underline" style={{ color: 'var(--color-brand)' }}>
             Login
           </Link>
         </p>

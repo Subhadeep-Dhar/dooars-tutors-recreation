@@ -64,7 +64,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     >
       <div className="mb-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold" style={{ color: 'var(--text-primary)' }}>
-          <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
             <GraduationCap size={18} className="text-white" />
           </div>
           <span>Dooars Tutors</span>

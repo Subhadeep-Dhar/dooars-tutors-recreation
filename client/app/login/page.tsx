@@ -43,14 +43,19 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center px-4" style={{ background: 'var(--bg-base)' }}>
-      <div className="w-full max-w-md p-8 rounded-2xl shadow-token-lg" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <div className="w-full max-w-md p-8" style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-cards)',
+      }}>
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center gradient-primary text-white shadow-token-md">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white"
+              style={{ backgroundColor: 'var(--color-brand)' }}>
               <GraduationCap size={24} />
             </div>
           </div>
-          <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Welcome back</h1>
+          <h1 style={{ fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Welcome back</h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Login to your Dooars Tutors account</p>
         </div>
         
@@ -91,7 +96,7 @@ export default function LoginPage() {
         
         <p className="text-center text-sm mt-6" style={{ color: 'var(--text-secondary)' }}>
           Don&apos;t have an account?{' '}
-          <Link href="/register" className="font-medium hover:underline" style={{ color: 'var(--gradient-to)' }}>
+          <Link href="/register" className="font-medium hover:underline" style={{ color: 'var(--color-brand)' }}>
             Register
           </Link>
         </p>
