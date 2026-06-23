@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
 
 const PROFILE_TYPES = [
   { value: 'tutor', label: 'Private Tutor' },
@@ -24,6 +25,11 @@ export default function ProfileEditorPage() {
   const [saving, setSaving] = useState(false);
   const [isNew, setIsNew] = useState(false);
   const [mapLocation, setMapLocation] = useState<{lat: number, lng: number} | null>(null);
+
+  // Delete profile
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const { register, handleSubmit, reset } = useForm();
 
@@ -101,6 +107,23 @@ export default function ProfileEditorPage() {
       toast.error(err?.response?.data?.message || 'Failed to save');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (deleteConfirmText !== 'Confirm') {
+      toast.error('Please type "Confirm" to proceed');
+      return;
+    }
+    setDeletingAccount(true);
+    try {
+      await api.delete('/auth/me');
+      toast.success('Account deleted successfully');
+      useAuthStore.getState().logout();
+      window.location.href = '/';
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to delete account');
+      setDeletingAccount(false);
     }
   }
 
@@ -256,6 +279,61 @@ export default function ProfileEditorPage() {
               </p>
             </CardContent>
           </Card>
+
+          {!isNew && (
+            <Card style={{ borderColor: 'rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.02)' }}>
+              <CardHeader>
+                <CardTitle className="text-base" style={{ color: '#ef4444' }}>Danger Zone</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+                  Permanently delete your account and profile. This action cannot be undone.
+                </p>
+                {!showDeleteConfirm ? (
+                  <Button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="w-full bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    Delete Account
+                  </Button>
+                ) : (
+                  <div className="p-3 bg-red-50/50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-lg">
+                    <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-2">Are you absolutely sure?</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
+                      Please type <strong>Confirm</strong> to delete your account.
+                    </p>
+                    <input
+                      type="text"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="Type Confirm"
+                      className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md mb-3 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="flex-1 bg-red-500 hover:bg-red-600 text-white border-none disabled:opacity-50"
+                        disabled={deleteConfirmText !== 'Confirm' || deletingAccount}
+                        onClick={handleDeleteAccount}
+                      >
+                        {deletingAccount ? 'Deleting...' : 'Delete Permanently'}
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm" variant="outline"
+                        className="flex-1"
+                        onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </form>
     </div>
