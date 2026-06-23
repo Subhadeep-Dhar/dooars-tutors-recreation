@@ -638,8 +638,8 @@ export default function ProfilePage() {
                     color: '#fff', border: 'none', cursor: 'pointer',
                     transition: 'all 0.18s ease',
                   }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; (e.currentTarget as HTMLElement).style.filter = 'brightness(1.07)'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';    (e.currentTarget as HTMLElement).style.filter = 'none'; }}>
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
                     <MessageCircle size={14} /> WhatsApp
                   </button>
                 </a>

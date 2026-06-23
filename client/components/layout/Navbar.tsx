@@ -44,8 +44,8 @@ export default function Navbar() {
   : '';
 
   return (
-    <nav className="navbar-glass sticky top-0 z-50">
-      <div className="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="sticky top-4 z-50 px-4 mb-4">
+      <nav className="max-w-[1200px] mx-auto h-16 flex items-center justify-between px-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '99px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <Link href="/" className="flex items-center gap-2.5 font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
             <GraduationCap size={18} className="text-white" />
@@ -225,7 +225,7 @@ export default function Navbar() {
             </Sheet>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Logout Confirmation Dialog */}
       <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
@@ -257,6 +257,6 @@ export default function Navbar() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </nav>
+    </div>
   );
 }

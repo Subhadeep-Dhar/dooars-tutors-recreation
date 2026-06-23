@@ -506,10 +506,10 @@ function TutorCard({ profile }: { profile: any }) {
               padding: '0.38rem 0.85rem', borderRadius: '9999px',
               fontSize: '0.77rem', fontWeight: 600,
               background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', border: 'none', cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(34,197,94,0.25)', transition: 'all 0.17s ease',
+              transition: 'all 0.17s ease',
             }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.filter = 'brightness(1.08)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.filter = 'none'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
               <MessageCircle size={12} /> WhatsApp
             </button>
           </a>
@@ -669,7 +669,7 @@ function SearchPageInner() {
     maxFee, setMaxFee, place, setPlace, clearAll };
 
   return (
-    <div className="max-w-[1200px] mx-auto" style={{ display: 'flex', minHeight: 'calc(100vh - 4rem)', background: 'var(--bg-base)' }}>
+    <div style={{ display: 'flex', minHeight: 'calc(100vh - 4rem)', background: 'var(--bg-base)' }}>
 
       {/* Desktop sidebar */}
       <aside className="search-sidebar" style={{

@@ -59,10 +59,10 @@ export default function HomePage() {
           </p>
 
           <h1 style={{
-            fontSize: 'var(--text-display-lg)',
+            fontSize: 'clamp(3rem, 6vw, 4.5rem)',
             fontWeight: 700,
-            lineHeight: 'var(--leading-display-lg)',
-            letterSpacing: 'var(--tracking-display-lg)',
+            lineHeight: 1.05,
+            letterSpacing: '-0.02em',
             color: 'var(--text-primary)',
             marginBottom: '1.25rem',
           }}>
@@ -123,9 +123,10 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto">
           <p className="eyebrow text-center mb-2">CATEGORIES</p>
           <h2 style={{
-            fontSize: 'var(--text-heading)',
+            fontSize: 'var(--text-display)',
             fontWeight: 700,
-            lineHeight: 'var(--leading-heading)',
+            lineHeight: 'var(--leading-display)',
+            letterSpacing: '-0.02em',
             color: 'var(--text-primary)',
             textAlign: 'center',
             marginBottom: '0.5rem',
@@ -163,12 +164,13 @@ export default function HomePage() {
             <div key={label} className="flex flex-col items-center gap-2 text-center">
               <Icon size={20} style={{ color: 'var(--text-muted)' }} />
               <div style={{
-                fontSize: 'var(--text-heading-lg)',
+                fontSize: 'var(--text-display)',
                 fontWeight: 700,
-                lineHeight: 'var(--leading-heading-lg)',
+                lineHeight: 'var(--leading-display)',
+                letterSpacing: '-0.02em',
                 color: 'var(--text-primary)',
               }}>{value}</div>
-              <div style={{ fontSize: 'var(--text-caption)', color: 'var(--text-muted)' }}>{label}</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--text-muted)' }}>{label}</div>
             </div>
           ))}
         </div>
@@ -181,7 +183,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <p className="eyebrow mb-1">TOP RATED</p>
-                <h2 style={{ fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--text-primary)' }}>Top Rated Tutors</h2>
+                <h2 style={{ fontSize: 'var(--text-display)', lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: 700, color: 'var(--text-primary)' }}>Top Rated Tutors</h2>
               </div>
               <Link href="/search">
                 <button className="btn-ghost text-sm px-4 py-2 flex items-center gap-1.5">
@@ -245,7 +247,7 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-8">
             <p className="eyebrow mb-2">COMMUNITY</p>
-            <h2 style={{ fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Our Community Across Dooars</h2>
+            <h2 style={{ fontSize: 'var(--text-display)', lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Our Community Across Dooars</h2>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Tutors and trainers spread across the region</p>
           </div>
           <div style={{ height: '420px', border: '1px solid var(--border)', borderRadius: 'var(--radius-cards)', overflow: 'hidden' }}>
@@ -278,7 +280,7 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div>
             <p className="eyebrow mb-2">WHY US</p>
-            <h2 style={{ fontSize: 'var(--text-heading-lg)', fontWeight: 700, lineHeight: 'var(--leading-heading-lg)', color: 'var(--text-primary)', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: 'var(--text-display)', letterSpacing: '-0.02em', fontWeight: 700, lineHeight: 'var(--leading-display)', color: 'var(--text-primary)', marginBottom: '1rem' }}>
               Why Choose Dooars Tutors
             </h2>
             <p style={{ lineHeight: 1.7, marginBottom: '1rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>
@@ -322,9 +324,9 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="grid md:grid-cols-3 gap-8 mb-10">
             <div>
-              <div className="flex items-center gap-2.5 font-bold text-lg mb-4" style={{ color: '#ffffff' }}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-brand)' }}>
-                  <GraduationCap size={16} className="text-white" />
+              <div className="flex items-center gap-2.5 font-bold text-xl mb-4" style={{ color: '#ffffff' }}>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-brand)' }}>
+                  <GraduationCap size={20} className="text-white" />
                 </div>
                 Dooars Tutors
               </div>
