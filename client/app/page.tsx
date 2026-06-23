@@ -27,6 +27,16 @@ export default function HomePage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
+  const [greetingIdx, setGreetingIdx] = useState(0);
+
+  const greetings = ['Welcome', 'Namaste', 'Swagatam', 'Nomoskar', 'Johar'];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setGreetingIdx(p => (p + 1) % greetings.length);
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
   const [featured, setFeatured] = useState<any[]>([]);
   const [allProfiles, setAllProfiles] = useState<any[]>([]);
 
@@ -54,9 +64,19 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <section style={{ background: 'var(--bg-base)', paddingTop: '5rem', paddingBottom: '5rem' }}>
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <p className="eyebrow mb-4" style={{ color: 'var(--color-brand)' }}>
-            DOOARS TUTORS
-          </p>
+          <div className="mb-5 flex items-center justify-center">
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0.45rem 1.25rem', borderRadius: '99px',
+              background: 'var(--color-brand-light)', border: '1px solid var(--color-brand-ring)',
+              color: 'var(--color-brand)', fontWeight: 600,
+              fontSize: 'clamp(1rem, 3.5vw, 1.25rem)',
+              letterSpacing: '0.02em',
+              transition: 'all 0.3s ease'
+            }}>
+              {greetings[greetingIdx]} to Dooars Tutors
+            </span>
+          </div>
 
           <h1 style={{
             fontSize: 'clamp(2.2rem, 6vw, 4.5rem)',
@@ -280,7 +300,7 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div>
             <p className="eyebrow mb-2">WHY US</p>
-            <h2 style={{ fontSize: 'var(--text-display)', letterSpacing: '-0.02em', fontWeight: 700, lineHeight: 'var(--leading-display)', color: 'var(--text-primary)', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: 'clamp(2.4rem, 7vw, 3.5rem)', letterSpacing: '-0.02em', fontWeight: 700, lineHeight: '1.05', color: 'var(--text-primary)', marginBottom: '1rem' }}>
               Why Choose Dooars Tutors
             </h2>
             <p style={{ lineHeight: 1.7, marginBottom: '1rem', fontSize: '1rem', color: 'var(--text-secondary)' }}>
@@ -324,9 +344,9 @@ export default function HomePage() {
         <div className="max-w-[1200px] mx-auto">
           <div className="grid md:grid-cols-3 gap-8 mb-10">
             <div>
-              <div className="flex items-center gap-2.5 font-bold text-xl mb-4" style={{ color: '#ffffff' }}>
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-brand)' }}>
-                  <GraduationCap size={20} className="text-white" />
+              <div className="flex items-center gap-3 font-bold text-2xl md:text-3xl mb-4" style={{ color: '#ffffff' }}>
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
+                  <GraduationCap size={28} className="text-white" />
                 </div>
                 Dooars Tutors
               </div>

@@ -45,10 +45,10 @@ export default function Navbar() {
 
   return (
     <div className="sticky top-4 z-50 px-4 mb-4">
-      <nav className="max-w-[1200px] mx-auto h-16 flex items-center justify-between px-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '99px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-        <Link href="/" className="flex items-center gap-2.5 font-bold text-lg" style={{ color: 'var(--text-primary)' }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
-            <GraduationCap size={18} className="text-white" />
+      <nav className="max-w-[1200px] mx-auto h-16 flex items-center justify-between px-6" style={{ background: 'var(--bg-glass)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--border)', borderRadius: '99px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+        <Link href="/" className="flex items-center gap-2.5 font-bold text-xl md:text-2xl" style={{ color: 'var(--text-primary)' }}>
+          <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
+            <GraduationCap size={22} className="text-white" />
           </div>
           <span>Dooars Tutors</span>
         </Link>
@@ -124,9 +124,9 @@ export default function Navbar() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[280px] p-0 sheet-content" style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}>
                 <SheetHeader className="p-6 border-b" style={{ borderColor: 'var(--border)' }}>
-                  <SheetTitle className="flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-brand)' }}>
-                      <GraduationCap size={18} className="text-white" />
+                  <SheetTitle className="flex items-center gap-2 text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
+                      <GraduationCap size={22} className="text-white" />
                     </div>
                     Dooars Tutors
                   </SheetTitle>

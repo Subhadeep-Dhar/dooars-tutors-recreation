@@ -153,6 +153,7 @@
   --bg-section:     #f6f6f6;
   --bg-card:        #ffffff;
   --bg-elevated:    #f6f6f6;
+  --bg-glass:       rgba(255, 255, 255, 0.75);
 
   --text-primary:   #1f1f1f;
   --text-secondary: #5d5d5d;
@@ -276,6 +277,7 @@
   --bg-section:     #151515;
   --bg-card:        #1a1a1a;
   --bg-elevated:    #222222;
+  --bg-glass:       rgba(26, 26, 26, 0.75);
 
   --text-primary:   #f0f0f0;
   --text-secondary: #a0a0a0;
