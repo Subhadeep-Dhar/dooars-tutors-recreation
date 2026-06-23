@@ -521,7 +521,7 @@ export default function ProfilePage() {
   /* ── Render ── */
   return (
     <main style={{ background: 'var(--bg-base)', minHeight: '100vh' }}>
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '2rem 1.25rem' }}>
+      <div style={{ maxWidth: 'var(--page-max-width)', margin: '0 auto', padding: 'var(--section-gap) 1.25rem' }}>
 
         {/* Back */}
         <button

@@ -175,22 +175,22 @@
   /* ── Type Scale ────────────────────────────────────────────────────── */
   --text-caption:        14px;
   --leading-caption:     1.5;
-  --tracking-caption:    0.01em;
+  --tracking-caption:    1.05px;
   --text-heading-sm:     20px;
   --leading-heading-sm:  1.33;
-  --tracking-heading-sm: 0.01em;
+  --tracking-heading-sm: 1.5px;
   --text-heading:        26px;
   --leading-heading:     1.2;
-  --tracking-heading:    0.01em;
+  --tracking-heading:    1.95px;
   --text-heading-lg:     36px;
   --leading-heading-lg:  1.15;
-  --tracking-heading-lg: -0.01em;
+  --tracking-heading-lg: 2.7px;
   --text-display:        56px;
   --leading-display:     1.1;
-  --tracking-display:    -0.02em;
+  --tracking-display:    4.2px;
   --text-display-lg:     72px;
   --leading-display-lg:  1.05;
-  --tracking-display-lg: -0.02em;
+  --tracking-display-lg: 5.4px;
 
   /* ── Spacing & Layout ──────────────────────────────────────────────── */
   --spacing-unit:    4px;
@@ -201,9 +201,9 @@
 
   /* ── Border Radius (Design Spec) ───────────────────────────────────── */
   --radius-tags:      99px;
-  --radius-cards:     24px;
+  --radius-cards:     36px;
   --radius-images:    10px;
-  --radius-inputs:    12px;
+  --radius-inputs:    16px;
   --radius-buttons:   99px;
   --radius-accordion: 16px;
 
@@ -413,9 +413,9 @@
   color: #ffffff;
   border: none;
   border-radius: var(--radius-buttons);
-  padding: 0.625rem 1.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
+  padding: 12px 28px;
+  font-weight: var(--font-weight-medium);
+  font-size: 16px;
   cursor: pointer;
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
@@ -430,9 +430,9 @@
   color: var(--text-primary);
   border: 1px solid var(--border);
   border-radius: var(--radius-buttons);
-  padding: 0.625rem 1.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
+  padding: 12px 28px;
+  font-weight: var(--font-weight-medium);
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.18s ease, border-color 0.18s ease,
               transform 0.18s ease, color 0.18s ease;
@@ -451,9 +451,9 @@
   color: var(--color-brand);
   border: 1px solid var(--color-brand);
   border-radius: var(--radius-buttons);
-  padding: 0.5rem 1.25rem;
-  font-weight: 500;
-  font-size: 0.875rem;
+  padding: 10px 24px;
+  font-weight: var(--font-weight-medium);
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.18s ease, transform 0.18s ease;
 }
@@ -468,8 +468,8 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-inputs);
   color: var(--text-primary);
-  padding: 0.625rem 1rem;
-  font-size: 0.875rem;
+  padding: 12px 16px;
+  font-size: 16px;
   width: 100%;
   transition: border-color 0.18s ease, box-shadow 0.18s ease;
   outline: none;

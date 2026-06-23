@@ -59,18 +59,18 @@ export default function HomePage() {
           </p>
 
           <h1 style={{
-            fontSize: 'clamp(2.25rem, 5vw, 3.5rem)',
+            fontSize: 'var(--text-display-lg)',
             fontWeight: 700,
-            lineHeight: 1.1,
-            letterSpacing: '-0.02em',
+            lineHeight: 'var(--leading-display-lg)',
+            letterSpacing: 'var(--tracking-display-lg)',
             color: 'var(--text-primary)',
             marginBottom: '1.25rem',
           }}>
             Find the Best Tutors &amp; Trainers in Dooars
           </h1>
           <p style={{
-            fontSize: '1.0625rem',
-            lineHeight: 1.6,
+            fontSize: '18px',
+            lineHeight: 1.5,
             color: 'var(--text-secondary)',
             maxWidth: '560px',
             margin: '0 auto 2.5rem',
@@ -120,7 +120,7 @@ export default function HomePage() {
 
       {/* ── Categories ── */}
       <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[1200px] mx-auto">
           <p className="eyebrow text-center mb-2">CATEGORIES</p>
           <h2 style={{
             fontSize: 'var(--text-heading)',
@@ -153,7 +153,7 @@ export default function HomePage() {
 
       {/* ── Stats ── */}
       <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem' }}>
-        <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
             { value: '200+', label: 'Tutors & Trainers', icon: GraduationCap },
             { value: '50+', label: 'Coaching Centers', icon: Building2 },
@@ -177,7 +177,7 @@ export default function HomePage() {
       {/* ── Featured ── */}
       {featured.length > 0 && (
         <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-[1200px] mx-auto">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <p className="eyebrow mb-1">TOP RATED</p>
@@ -242,7 +242,7 @@ export default function HomePage() {
 
       {/* ── Community Map ── */}
       <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem' }}>
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[1200px] mx-auto">
           <div className="text-center mb-8">
             <p className="eyebrow mb-2">COMMUNITY</p>
             <h2 style={{ fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Our Community Across Dooars</h2>
@@ -275,7 +275,7 @@ export default function HomePage() {
 
       {/* ── About ── */}
       <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div>
             <p className="eyebrow mb-2">WHY US</p>
             <h2 style={{ fontSize: 'var(--text-heading-lg)', fontWeight: 700, lineHeight: 'var(--leading-heading-lg)', color: 'var(--text-primary)', marginBottom: '1rem' }}>
@@ -319,7 +319,7 @@ export default function HomePage() {
 
       {/* ── Footer ── */}
       <footer style={{ background: 'var(--color-inkstone)', padding: 'var(--section-gap) 1rem' }}>
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-[1200px] mx-auto">
           <div className="grid md:grid-cols-3 gap-8 mb-10">
             <div>
               <div className="flex items-center gap-2.5 font-bold text-lg mb-4" style={{ color: '#ffffff' }}>

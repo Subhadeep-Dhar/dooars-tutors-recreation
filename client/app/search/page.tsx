@@ -669,7 +669,7 @@ function SearchPageInner() {
     maxFee, setMaxFee, place, setPlace, clearAll };
 
   return (
-    <div style={{ display: 'flex', minHeight: 'calc(100vh - 4rem)', background: 'var(--bg-base)' }}>
+    <div className="max-w-[1200px] mx-auto" style={{ display: 'flex', minHeight: 'calc(100vh - 4rem)', background: 'var(--bg-base)' }}>
 
       {/* Desktop sidebar */}
       <aside className="search-sidebar" style={{

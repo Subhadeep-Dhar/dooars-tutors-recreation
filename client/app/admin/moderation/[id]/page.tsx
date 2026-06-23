@@ -57,7 +57,7 @@ export default function ProfileReviewPage() {
   const { profile, enrichmentData } = data;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-[1200px] mx-auto">
       <div className="flex items-center justify-between gap-4">
         <Button variant="outline" size="sm" className="btn-secondary gap-2" onClick={() => router.back()}>
           <ArrowLeft size={14} /> Back to Queue
