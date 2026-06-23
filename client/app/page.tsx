@@ -29,7 +29,18 @@ export default function HomePage() {
   const [location, setLocation] = useState('');
   const [greetingIdx, setGreetingIdx] = useState(0);
 
-  const greetings = ['Welcome', 'Namaste', 'Swagatam', 'Nomoskar', 'Johar'];
+  const greetings = [
+    'Welcome',       // English
+    'नमस्ते',        // Hindi / Nepali (Widely spoken across Dooars)
+    'স্বাগতম',       // Bengali (Major language of North Bengal)
+    'নমস্কাৰ',       // Assamese (Spoken in the Eastern Dooars belt)
+    'ᱡᱚᱦᱟᱨ',        // Santhali (Adivasi/Tea-tribe community)
+    'जोहार',        // Sadri / Nagpuri (The primary lingua franca of Dooars tea gardens)
+    'ᱡᱚᱦᱟᱨ ᱜᱮ',      // Kurukh / Oraon (Major Adivasi language in the region)
+    'खोंलुमबाय',     // Bodo (Spoken heavily in Assam-Dooars border areas)
+    'फय्‍लाफि',      // Toto (An ultra-rare, indigenous language unique to Totopara, Dooars)
+    'गोजोनजों बरायबाय' // Mech / Rava greetings (Indigenous groups of the plains)
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -64,17 +75,14 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <section style={{ background: 'var(--bg-base)', paddingTop: '5rem', paddingBottom: '5rem' }}>
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <div className="mb-5 flex items-center justify-center">
+          <div className="mb-4 flex items-center justify-center">
             <span style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              padding: '0.45rem 1.25rem', borderRadius: '99px',
-              background: 'var(--color-brand-light)', border: '1px solid var(--color-brand-ring)',
-              color: 'var(--color-brand)', fontWeight: 600,
-              fontSize: 'clamp(1rem, 3.5vw, 1.25rem)',
+              color: 'var(--text-primary)', fontWeight: 'normal',
+              fontSize: 'clamp(1.1rem, 4vw, 1.4rem)',
               letterSpacing: '0.02em',
-              transition: 'all 0.3s ease'
+              transition: 'opacity 0.3s ease'
             }}>
-              {greetings[greetingIdx]} to Dooars Tutors
+              {greetings[greetingIdx]}
             </span>
           </div>
 
