@@ -45,7 +45,7 @@ export default function HomePage() {
   useEffect(() => {
     const interval = setInterval(() => {
       setGreetingIdx(p => (p + 1) % greetings.length);
-    }, 2500);
+    }, 1500);
     return () => clearInterval(interval);
   }, []);
   const [featured, setFeatured] = useState<any[]>([]);
