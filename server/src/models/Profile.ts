@@ -47,12 +47,13 @@ export interface IProfileDocument extends Document {
     _classIndex: string[];
     location: { type: 'Point'; coordinates: [number, number] };
     address: {
-        line1: string;
+        line1?: string;
         area?: string;
-        town: string;
-        district: string;
-        state: string;
-        pincode: string;
+        town?: string;
+        district?: string;
+        state?: string;
+        pincode?: string;
+    };
     };
     contact: {
         phone?: string;
@@ -168,12 +169,12 @@ const ProfileSchema = new Schema<IProfileDocument>(
         },
 
         address: {
-            line1: { type: String, required: true, trim: true },
+            line1: { type: String, trim: true },
             area: { type: String, trim: true },
-            town: { type: String, required: true, trim: true },
-            district: { type: String, required: true, trim: true },
-            state: { type: String, required: true, trim: true },
-            pincode: { type: String, required: true, trim: true },
+            town: { type: String, trim: true },
+            district: { type: String, trim: true },
+            state: { type: String, trim: true },
+            pincode: { type: String, trim: true },
         },
 
         contact: {

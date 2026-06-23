@@ -68,13 +68,13 @@ export async function createProfile(userId: string, data: {
   displayName: string;
   tagline?: string;
   bio?: string;
-  address: {
-    line1: string;
+  address?: {
+    line1?: string;
     area?: string;
-    town: string;
-    district: string;
-    state: string;
-    pincode: string;
+    town?: string;
+    district?: string;
+    state?: string;
+    pincode?: string;
   };
   contact?: {
     phone?: string;
@@ -90,11 +90,35 @@ export async function createProfile(userId: string, data: {
   if (existing) throw new AppError('Profile already exists for this account', 409);
 
   const slug = await generateUniqueSlug(data.displayName);
-  const coordinates = data.location || await geocodeAddress(data.address);
+  
+  // Determine coordinates: use provided location, or geocode address if provided, or use default
+  let coordinates: [number, number] = [89.1743, 26.7132]; // default Jalpaiguri
+  
+  if (data.location) {
+    coordinates = data.location;
+  } else if (data.address?.town) {
+    coordinates = await geocodeAddress(data.address as any);
+  }
+
+  // Ensure address object exists with all fields
+  const address = data.address || {
+    line1: '',
+    town: '',
+    district: '',
+    state: '',
+    pincode: '',
+  };
 
   const profile = await Profile.create({
     userId,
-    ...data,
+    type: data.type,
+    displayName: data.displayName,
+    tagline: data.tagline,
+    bio: data.bio,
+    address,
+    contact: data.contact,
+    experience: data.experience,
+    languages: data.languages,
     slug,
     location: { type: 'Point', coordinates },
     teachingSlots: [],
@@ -129,7 +153,8 @@ export async function updateProfile(profileId: string, userId: string, data: Par
   // Re-geocode if address changed
   if (data.location) {
     (data as any).location = { type: 'Point', coordinates: data.location };
-  } else if (data.address) {
+  } else if (data.address?.town) {
+    // Only geocode if address has a town field
     const coordinates = await geocodeAddress(data.address);
     (data as any).location = { type: 'Point', coordinates };
   }

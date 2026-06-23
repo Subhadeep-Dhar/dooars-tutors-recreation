@@ -10,11 +10,11 @@ export const createProfileValidation = [
     .isIn(['tutor', 'coaching_center', 'sports_trainer', 'arts_trainer', 'gym_yoga'])
     .withMessage('Invalid profile type'),
   body('displayName').trim().isLength({ min: 2 }).withMessage('Display name required'),
-  body('address.line1').trim().notEmpty().withMessage('Address line1 required'),
-  body('address.town').trim().notEmpty().withMessage('Town required'),
-  body('address.district').trim().notEmpty().withMessage('District required'),
-  body('address.state').trim().notEmpty().withMessage('State required'),
-  body('address.pincode').trim().notEmpty().withMessage('Pincode required'),
+  body('address.line1').optional({ checkFalsy: true }).trim(),
+  body('address.town').optional({ checkFalsy: true }).trim(),
+  body('address.district').optional({ checkFalsy: true }).trim(),
+  body('address.state').optional({ checkFalsy: true }).trim(),
+  body('address.pincode').optional({ checkFalsy: true }).trim(),
 ];
 
 export const academicSlotValidation = [
