@@ -846,7 +846,7 @@ export default function ProfilePage() {
                       disableDefaultUI={true}>
                       <AdvancedMarker position={{ lat: coords[1], lng: coords[0] }}>
                         <Pin
-                          background={typeColors[profile.type] ?? '#6366f1'}
+                          background={typeColors[profile.type] ?? '#1a73e8'}
                           borderColor="#fff" glyphColor="#fff" scale={1.1}
                         />
                       </AdvancedMarker>

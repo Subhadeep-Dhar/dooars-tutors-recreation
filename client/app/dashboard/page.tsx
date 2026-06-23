@@ -177,7 +177,7 @@ export default function DashboardPage() {
                         />
                         <Bar dataKey="fee" radius={[4, 4, 0, 0]}>
                           {slotData.map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#6366f1' : '#8b5cf6'} />
+                            <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#1a73e8' : '#8b5cf6'} />
                           ))}
                         </Bar>
                       </BarChart>

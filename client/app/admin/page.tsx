@@ -66,7 +66,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend
 } from 'recharts';
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6', '#f43f5e'];
+const COLORS = ['#1a73e8', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6', '#f43f5e'];
 
 export default function AdminOverviewPage() {
   const [data, setData] = useState<any>(null);
@@ -169,7 +169,7 @@ export default function AdminOverviewPage() {
                   contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }}
                   itemStyle={{ color: 'var(--text-primary)' }}
                 />
-                <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]}>
+                <Bar dataKey="value" fill="#1a73e8" radius={[0, 4, 4, 0]}>
                   {profilesByType.map((entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
