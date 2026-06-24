@@ -66,7 +66,7 @@ function VerifyOtpContent() {
       router.push('/dashboard');
       
     } catch (err: any) {
-      setError(err?.message || err?.response?.data?.message || 'Verification failed');
+      setError(err?.response?.data?.message || err?.message || 'Verification failed');
     } finally {
       setIsLoading(false);
     }
