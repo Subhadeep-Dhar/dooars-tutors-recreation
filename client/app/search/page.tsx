@@ -147,7 +147,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2,
   Star, MessageCircle, Phone, List, Map as MapIcon, SlidersHorizontal,
-  Clock, Globe, Loader2, X, ChevronRight,
+  Clock, Globe, Loader2, X, ChevronRight, LayoutGrid, Check
 } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
@@ -396,7 +396,124 @@ function FilterPanel(p: FPProps) {
 }
 
 /* ─── Tutor Card ─────────────────────────────────────────────────────────── */
-function TutorCard({ profile }: { profile: any }) {
+function TutorCardGrid({ profile }: { profile: any }) {
+  const router = useRouter();
+  const dest = `/profiles/${profile.slug || profile._id}`;
+  const slots = profile.teachingSlots ?? [];
+
+  return (
+    <div
+      className="stagger-item"
+      style={{
+        display: 'flex', flexDirection: 'row', gap: '1rem',
+        background: '#151518', borderRadius: '1.25rem', padding: '1.2rem',
+        transition: 'transform 0.2s', height: '100%', alignItems: 'stretch'
+      }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)' }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)' }}
+    >
+      {/* LEFT COLUMN */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '85px', flexShrink: 0 }}>
+        {/* Avatar Container */}
+        <div style={{ position: 'relative', width: '75px', height: '75px', marginBottom: '0.8rem' }}>
+          {profile.avatar ? (
+            <img src={profile.avatar} alt={profile.displayName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--color-brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.8rem', fontWeight: 'bold' }}>
+              {profile.displayName?.charAt(0)?.toUpperCase() ?? '?'}
+            </div>
+          )}
+          {profile.verificationStatus === 'verified' && (
+            <div style={{ position: 'absolute', bottom: '0px', right: '0px', background: '#0095f6', borderRadius: '50%', padding: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #151518' }}>
+              <Check size={12} color="#fff" strokeWidth={4} />
+            </div>
+          )}
+        </div>
+
+        {/* Type Badge */}
+        <div style={{ background: '#1c1c1e', border: '1px solid #333', padding: '0.2rem 0.5rem', borderRadius: '0.5rem', fontSize: '0.65rem', fontWeight: 600, color: '#fff', textAlign: 'center', width: '100%', marginBottom: '0.5rem', textTransform: 'capitalize' }}>
+           {(profile.type || '').replace('_', ' ')}
+        </div>
+
+        {/* Rating */}
+        {profile.rating?.count > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.1rem', marginBottom: '0.8rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', color: '#fbbf24' }}>
+              {[1,2,3,4,5].map(s => <Star key={s} size={10} fill={s <= Math.round(profile.rating.average) ? '#fbbf24' : 'transparent'} stroke={s <= Math.round(profile.rating.average) ? '#fbbf24' : '#555'} style={{ margin: '0 1px' }} />)}
+            </div>
+            <span style={{ fontSize: '0.7rem', color: '#999', fontWeight: 600 }}>({profile.rating.count})</span>
+          </div>
+        )}
+
+        {/* Location */}
+        {profile.address?.town && (
+          <div style={{ fontSize: '0.7rem', color: '#ccc', textAlign: 'center', marginTop: 'auto' }}>
+            {profile.address.town}{profile.address.district ? `, ${profile.address.district}` : ''}
+          </div>
+        )}
+      </div>
+
+      {/* RIGHT COLUMN */}
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+        {/* Name */}
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', margin: '0 0 0.4rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {profile.displayName}
+        </h3>
+        
+        {/* Experience */}
+        {profile.experience != null && (
+          <p style={{ fontSize: '0.85rem', color: '#ccc', margin: '0 0 0.8rem 0' }}>
+            {profile.experience} years experience
+          </p>
+        )}
+
+        {/* Subjects Box */}
+        {slots.length > 0 && (
+          <div style={{ background: '#1c1c1e', border: '1px solid #333', borderRadius: '0.8rem', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1rem' }}>
+            {slots.slice(0, 2).map((slot: any, i: number) => (
+              <p key={i} style={{ margin: 0, fontSize: '0.8rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {slot.subject || slot.activity} : <span style={{ fontWeight: 400 }}>Class {slot.classes?.join(', ')}</span>
+              </p>
+            ))}
+            {slots.length > 2 && (
+              <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>+{slots.length - 2} more subjects</p>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {profile.contact?.whatsapp && (
+              <a href={`https://wa.me/91${profile.contact.whatsapp}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <MessageCircle size={16} color="#fff" />
+                </div>
+              </a>
+            )}
+            {profile.contact?.phone && (
+              <a href={`tel:${profile.contact.phone}`} onClick={e => e.stopPropagation()}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Phone size={14} color="#000" fill="#000" />
+                </div>
+              </a>
+            )}
+          </div>
+          <button
+            onClick={e => { e.stopPropagation(); router.push(dest); }}
+            style={{ padding: '0.5rem 1.2rem', borderRadius: '9999px', background: '#f8f9fa', color: '#000', fontWeight: 600, fontSize: '0.8rem', border: 'none', cursor: 'pointer' }}
+          >
+            View Profile
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TutorCard({ profile, variant = 'list' }: { profile: any, variant?: 'list' | 'grid' }) {
+  if (variant === 'grid') return <TutorCardGrid profile={profile} />;
+
   const router = useRouter();
   // Always use slug; fall back to _id if slug is absent
   const dest = `/profiles/${profile.slug || profile._id}`;
@@ -406,6 +523,7 @@ function TutorCard({ profile }: { profile: any }) {
     <div
       className="stagger-item"
       style={{
+        display: 'flex', flexDirection: 'column', height: '100%',
         background: 'var(--bg-card)', border: '1px solid var(--border)',
         borderRadius: 'var(--radius-cards)', boxShadow: 'var(--shadow-sm)',
         padding: '1.2rem 1.375rem', transition: 'transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease',
@@ -437,10 +555,10 @@ function TutorCard({ profile }: { profile: any }) {
         </div>
 
         {/* Info */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ flex: 1, minWidth: 0, width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.3rem' }}>
-            <div style={{ minWidth: 0 }}>
-              <p style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+              <p style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
                 {profile.displayName}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.2rem', flexWrap: 'wrap' }}>
@@ -497,12 +615,12 @@ function TutorCard({ profile }: { profile: any }) {
       {/* Action row */}
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.45rem',
-        marginTop: '0.9rem', paddingTop: '0.8rem', borderTop: '1px solid var(--border)', flexWrap: 'wrap',
+        marginTop: 'auto', paddingTop: '0.8rem', borderTop: '1px solid var(--border)', flexWrap: 'wrap',
       }}>
         {profile.contact?.whatsapp && (
-          <a href={`https://wa.me/91${profile.contact.whatsapp}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>
+          <a href={`https://wa.me/91${profile.contact.whatsapp}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ flex: 'unset' }}>
             <button style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', width: '100%',
               padding: '0.38rem 0.85rem', borderRadius: '9999px',
               fontSize: '0.77rem', fontWeight: 600,
               background: 'linear-gradient(135deg,#22c55e,#16a34a)', color: '#fff', border: 'none', cursor: 'pointer',
@@ -510,15 +628,15 @@ function TutorCard({ profile }: { profile: any }) {
             }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
-              <MessageCircle size={12} /> WhatsApp
+              <MessageCircle size={14} /> WhatsApp
             </button>
           </a>
         )}
 
         {profile.contact?.phone && (
-          <a href={`tel:${profile.contact.phone}`} onClick={e => e.stopPropagation()}>
+          <a href={`tel:${profile.contact.phone}`} onClick={e => e.stopPropagation()} style={{ flex: 'unset' }}>
             <button style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem', width: '100%',
               padding: '0.38rem 0.85rem', borderRadius: '9999px',
               fontSize: '0.77rem', fontWeight: 500,
               background: 'var(--bg-elevated)', color: 'var(--text-primary)',
@@ -526,29 +644,24 @@ function TutorCard({ profile }: { profile: any }) {
             }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-brand-ring)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
-              <Phone size={12} /> Call
+              <Phone size={14} /> Call
             </button>
           </a>
         )}
 
-        {/*
-          VIEW PROFILE — plain button with router.push.
-          No nested Link, no conflicting onClick on parent.
-          stopPropagation prevents any parent handlers from firing.
-        */}
         <button
           onClick={e => { e.stopPropagation(); router.push(dest); }}
           style={{
-            display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem',
             padding: '0.38rem 0.95rem', borderRadius: 'var(--radius-buttons)',
-            fontSize: '0.79rem', fontWeight: 600,
+            fontSize: '0.79rem', fontWeight: 600, flex: 'unset',
             background: 'var(--color-brand)',
             color: '#fff', border: 'none', cursor: 'pointer',
             transition: 'all 0.17s ease',
           }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.9'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}>
-          View Profile <ChevronRight size={12} />
+          View Profile <ChevronRight size={14} />
         </button>
       </div>
     </div>
@@ -588,7 +701,7 @@ function SearchPageInner() {
   const [total,       setTotal]       = useState(0);
   const [loading,     setLoading]     = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [viewMode,    setViewMode]    = useState<'list' | 'map'>('list');
+  const [viewMode,    setViewMode]    = useState<'grid' | 'list' | 'map'>('grid');
   const [mobileOpen,  setMobileOpen]  = useState(false);
 
   const pageRef = useRef(1);
@@ -606,7 +719,7 @@ function SearchPageInner() {
     if (dPlace)      p.set('place',     dPlace);
     p.set('sort',  sortBy === 'highest rated' ? 'rating' : 'newest');
     p.set('page',  String(page));
-    p.set('limit', '10');
+    p.set('limit', '12');
     return p.toString();
   }, [type, dQuery, dSubjects, selClasses, selBoards, minRating, maxFee, dPlace, sortBy]);
 
@@ -745,7 +858,7 @@ function SearchPageInner() {
               : <><span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{total}</span> results found</>}
           </span>
           <div style={{ display: 'inline-flex', alignItems: 'center', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '3px', gap: '2px' }}>
-            {(['list','map'] as const).map(v => (
+            {(['grid','list','map'] as const).map(v => (
               <button key={v} onClick={() => setViewMode(v)} style={{
                 display: 'flex', alignItems: 'center', gap: '0.32rem',
                 padding: '0.32rem 0.75rem', borderRadius: 'calc(var(--radius-md) - 2px)',
@@ -755,8 +868,8 @@ function SearchPageInner() {
                 boxShadow:  viewMode === v ? 'var(--shadow-sm)' : 'none',
                 transition: 'all 0.17s ease',
               }}>
-                {v === 'list' ? <List size={13} /> : <MapIcon size={13} />}
-                {v === 'list' ? 'List' : 'Map'}
+                {v === 'grid' ? <LayoutGrid size={13} /> : v === 'list' ? <List size={13} /> : <MapIcon size={13} />}
+                {v === 'grid' ? 'Grid' : v === 'list' ? 'List' : 'Map'}
               </button>
             ))}
           </div>
@@ -779,12 +892,15 @@ function SearchPageInner() {
           </div>
         )}
 
-        {/* List */}
-        {viewMode === 'list' && (
+        {/* List / Grid */}
+        {(viewMode === 'list' || viewMode === 'grid') && (
           <>
             {/* Skeletons */}
             {loading && profiles.length === 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+              <div className={viewMode === 'grid' ? 'tutor-grid-layout' : ''} style={{ 
+                display: viewMode === 'grid' ? 'grid' : 'flex', 
+                flexDirection: 'column', gap: '0.7rem' 
+              }}>
                 {[...Array(4)].map((_,i) => (
                   <div key={i} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)', padding: '1.2rem', opacity: 0.5 }}>
                     <div style={{ display: 'flex', gap: '0.875rem' }}>
@@ -813,8 +929,11 @@ function SearchPageInner() {
 
             {/* Results */}
             {profiles.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-                {profiles.map(profile => <TutorCard key={profile._id} profile={profile} />)}
+              <div className={viewMode === 'grid' ? 'tutor-grid-layout' : ''} style={{ 
+                display: viewMode === 'grid' ? 'grid' : 'flex', 
+                flexDirection: 'column', gap: '0.7rem' 
+              }}>
+                {profiles.map(profile => <TutorCard key={profile._id} profile={profile} variant={viewMode} />)}
               </div>
             )}
 
@@ -849,6 +968,18 @@ function SearchPageInner() {
         }
         .search-sidebar { display: none; }
         .mobile-bar     { display: flex;  }
+        
+        /* Grid mode responsive layout */
+        .tutor-grid-layout {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        @media (min-width: 640px) {
+          .tutor-grid-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1100px) {
+          .tutor-grid-layout { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+
         @media (min-width: 768px) {
           .search-sidebar { display: flex !important; }
           .mobile-bar     { display: none !important; }
