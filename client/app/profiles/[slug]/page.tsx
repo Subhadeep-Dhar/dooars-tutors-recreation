@@ -422,9 +422,9 @@ function SCard({ children, style }: { children: React.ReactNode; style?: React.C
   );
 }
 
-function STitle({ children }: { children: React.ReactNode }) {
+function STitle({ children, style }: { children: React.ReactNode, style?: React.CSSProperties }) {
   return (
-    <h2 style={{ fontWeight: 600, fontSize: '0.97rem', color: 'var(--text-primary)', marginBottom: '1rem', marginTop: 0 }}>
+    <h2 style={{ fontWeight: 600, fontSize: '0.97rem', color: 'var(--text-primary)', marginBottom: '1rem', marginTop: 0, ...style }}>
       {children}
     </h2>
   );
@@ -452,6 +452,9 @@ export default function ProfilePage() {
   const [comment,    setComment]    = useState('');
   const [hoverStar,  setHoverStar]  = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  
+  const [reviewSort, setReviewSort] = useState<'best'|'worst'|'latest'|'oldest'>('best');
+  const [reviewLimit, setReviewLimit] = useState(5);
 
   // Delete profile
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -564,6 +567,17 @@ export default function ProfilePage() {
   const slots  = profile.teachingSlots ?? [];
   const r_avg  = profile.rating?.average ?? 0;
   const r_cnt  = profile.rating?.count   ?? 0;
+
+  const sortedReviews = [...reviews].sort((a, b) => {
+    const timeB = new Date(b.createdAt).getTime();
+    const timeA = new Date(a.createdAt).getTime();
+    if (reviewSort === 'best') return b.rating - a.rating || timeB - timeA;
+    if (reviewSort === 'worst') return a.rating - b.rating || timeB - timeA;
+    if (reviewSort === 'latest') return timeB - timeA;
+    if (reviewSort === 'oldest') return timeA - timeB;
+    return 0;
+  });
+  const visibleReviews = sortedReviews.slice(0, reviewLimit);
 
   /* ── Render ── */
   return (
@@ -811,7 +825,26 @@ export default function ProfilePage() {
 
             {/* Reviews */}
             <SCard>
-              <STitle>Reviews ({reviews.length})</STitle>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+                <STitle style={{ marginBottom: 0 }}>Reviews ({reviews.length})</STitle>
+                {reviews.length > 0 && (
+                  <select
+                    value={reviewSort}
+                    onChange={(e) => setReviewSort(e.target.value as any)}
+                    style={{
+                      background: 'var(--bg-elevated)', color: 'var(--text-primary)',
+                      border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)',
+                      padding: '0.3rem 0.6rem', fontSize: '0.8rem', outline: 'none', cursor: 'pointer',
+                      marginBottom: '1rem'
+                    }}
+                  >
+                    <option value="best">Best First</option>
+                    <option value="worst">Worst First</option>
+                    <option value="latest">Latest</option>
+                    <option value="oldest">Oldest</option>
+                  </select>
+                )}
+              </div>
 
               {/* Write review (student only) */}
               {user && user.role === 'student' && (
@@ -862,14 +895,14 @@ export default function ProfilePage() {
                 <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', margin: 0 }}>No reviews yet. Be the first!</p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {reviews.map((review: any) => (
+                  {visibleReviews.map((review: any) => (
                     <div key={review._id} style={{
                       background: 'var(--bg-elevated)', border: '1px solid var(--border)',
                       borderRadius: 'var(--radius-md)', padding: '0.9rem 1rem',
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '0.4rem' }}>
                         <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
-                          {review.user?.name ?? 'Anonymous'}
+                          Anonymous
                         </p>
                         <StarRow value={review.rating} />
                       </div>
@@ -883,6 +916,22 @@ export default function ProfilePage() {
                       )}
                     </div>
                   ))}
+                  
+                  {reviewLimit < reviews.length && (
+                    <button 
+                      onClick={() => setReviewLimit(prev => prev + 5)}
+                      style={{
+                        padding: '0.6rem', background: 'var(--bg-elevated)', color: 'var(--text-primary)',
+                        border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
+                        fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', marginTop: '0.5rem',
+                        transition: 'background 0.2s', width: '100%'
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)' }}
+                    >
+                      Load More Reviews
+                    </button>
+                  )}
                 </div>
               )}
             </SCard>
