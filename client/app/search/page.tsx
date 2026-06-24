@@ -486,22 +486,23 @@ function TutorCardGrid({ profile }: { profile: any }) {
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             {profile.contact?.whatsapp && (
               <a href={`https://wa.me/91${profile.contact.whatsapp}`} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <MessageCircle size={16} color="#fff" />
+                <div className="action-icon-btn" style={{ borderRadius: '50%', background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <MessageCircle color="#fff" />
                 </div>
               </a>
             )}
             {profile.contact?.phone && (
               <a href={`tel:${profile.contact.phone}`} onClick={e => e.stopPropagation()}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-elevated)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Phone size={14} color="var(--text-primary)" fill="var(--text-primary)" />
+                <div className="action-icon-btn" style={{ borderRadius: '50%', background: 'var(--bg-elevated)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Phone color="var(--text-primary)" fill="var(--text-primary)" />
                 </div>
               </a>
             )}
           </div>
           <button
+            className="action-view-btn"
             onClick={e => { e.stopPropagation(); router.push(dest); }}
-            style={{ padding: '0.5rem 1.2rem', borderRadius: '9999px', background: 'var(--color-brand)', color: '#fff', fontWeight: 600, fontSize: '0.8rem', border: 'none', cursor: 'pointer' }}
+            style={{ borderRadius: '9999px', background: 'var(--color-brand)', color: '#fff', fontWeight: 600, border: 'none', cursor: 'pointer' }}
           >
             View Profile
           </button>
@@ -973,8 +974,17 @@ function SearchPageInner() {
         .tutor-grid-layout {
           grid-template-columns: minmax(0, 1fr);
         }
+        
+        /* Action buttons responsive sizing */
+        .action-icon-btn { width: 40px; height: 40px; }
+        .action-icon-btn svg { width: 18px; height: 18px; }
+        .action-view-btn { padding: 0.65rem 1.4rem; font-size: 0.9rem; }
+
         @media (min-width: 640px) {
           .tutor-grid-layout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .action-icon-btn { width: 32px; height: 32px; }
+          .action-icon-btn svg { width: 15px; height: 15px; }
+          .action-view-btn { padding: 0.5rem 1.2rem; font-size: 0.8rem; }
         }
         @media (min-width: 1100px) {
           .tutor-grid-layout { grid-template-columns: repeat(3, minmax(0, 1fr)); }
