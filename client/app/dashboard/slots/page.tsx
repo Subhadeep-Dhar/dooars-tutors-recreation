@@ -25,7 +25,7 @@ export default function SlotsPage() {
   const [saving, setSaving] = useState(false);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
   const { register, handleSubmit, reset, watch } = useForm({
-    defaultValues: { subject: '', board: 'CBSE', medium: 'Bengali', feePerMonth: '' },
+    defaultValues: { subject: '', activity: '', board: 'CBSE', medium: 'Bengali', feePerMonth: '' },
   });
 
   useEffect(() => {
