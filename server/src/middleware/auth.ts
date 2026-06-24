@@ -10,7 +10,7 @@ import { User } from '../models/User';
 declare global {
   namespace Express {
     interface Request {
-      user?: AuthTokenPayload & { supabaseId?: string };
+      user?: AuthTokenPayload & { supabaseId?: string; email?: string };
     }
   }
 }
@@ -28,6 +28,10 @@ export async function verifyToken(req: Request, _res: Response, next: NextFuncti
   const token = authHeader.split(' ')[1];
 
   try {
+    let supabaseId = '';
+    let email = '';
+    let role: UserRole = 'student';
+
     // If Supabase URL and Key are provided, we verify via Supabase securely (Supports ECC P-256 keys)
     if (env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
       const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
@@ -37,26 +41,34 @@ export async function verifyToken(req: Request, _res: Response, next: NextFuncti
         throw new Error(error?.message || 'Invalid Supabase Token');
       }
 
-      req.user = {
-        userId: data.user.id,
-        role: (data.user.user_metadata?.role as UserRole) || 'student',
-        supabaseId: data.user.id,
-        email: data.user.email
-      } as any;
-
-      return next();
+      supabaseId = data.user.id;
+      email = data.user.email || '';
+      role = (data.user.user_metadata?.role as UserRole) || 'student';
+    } else {
+      // Fallback: Legacy HS256 local verification
+      const secret = process.env.SUPABASE_JWT_SECRET || env.JWT_ACCESS_SECRET;
+      const payload = jwt.verify(token, secret) as any;
+      
+      supabaseId = payload.sub;
+      email = payload.email || '';
+      role = payload.user_role || 'student';
     }
 
-    // Fallback: Legacy HS256 local verification
-    const secret = process.env.SUPABASE_JWT_SECRET || env.JWT_ACCESS_SECRET;
-    const payload = jwt.verify(token, secret) as any;
-    
+    let userId = supabaseId;
+
+    // Fetch authoritative data from DB if user is linked
+    const user = await User.findOne({ supabaseId }).select('_id role').lean();
+    if (user) {
+      userId = user._id.toString();
+      role = user.role as UserRole;
+    }
+
     req.user = {
-      userId: payload.sub, // Will be mapped to MongoDB _id manually in controllers, or we use supabaseId
-      role: payload.user_role || 'student',
-      supabaseId: payload.sub,
-      email: payload.email
-    } as any;
+      userId,
+      role,
+      supabaseId,
+      email
+    };
     
     next();
   } catch (err: any) {
@@ -76,16 +88,8 @@ export function requireRole(...roles: UserRole[]) {
     }
     
     try {
-      // Fetch user from DB to get the authoritative role
-      const user = await User.findOne({ supabaseId: req.user.supabaseId }).select('role').lean();
-      
-      if (!user) {
-        return next(new AppError('User not found in database', 404));
-      }
-
-      req.user.role = user.role as UserRole;
-
-      if (!roles.includes(user.role as UserRole)) {
+      // RequireRole now just checks the role we fetched in verifyToken!
+      if (!roles.includes(req.user.role)) {
         return next(new AppError('Insufficient permissions', 403));
       }
       
