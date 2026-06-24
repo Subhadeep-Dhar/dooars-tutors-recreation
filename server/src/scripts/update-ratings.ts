@@ -5,7 +5,7 @@ import { Profile, User, Review } from '../models';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
-const MONGODB_URI = 'mongodb+srv://subhadeepdhar563_db_user:test123@cluster0.f3bfe3m.mongodb.net/dooars_dev?retryWrites=true&w=majority';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/dooars-tutors';
 
 const BAD_PROFILES = [
   "DOOARS SCHOOL",
