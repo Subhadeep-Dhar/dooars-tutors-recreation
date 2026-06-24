@@ -88,7 +88,10 @@ function parseSqlValues(sqlText: string, tableName: string) {
 
 // ── Main Migration Function ──────────────────────────────────────────────────
 async function runImport() {
-    const GENERIC_PASSWORD = 'DooarsTutor@2026';
+    const GENERIC_PASSWORD = process.env.DEFAULT_TUTOR_PASSWORD;
+    if (!GENERIC_PASSWORD) {
+        throw new Error('DEFAULT_TUTOR_PASSWORD environment variable is not set. Please add it to your .env file.');
+    }
     const genericPasswordHash = await bcrypt.hash(GENERIC_PASSWORD, 12);
     
     const sqlFilePath = path.resolve('c:/Users/Subhadeep Dhar/Desktop/Dooars-Tutors/context/u727069115_dooars_tutors.20260407170935.sql/u727069115_dooars_tutors.sql');
@@ -349,7 +352,7 @@ async function runImport() {
     console.info(`✅ Recalculated profile ratings.`);
     console.info('===================================================');
     console.info('Migration complete!');
-    console.info(`All generic passwords set to: ${GENERIC_PASSWORD}`);
+    console.info(`All generic passwords set from environment variable.`);
     console.info('===================================================');
 
     await mongoose.disconnect();
