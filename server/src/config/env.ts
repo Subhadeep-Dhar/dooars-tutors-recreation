@@ -13,6 +13,9 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES: z.string().default('7d'),
   JWT_REFRESH_EXPIRES: z.string().default('30d'),
 
+  SUPABASE_URL: z.string().min(1, 'SUPABASE_URL is required').optional(),
+  SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY is required').optional(),
+
   CLOUDINARY_CLOUD_NAME: z.string().min(1, 'CLOUDINARY_CLOUD_NAME is required'),
   CLOUDINARY_API_KEY: z.string().min(1, 'CLOUDINARY_API_KEY is required'),
   CLOUDINARY_API_SECRET: z.string().min(1, 'CLOUDINARY_API_SECRET is required'),
