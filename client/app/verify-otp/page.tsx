@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ShieldCheck } from 'lucide-react';
-import { useAuthStore } from '@/store/authStore'; // if needed to set session manually
+import { useAuthStore } from '@/store/authStore';
 
 function VerifyOtpContent() {
   const router = useRouter();
@@ -61,8 +61,11 @@ function VerifyOtpContent() {
       });
 
       toast.success('Account successfully verified!');
-      // 3. Route to dashboard
-      // Usually, authStore syncs with Supabase, but we can do a manual redirect
+      
+      // 3. Force fetch the user profile from our backend now that the account is activated
+      await useAuthStore.getState().fetchMe();
+      
+      // 4. Route to dashboard
       router.push('/dashboard');
       
     } catch (err: any) {
