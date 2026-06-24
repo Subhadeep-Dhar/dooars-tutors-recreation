@@ -118,7 +118,7 @@ export default function RegisterPage() {
             <Label htmlFor="email" style={{ color: 'var(--text-primary)' }}>Email</Label>
             <input id="email" type="email" placeholder="you@example.com" {...register('email')} className="input-base" />
             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
-          </div>
+          </div> 
 
           <div className="space-y-1.5">
             <Label htmlFor="phone" style={{ color: 'var(--text-primary)' }}>Phone Number</Label>
