@@ -74,7 +74,7 @@ export async function activate(req: Request, res: Response, next: NextFunction) 
     // Wait, the client sends `supabaseId` in the body (`req.body.supabaseId`).
     
     // To be secure, the supabase ID comes from the verified JWT:
-    const verifiedSupabaseId = req.user!.userId;
+    const verifiedSupabaseId = req.user!.supabaseId;
     
     // Find the user by email (wait, the JWT from Supabase has email in it usually, or we can look up if we passed it).
     // Let's just find the pending user that we are activating. 
@@ -133,8 +133,8 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
 
 export async function getMe(req: Request, res: Response, next: NextFunction) {
   try {
-    // req.user has the supabase ID
-    const supabaseId = req.user!.userId;
+    // req.user has the supabase ID correctly stored
+    const supabaseId = req.user!.supabaseId;
     const user = await User.findOne({ supabaseId }).select('-passwordHash -refreshTokenHash');
     
     if (!user) throw new AppError('User not found', 404);
@@ -147,7 +147,7 @@ export async function getMe(req: Request, res: Response, next: NextFunction) {
 
 export async function deleteAccount(req: Request, res: Response, next: NextFunction) {
   try {
-    const supabaseId = req.user!.userId;
+    const supabaseId = req.user!.supabaseId;
 
     const user = await User.findOne({ supabaseId });
     if (!user) throw new AppError('User not found', 404);
