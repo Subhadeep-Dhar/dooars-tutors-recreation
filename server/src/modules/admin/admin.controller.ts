@@ -57,6 +57,13 @@ export async function toggleUserStatus(req: Request, res: Response, next: NextFu
   } catch (err) { next(err); }
 }
 
+export async function updateUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await AdminService.updateUser(req.params.id, req.body);
+    res.json({ success: true, data: { user }, message: 'User updated successfully' });
+  } catch (err) { next(err); }
+}
+
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
   try {
     await AdminService.deleteUser(req.params.id);

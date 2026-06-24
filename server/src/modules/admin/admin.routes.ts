@@ -12,6 +12,7 @@ import {
   getAllUsers,
   getAllReviews,
   toggleUserStatus,
+  updateUser,
   deleteUser,
   toggleReviewVisibility,
   toggleProfileFeatured
@@ -32,6 +33,7 @@ router.get('/reviews', getAllReviews);
 
 // Action Routes
 router.patch('/users/:id/status', toggleUserStatus);
+router.patch('/users/:id/update', updateUser);
 router.delete('/users/:id', deleteUser);
 router.patch('/reviews/:id/visibility', toggleReviewVisibility);
 router.patch('/profiles/:id/feature', toggleProfileFeatured);

@@ -165,10 +165,28 @@ export async function getAdminStats() {
   }
 }
 
+import bcrypt from 'bcryptjs';
+
 export async function toggleUserStatus(userId: string) {
   const user = await User.findById(userId);
   if (!user) throw new AppError('User not found', 404);
   user.isActive = !user.isActive;
+  await user.save();
+  return user;
+}
+
+export async function updateUser(userId: string, data: any) {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('User not found', 404);
+  
+  if (data.name) user.name = data.name;
+  if (data.email) user.email = data.email;
+  if (data.phone) user.phone = data.phone;
+  if (data.role) user.role = data.role;
+  if (data.password) {
+    user.passwordHash = await bcrypt.hash(data.password, 12);
+  }
+  
   await user.save();
   return user;
 }
