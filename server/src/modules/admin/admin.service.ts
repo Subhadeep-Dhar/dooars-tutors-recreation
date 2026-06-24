@@ -67,15 +67,24 @@ export async function getModerationQueue(filters: any, options: { page: number, 
 
 // ── NEW: General Admin Lists (Restoring Visibility) ──────────────────────────
 
-export async function getAllProfiles(options: { page: number, limit: number }) {
+export async function getAllProfiles(options: { page: number, limit: number, search?: string, type?: string }) {
   try {
     const page = Math.max(1, options.page || 1);
     const limit = Math.max(1, Math.min(100, options.limit || 10));
     const skip = (page - 1) * limit;
 
+    const query: any = {};
+    if (options.search) {
+      const regex = new RegExp(options.search, 'i');
+      query.$or = [{ displayName: regex }, { slug: regex }, { 'contact.email': regex }, { 'contact.phone': regex }];
+    }
+    if (options.type && options.type !== 'all') {
+      query.type = options.type;
+    }
+
     const [profiles, total] = await Promise.all([
-      Profile.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      Profile.countDocuments({})
+      Profile.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      Profile.countDocuments(query)
     ]);
     return { profiles: profiles || [], total: total || 0 };
   } catch (err) {
@@ -84,15 +93,24 @@ export async function getAllProfiles(options: { page: number, limit: number }) {
   }
 }
 
-export async function getAllUsers(options: { page: number, limit: number }) {
+export async function getAllUsers(options: { page: number, limit: number, search?: string, role?: string }) {
   try {
     const page = Math.max(1, options.page || 1);
     const limit = Math.max(1, Math.min(100, options.limit || 10));
     const skip = (page - 1) * limit;
 
+    const query: any = {};
+    if (options.search) {
+      const regex = new RegExp(options.search, 'i');
+      query.$or = [{ name: regex }, { email: regex }, { phone: regex }];
+    }
+    if (options.role && options.role !== 'all') {
+      query.role = options.role;
+    }
+
     const [users, total] = await Promise.all([
-      User.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      User.countDocuments({})
+      User.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      User.countDocuments(query)
     ]);
     return { users: users || [], total: total || 0 };
   } catch (err) {

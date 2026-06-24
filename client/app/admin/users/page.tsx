@@ -32,10 +32,14 @@ export default function AdminUsersPage() {
   });
   const [savingUser, setSavingUser] = useState(false);
 
-  async function load(currentPage = page) {
+  // Search & Filter State
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('all');
+
+  async function load(currentPage = page, currentSearch = search, currentRole = roleFilter) {
     try {
       setLoading(true);
-      const res = await api.get(`/admin/users?page=${currentPage}&limit=${limit}`);
+      const res = await api.get(`/admin/users?page=${currentPage}&limit=${limit}&search=${encodeURIComponent(currentSearch)}&role=${currentRole}`);
       setUsers(res.data.data?.users || []);
       setTotal(res.data.data?.total || 0);
     } catch (err) {
@@ -45,7 +49,16 @@ export default function AdminUsersPage() {
     }
   }
 
-  useEffect(() => { load(page); }, [page]);
+  useEffect(() => { load(page, search, roleFilter); }, [page]);
+
+  // Debounced Search Effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setPage(1);
+      load(1, search, roleFilter);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [search, roleFilter]);
 
   async function toggleStatus(id: string) {
     try {
@@ -119,7 +132,30 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Users ({total})</h1>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Users ({total})</h1>
+        
+        <div className="flex gap-2 w-full sm:w-auto">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full sm:w-64 px-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+          />
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="px-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+          >
+            <option value="all">All Roles</option>
+            <option value="student">Student</option>
+            <option value="tutor">Tutor</option>
+            <option value="org">Organisation</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+      </div>
       
       {loading && users.length === 0 ? (
         <div style={{ color: 'var(--text-muted)' }}>Loading...</div>

@@ -10,10 +10,12 @@ export async function getAdminStats(req: Request, res: Response, next: NextFunct
 
 export async function getAllProfiles(req: Request, res: Response, next: NextFunction) {
   try {
-    const { page = '1', limit = '10' } = req.query;
+    const { page = '1', limit = '10', search, type } = req.query;
     const result = await AdminService.getAllProfiles({
       page: parseInt(page as string),
-      limit: parseInt(limit as string)
+      limit: parseInt(limit as string),
+      search: search as string,
+      type: type as string
     });
     res.json({ success: true, data: result });
   } catch (err) {
@@ -24,10 +26,12 @@ export async function getAllProfiles(req: Request, res: Response, next: NextFunc
 
 export async function getAllUsers(req: Request, res: Response, next: NextFunction) {
   try {
-    const { page = '1', limit = '10' } = req.query;
+    const { page = '1', limit = '10', search, role } = req.query;
     const result = await AdminService.getAllUsers({
       page: parseInt(page as string),
-      limit: parseInt(limit as string)
+      limit: parseInt(limit as string),
+      search: search as string,
+      role: role as string
     });
     res.json({ success: true, data: result });
   } catch (err) {

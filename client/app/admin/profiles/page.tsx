@@ -14,17 +14,37 @@ export default function AdminProfilesPage() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  async function load() {
+  // Pagination
+  const [page, setPage] = useState(1);
+  const limit = 50;
+
+  // Search & Filter State
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
+
+  async function load(currentPage = page, currentSearch = search, currentType = typeFilter) {
     try {
-      const res = await api.get('/admin/profiles?limit=50');
+      setLoading(true);
+      const res = await api.get(`/admin/profiles?page=${currentPage}&limit=${limit}&search=${encodeURIComponent(currentSearch)}&type=${currentType}`);
       setProfiles(res.data.data?.profiles || []);
       setTotal(res.data.data?.total || 0);
+    } catch (err) {
+      toast.error('Failed to load profiles');
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(page, search, typeFilter); }, [page]);
+
+  // Debounced Search Effect
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setPage(1);
+      load(1, search, typeFilter);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [search, typeFilter]);
 
   async function approve(id: string, approved: boolean) {
     try {
@@ -47,69 +67,126 @@ export default function AdminProfilesPage() {
     }
   }
 
-  if (loading) return <div style={{ color: 'var(--text-muted)' }}>Loading...</div>;
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Profiles ({total})</h1>
-      <div className="space-y-3">
-        {profiles.map((profile) => (
-          <Card key={profile._id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold">
-                  {profile.displayName?.charAt(0) || 'P'}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{profile.displayName || 'Unknown Profile'}</span>
-                    <Badge variant="outline" className="text-xs">{profile.type}</Badge>
-                    {profile.verificationStatus === 'verified'
-                      ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">Verified</Badge>
-                      : profile.verificationStatus === 'rejected'
-                        ? <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs">Rejected</Badge>
-                        : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Pending</Badge>}
-                    {profile.isFeatured && <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Featured</Badge>}
-                  </div>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{profile.address?.town || 'No Town'}, {profile.address?.district || 'No District'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <Link href={`/profiles/${profile.slug}`} target="_blank">
-                  <Button size="sm" variant="outline" className="h-8 gap-1 text-xs btn-secondary">
-                    <ExternalLink size={12} /> View
-                  </Button>
-                </Link>
-                <Button
-                  size="sm" variant="outline"
-                  className="h-8 gap-1 text-xs btn-secondary"
-                  onClick={() => toggleFeatured(profile._id)}
-                >
-                  <Star size={12} /> {profile.isFeatured ? 'Unfeature' : 'Feature'}
-                </Button>
-                {profile.verificationStatus !== 'verified' ? (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="h-8 gap-1 text-xs bg-green-600 hover:bg-green-700"
-                      onClick={() => approve(profile._id, true)}
-                    >
-                      <CheckCircle size={12} /> Approve
-                    </Button>
-                    <Button
-                      size="sm" variant="outline"
-                      className="h-8 gap-1 text-xs text-red-500 border-red-500/30 hover:bg-red-500/10"
-                      onClick={() => approve(profile._id, false)}
-                    >
-                      <XCircle size={12} /> Reject
-                    </Button>
-                  </div>
-                ) : null}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Profiles ({total})</h1>
+        
+        <div className="flex gap-2 w-full sm:w-auto">
+          <input
+            type="text"
+            placeholder="Search profiles..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full sm:w-64 px-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+          />
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="px-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+          >
+            <option value="all">All Types</option>
+            <option value="tutor">Tutor</option>
+            <option value="coaching_center">Coaching Center</option>
+            <option value="sports_trainer">Sports Trainer</option>
+          </select>
+        </div>
       </div>
+
+      {loading && profiles.length === 0 ? (
+        <div style={{ color: 'var(--text-muted)' }}>Loading...</div>
+      ) : (
+        <div className="space-y-3">
+          {profiles.map((profile) => (
+            <Card key={profile._id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold">
+                    {profile.displayName?.charAt(0) || 'P'}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{profile.displayName || 'Unknown Profile'}</span>
+                      <Badge variant="outline" className="text-xs">{profile.type}</Badge>
+                      {profile.verificationStatus === 'verified'
+                        ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">Verified</Badge>
+                        : profile.verificationStatus === 'rejected'
+                          ? <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs">Rejected</Badge>
+                          : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Pending</Badge>}
+                      {profile.isFeatured && <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Featured</Badge>}
+                    </div>
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{profile.address?.town || 'No Town'}, {profile.address?.district || 'No District'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Link href={`/profiles/${profile.slug}`} target="_blank">
+                    <Button size="sm" variant="outline" className="h-8 gap-1 text-xs btn-secondary">
+                      <ExternalLink size={12} /> View
+                    </Button>
+                  </Link>
+                  <Button
+                    size="sm" variant="outline"
+                    className="h-8 gap-1 text-xs btn-secondary"
+                    onClick={() => toggleFeatured(profile._id)}
+                  >
+                    <Star size={12} /> {profile.isFeatured ? 'Unfeature' : 'Feature'}
+                  </Button>
+                  {profile.verificationStatus !== 'verified' ? (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="h-8 gap-1 text-xs bg-green-600 hover:bg-green-700"
+                        onClick={() => approve(profile._id, true)}
+                      >
+                        <CheckCircle size={12} /> Approve
+                      </Button>
+                      <Button
+                        size="sm" variant="outline"
+                        className="h-8 gap-1 text-xs text-red-500 border-red-500/30 hover:bg-red-500/10"
+                        onClick={() => approve(profile._id, false)}
+                      >
+                        <XCircle size={12} /> Reject
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <div className="text-sm text-slate-500 dark:text-slate-400">
+            Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === 1 || loading}
+              onClick={() => setPage(p => p - 1)}
+            >
+              Previous
+            </Button>
+            <div className="flex items-center px-4 text-sm font-medium">
+              Page {page} of {totalPages}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page === totalPages || loading}
+              onClick={() => setPage(p => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
