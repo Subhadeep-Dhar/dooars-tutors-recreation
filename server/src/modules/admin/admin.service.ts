@@ -225,13 +225,7 @@ export async function updateProfile(profileId: string, data: any) {
   if (data.slug !== undefined) profile.slug = data.slug;
   if (data.type !== undefined) profile.type = data.type;
   if (data.bio !== undefined) profile.bio = data.bio;
-  if (data.about !== undefined) profile.about = data.about;
-  if (data.tagline !== undefined) profile.tagline = data.tagline;
-  if (data.experience !== undefined) profile.experience = data.experience;
-  if (data.languages !== undefined) profile.languages = data.languages;
-  
-  if (data.isVerified !== undefined) profile.isVerified = data.isVerified;
-  if (data.isVisible !== undefined) profile.isVisible = data.isVisible;
+  // Removed invalid properties: about, isVerified, isVisible
 
   // Contact
   if (data.phone !== undefined || data.email !== undefined || data.whatsapp !== undefined) {

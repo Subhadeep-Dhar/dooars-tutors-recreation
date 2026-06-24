@@ -98,7 +98,8 @@ export async function activate(req: Request, res: Response, next: NextFunction) 
         user.supabaseId = verifiedSupabaseId;
         await user.save();
       }
-      return res.json({ success: true, message: 'Account is already active' });
+      res.json({ success: true, message: 'Account is already active' });
+      return;
     }
 
     // Activate
