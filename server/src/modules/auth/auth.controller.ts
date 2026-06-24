@@ -155,6 +155,7 @@ export async function deleteAccount(req: Request, res: Response, next: NextFunct
     // Soft delete user
     user.isActive = false;
     user.email = `${user.email}_deleted_${Date.now()}`;
+    user.supabaseId = undefined;
     await user.save();
 
     // Hard delete profile if exists
