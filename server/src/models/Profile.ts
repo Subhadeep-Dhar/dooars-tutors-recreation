@@ -190,6 +190,7 @@ const ProfileSchema = new Schema<IProfileDocument>(
         rating: {
             average: { type: Number, default: 0, min: 0, max: 5 },
             count: { type: Number, default: 0, min: 0 },
+            score: { type: Number, default: 0 }, // Bayesian average score
         },
 
         isFeatured: { type: Boolean, default: false },
@@ -238,7 +239,7 @@ const ProfileSchema = new Schema<IProfileDocument>(
 
 ProfileSchema.index({ location: '2dsphere' });
 ProfileSchema.index({ type: 1, _subjectIndex: 1, _classIndex: 1 });
-ProfileSchema.index({ verificationStatus: 1, isActive: 1, _subjectIndex: 1, _classIndex: 1, 'rating.average': -1 });
+ProfileSchema.index({ verificationStatus: 1, isActive: 1, _subjectIndex: 1, _classIndex: 1, 'rating.score': -1 });
 ProfileSchema.index({ slug: 1 }, { unique: true });
 ProfileSchema.index({ isFeatured: 1, verificationStatus: 1, isActive: 1 });
 

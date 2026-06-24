@@ -33,9 +33,13 @@ export async function createReview(
   // Recalculate rating
   const allReviews = await Review.find({ profileId, isVisible: true });
   const avg = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+  const count = allReviews.length;
+  const score = (count * avg + 5 * 3.5) / (count + 5);
+
   await Profile.findByIdAndUpdate(profileId, {
     'rating.average': Math.round(avg * 10) / 10,
-    'rating.count': allReviews.length,
+    'rating.count': count,
+    'rating.score': Math.round(score * 100) / 100
   });
 
   return review;
@@ -53,9 +57,13 @@ export async function toggleReviewVisibility(reviewId: string) {
   const avg = allReviews.length
     ? allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length
     : 0;
+  const count = allReviews.length;
+  const score = (count * avg + 5 * 3.5) / (count + 5);
+
   await Profile.findByIdAndUpdate(review.profileId, {
     'rating.average': Math.round(avg * 10) / 10,
-    'rating.count': allReviews.length,
+    'rating.count': count,
+    'rating.score': Math.round(score * 100) / 100
   });
 
   return review;

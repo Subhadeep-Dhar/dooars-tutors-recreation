@@ -30,7 +30,7 @@ function getMatchedSlots(slots: any[], subjects: string[], cls?: string, board?:
 }
 
 function score(profile: any, subjects: string[], cls?: string): number {
-  let s = (profile.rating?.average ?? 0) * 2;
+  let s = (profile.rating?.score ?? 0) * 2;
   if (profile.isFeatured) s += 3;
   const idx = (profile._subjectIndex ?? []).map((x: string) => x.toLowerCase());
   const bio = (profile.bio ?? '').toLowerCase();
@@ -105,7 +105,7 @@ export async function searchProfiles(params: SearchParams) {
   let profiles: any[] = [];
 
   const sortMap: Record<string, any> = {
-    rating: { 'rating.average': -1, 'rating.count': -1 },
+    rating: { 'rating.score': -1, 'rating.count': -1 },
     newest: { createdAt: -1 },
     fee_asc: { createdAt: -1 },
   };
