@@ -28,7 +28,7 @@ export default function MapView({ profiles }: { profiles: any[] }) {
         lat: validProfiles[0].location.coordinates[1],
         lng: validProfiles[0].location.coordinates[0],
       }
-    : { lat: 26.7132, lng: 89.1743 }; // Jalpaiguri default
+    : { lat: 26.491890, lng: 89.527100 }; // Alipurduar default
 
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>

@@ -58,12 +58,12 @@ export default function ProfileEditorPage() {
         if (p.location?.coordinates && p.location.coordinates.length === 2) {
           setMapLocation({ lat: p.location.coordinates[1], lng: p.location.coordinates[0] });
         } else {
-          setMapLocation({ lat: 26.7132, lng: 89.1743 }); // default Jalpaiguri
+          setMapLocation({ lat: 26.491890, lng: 89.527100 }); // default Alipurduar
         }
       })
       .catch(() => {
         setIsNew(true);
-        setMapLocation({ lat: 26.7132, lng: 89.1743 });
+        setMapLocation({ lat: 26.491890, lng: 89.527100 });
       })
       .finally(() => setLoading(false));
   }, []);
@@ -192,11 +192,11 @@ export default function ProfileEditorPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label style={{ color: 'var(--text-primary)' }}>Town</Label>
-                  <input className="input-base" placeholder="e.g. Jalpaiguri" {...register('address.town', { required: true })} />
+                  <input className="input-base" placeholder="e.g. Alipurduar" {...register('address.town', { required: true })} />
                 </div>
                 <div className="space-y-1.5">
                   <Label style={{ color: 'var(--text-primary)' }}>District</Label>
-                  <input className="input-base" placeholder="e.g. Jalpaiguri" {...register('address.district', { required: true })} />
+                  <input className="input-base" placeholder="e.g. Alipurduar" {...register('address.district', { required: true })} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">

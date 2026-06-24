@@ -58,7 +58,7 @@ async function geocodeAddress(address: {
     if (town.includes(key)) return coords;
   }
 
-  return [89.1743, 26.7132]; // fallback: Jalpaiguri
+  return [89.527100, 26.491890]; // fallback: Alipurduar
 }
 
 // ── Service functions ─────────────────────────────────────────────────────────
@@ -92,7 +92,7 @@ export async function createProfile(userId: string, data: {
   const slug = await generateUniqueSlug(data.displayName);
   
   // Determine coordinates: use provided location, or geocode address if provided, or use default
-  let coordinates: [number, number] = [89.1743, 26.7132]; // default Jalpaiguri
+  let coordinates: [number, number] = [89.527100, 26.491890]; // default Alipurduar
   
   if (data.location) {
     coordinates = data.location;
