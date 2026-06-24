@@ -463,6 +463,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!slugOrId) return;
+    window.scrollTo(0, 0);
 
     /*
      * FIX: The API endpoint to fetch a single profile by slug/id.
