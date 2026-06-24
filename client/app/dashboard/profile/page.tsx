@@ -14,7 +14,7 @@ import { useAuthStore } from '@/store/authStore';
 const PROFILE_TYPES = [
   { value: 'tutor', label: 'Private Tutor' },
   { value: 'coaching_center', label: 'Coaching Center' },
-  { value: 'sports_trainer', label: 'Sports Trainer' },
+  { value: 'sports_trainer', label: 'Sports' },
   { value: 'arts_trainer', label: 'Arts & Culture' },
   { value: 'gym_yoga', label: 'Gym & Yoga' },
 ];

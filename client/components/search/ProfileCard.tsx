@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 const typeLabels: Record<string, string> = {
   tutor: 'Private Tutor',
   coaching_center: 'Coaching Center',
-  sports_trainer: 'Sports Trainer',
+  sports_trainer: 'Sports',
   arts_trainer: 'Arts & Culture',
   gym_yoga: 'Gym & Yoga',
 };

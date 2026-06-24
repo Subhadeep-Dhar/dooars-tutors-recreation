@@ -18,7 +18,7 @@ async function seed() {
   const categories = await Category.insertMany([
     { slug: 'private-tutor', name: 'Private Tutor', icon: 'book', order: 1 },
     { slug: 'coaching-center', name: 'Coaching Center', icon: 'building', order: 2 },
-    { slug: 'sports-trainer', name: 'Sports Trainer', icon: 'trophy', order: 3 },
+    { slug: 'sports-trainer', name: 'Sports', icon: 'trophy', order: 3 },
     { slug: 'arts-trainer', name: 'Arts & Culture', icon: 'music', order: 4 },
     { slug: 'gym-yoga', name: 'Gym & Yoga', icon: 'dumbbell', order: 5 },
   ]);

@@ -177,7 +177,7 @@ const typeBadgeStyles: Record<string, { bg: string; color: string }> = {
 
 const typeLabels: Record<string, string> = {
   tutor: 'Private Tutor', coaching_center: 'Coaching Center',
-  sports_trainer: 'Sports Trainer', arts_trainer: 'Arts & Culture', gym_yoga: 'Gym & Yoga',
+  sports_trainer: 'Sports', arts_trainer: 'Arts & Culture', gym_yoga: 'Gym & Yoga',
 };
 
 const classList = ['1','2','3','4','5','6','7','8','9','10','11','12'];

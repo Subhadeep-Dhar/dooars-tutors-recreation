@@ -9,7 +9,7 @@ const types = [
   { label: 'All', value: '' },
   { label: 'Private Tutors', value: 'tutor' },
   { label: 'Coaching Centers', value: 'coaching_center' },
-  { label: 'Sports Trainers', value: 'sports_trainer' },
+  { label: 'Sports', value: 'sports_trainer' },
   { label: 'Arts & Culture', value: 'arts_trainer' },
   { label: 'Gym & Yoga', value: 'gym_yoga' },
 ];
