@@ -1,58 +1,37 @@
 import axios from 'axios';
+import { supabase } from './supabase';
 import { useAuthStore } from '@/store/authStore';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1',
-  withCredentials: true, // ✅ required for refresh cookie
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ✅ Attach access token from Zustand
-api.interceptors.request.use((config) => {
-  const token = useAuthStore.getState().accessToken;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+// ✅ Attach Supabase access token dynamically
+api.interceptors.request.use(async (config) => {
+  // Always get the freshest session from Supabase to handle auto-refresh implicitly
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`;
+  } else {
+    // Fallback to store if needed
+    const token = useAuthStore.getState().accessToken;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
   return config;
 });
 
-// ✅ Auto-refresh on 401
+// Remove the old custom 401 refresh logic, because Supabase handles token refreshing internally
 api.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    const original = error.config;
-
-    // prevent infinite loop
-    if (
-      error.response?.status === 401 &&
-      !original._retry &&
-      !original.url.includes('/auth/refresh')
-    ) {
-      original._retry = true;
-
-      try {
-        const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-
-        const newToken = data.data.accessToken;
-
-        // ✅ update Zustand
-        useAuthStore.getState().setAccessToken(newToken);
-
-        original.headers.Authorization = `Bearer ${newToken}`;
-
-        return api(original);
-      } catch (err) {
-        useAuthStore.getState().setAccessToken(null);
-        useAuthStore.getState().logout();
-
-        // Removed auto-redirect. Protected routes handle redirection via their layout components.
-      }
+  (error) => {
+    if (error.response?.status === 401) {
+      // If backend rejects the token, sign out
+      useAuthStore.getState().logout();
     }
-
     return Promise.reject(error);
   }
 );

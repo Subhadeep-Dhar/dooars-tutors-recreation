@@ -3,7 +3,7 @@ import { UserRole } from '@dooars/shared';
 
 export interface IUserDocument extends Document {
   email: string;
-  passwordHash: string;
+  passwordHash?: string;
   name: string;
   phone?: string;
   role: UserRole;
@@ -11,6 +11,8 @@ export interface IUserDocument extends Document {
   isVerified: boolean;
   isActive: boolean;
   refreshTokenHash?: string;
+  supabaseId?: string;
+  status: 'pending' | 'active';
   createdAt: Date;
   updatedAt: Date;
   lastLogin?: Date;
@@ -26,7 +28,7 @@ const UserSchema = new Schema<IUserDocument>(
       trim: true,
       index: true,
     },
-    passwordHash: { type: String, required: true },
+    passwordHash: { type: String, required: false }, // optional for legacy/temp users
     name: { type: String, required: true, trim: true },
     phone: { type: String, trim: true },
     role: {
@@ -39,6 +41,8 @@ const UserSchema = new Schema<IUserDocument>(
       url: { type: String },
       publicId: { type: String },
     },
+    supabaseId: { type: String, unique: true, sparse: true },
+    status: { type: String, enum: ['pending', 'active'], default: 'pending' },
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date },

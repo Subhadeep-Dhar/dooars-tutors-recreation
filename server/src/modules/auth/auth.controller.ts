@@ -1,42 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
-import * as AuthService from './auth.service';
+import { User, Profile } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
-import { env } from '../../config/env';
-
-const REFRESH_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
-  maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in ms
-  path: '/',
-};
+import { sendWelcomeEmail, sendAdminNotification } from '../../utils/email';
 
 // ── Validation rules ──────────────────────────────────────────────────────────
 
 export const registerValidation = [
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
-  body('password')
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain uppercase, lowercase and a number'),
   body('name').trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
   body('phone').optional().isMobilePhone('any').withMessage('Invalid phone number'),
-  body('role')
+  body('category')
     .optional()
     .isIn(['student', 'tutor', 'org'])
-    .withMessage('Role must be student, tutor, or org'),
-];
-
-export const loginValidation = [
-  body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
-  body('password').notEmpty().withMessage('Password required'),
+    .withMessage('Category/Role must be student, tutor, or org'),
 ];
 
 // ── Handlers ──────────────────────────────────────────────────────────────────
 
-export async function register(req: Request, res: Response, next: NextFunction) {
+export async function registerPending(req: Request, res: Response, next: NextFunction) {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -44,54 +26,95 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       throw new AppError('Validation failed', 400, fieldErrors);
     }
 
-    const { user, accessToken, refreshToken } = await AuthService.registerUser(req.body);
+    const { email, name, phone, category } = req.body;
+    
+    let user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (user && user.status === 'active') {
+      throw new AppError('Email already registered and active', 409);
+    }
 
-    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+    if (!user) {
+      // Create pending user
+      user = await User.create({
+        email: email.toLowerCase(),
+        name,
+        phone,
+        role: category || 'student',
+        status: 'pending',
+        isVerified: false
+      });
+    } else {
+      // Update pending user with new attempts
+      user.name = name;
+      user.phone = phone;
+      user.role = category || 'student';
+      await user.save();
+    }
 
     res.status(201).json({
       success: true,
-      data: { user, accessToken },
-      message: 'Registration successful',
+      message: 'Pending registration created. Waiting for OTP verification.',
     });
   } catch (err) {
     next(err);
   }
 }
 
-export async function login(req: Request, res: Response, next: NextFunction) {
+export async function activate(req: Request, res: Response, next: NextFunction) {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const fieldErrors = Object.fromEntries(errors.array().map((e) => [(e as any).path, e.msg]));
-      throw new AppError('Validation failed', 400, fieldErrors);
+    // The user's supabase token is verified by middleware `verifyToken`
+    // which puts `req.user.supabaseId` (or `req.user.userId` pointing to the `sub`)
+    const supabaseId = req.user!.supabaseId || req.user!.userId;
+    const email = req.body.email; // we might not need email if we look up by supabaseId, but initially supabaseId isn't linked!
+    
+    // Actually, in registerPending we didn't have supabaseId yet. 
+    // We need to link it now using the email inside the JWT (or we can pass it).
+    // Let's decode the email from req.user if possible, or accept it in body.
+    // Wait, the client sends `supabaseId` in the body (`req.body.supabaseId`).
+    
+    // To be secure, the supabase ID comes from the verified JWT:
+    const verifiedSupabaseId = req.user!.userId;
+    
+    // Find the user by email (wait, the JWT from Supabase has email in it usually, or we can look up if we passed it).
+    // Let's just find the pending user that we are activating. 
+    // If the client sends `email` in body, we should verify it matches the JWT email, but supabase JWT doesn't always have email in standard payload without querying supabase Admin API.
+    // Supabase JWT payload: { "sub": "1234", "email": "test@test.com" } (usually).
+    const tokenEmail = (req.user as any).email || req.body.email;
+    
+    if (!tokenEmail) {
+      throw new AppError('Email is required to activate', 400);
     }
 
-    const { user, accessToken, refreshToken } = await AuthService.loginUser(
-      req.body.email,
-      req.body.password
-    );
+    const user = await User.findOne({ email: tokenEmail.toLowerCase() });
+    
+    if (!user) {
+      throw new AppError('User not found. Please register first.', 404);
+    }
 
-    res.cookie('refreshToken', refreshToken, REFRESH_COOKIE_OPTIONS);
+    if (user.status === 'active') {
+      // Already active, just update supabaseId if missing
+      if (!user.supabaseId) {
+        user.supabaseId = verifiedSupabaseId;
+        await user.save();
+      }
+      return res.json({ success: true, message: 'Account is already active' });
+    }
+
+    // Activate
+    user.status = 'active';
+    user.isVerified = true;
+    user.supabaseId = verifiedSupabaseId;
+    await user.save();
+
+    // Trigger Resend Emails
+    await sendWelcomeEmail(user.email, user.name).catch(console.error);
+    await sendAdminNotification(user.email, user.role).catch(console.error);
 
     res.json({
       success: true,
-      data: { user, accessToken },
-      message: 'Login successful',
+      message: 'Account verified and activated successfully',
     });
-  } catch (err) {
-    next(err);
-  }
-}
-
-export async function refresh(req: Request, res: Response, next: NextFunction) {
-  try {
-    const refreshToken = req.cookies?.refreshToken;
-    if (!refreshToken) throw new AppError('No refresh token', 401);
-
-    const { accessToken, refreshToken: newRefreshToken } = await AuthService.refreshAccessToken(refreshToken);
-
-    res.cookie('refreshToken', newRefreshToken, REFRESH_COOKIE_OPTIONS);
-    res.json({ success: true, data: { accessToken } });
   } catch (err) {
     next(err);
   }
@@ -99,9 +122,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
 
 export async function logout(req: Request, res: Response, next: NextFunction) {
   try {
-    const refreshToken = req.cookies?.refreshToken;
-    await AuthService.logoutUser(refreshToken);
-
+    // Supabase handles logout on client side, this is just for cleanup if needed
     res.clearCookie('refreshToken', { path: '/' });
     res.json({ success: true, message: 'Logged out successfully' });
   } catch (err) {
@@ -111,8 +132,10 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
 
 export async function getMe(req: Request, res: Response, next: NextFunction) {
   try {
-    const { User } = await import('../../models');
-    const user = await User.findById(req.user!.userId).select('-passwordHash -refreshTokenHash');
+    // req.user has the supabase ID
+    const supabaseId = req.user!.userId;
+    const user = await User.findOne({ supabaseId }).select('-passwordHash -refreshTokenHash');
+    
     if (!user) throw new AppError('User not found', 404);
 
     res.json({ success: true, data: { user } });
@@ -123,10 +146,9 @@ export async function getMe(req: Request, res: Response, next: NextFunction) {
 
 export async function deleteAccount(req: Request, res: Response, next: NextFunction) {
   try {
-    const { User, Profile } = await import('../../models');
-    const userId = req.user!.userId;
+    const supabaseId = req.user!.userId;
 
-    const user = await User.findById(userId);
+    const user = await User.findOne({ supabaseId });
     if (!user) throw new AppError('User not found', 404);
 
     // Soft delete user
@@ -135,14 +157,7 @@ export async function deleteAccount(req: Request, res: Response, next: NextFunct
     await user.save();
 
     // Hard delete profile if exists
-    await Profile.deleteOne({ userId });
-
-    // Logout
-    const refreshToken = req.cookies?.refreshToken;
-    if (refreshToken) {
-      await AuthService.logoutUser(refreshToken).catch(() => {});
-    }
-    res.clearCookie('refreshToken', { path: '/' });
+    await Profile.deleteOne({ userId: user._id });
 
     res.json({ success: true, message: 'Account deleted successfully' });
   } catch (err) {

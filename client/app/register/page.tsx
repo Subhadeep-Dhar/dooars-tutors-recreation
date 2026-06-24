@@ -7,20 +7,17 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { useAuthStore } from '@/store/authStore';
+import { supabase } from '@/lib/supabase';
+import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GraduationCap } from 'lucide-react';
 
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Valid email required'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Must contain uppercase, lowercase and a number'),
+  phone: z.string().min(10, 'Valid phone number required'),
   role: z.enum(['student', 'tutor', 'org']),
 });
 
@@ -28,7 +25,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register: registerUser, isLoading } = useAuthStore();
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
@@ -40,13 +37,33 @@ export default function RegisterPage() {
 
   async function onSubmit(data: FormData) {
     setError('');
+    setIsLoading(true);
     try {
-      await registerUser(data);
-      toast.success('Account created successfully!');
-      if (data.role === 'student') router.push('/search');
-      else router.push('/dashboard');
+      // 1. Supabase OTP Sign Up
+      const { error: supabaseError } = await supabase.auth.signInWithOtp({
+        email: data.email,
+        options: {
+          shouldCreateUser: true,
+        }
+      });
+
+      if (supabaseError) throw supabaseError;
+
+      // 2. Register pending user in MongoDB
+      await api.post('/auth/register-pending', {
+        email: data.email,
+        name: data.name,
+        phone: data.phone,
+        category: data.role // Or whatever maps to category
+      });
+
+      toast.success('OTP sent to your email!');
+      // 3. Route to /verify-otp
+      router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Registration failed');
+      setError(err?.message || err?.response?.data?.message || 'Registration failed');
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -65,7 +82,7 @@ export default function RegisterPage() {
             </div>
           </div>
           <h1 style={{ fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Create an account</h1>
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Join Dooars Tutors today</p>
+          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Join Dooars Tutors password-free today</p>
         </div>
         
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -104,9 +121,9 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="password" style={{ color: 'var(--text-primary)' }}>Password</Label>
-            <input id="password" type="password" placeholder="Min 8 chars, upper + lower + number" {...register('password')} className="input-base" />
-            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+            <Label htmlFor="phone" style={{ color: 'var(--text-primary)' }}>Phone Number</Label>
+            <input id="phone" type="tel" placeholder="10-digit mobile number" {...register('phone')} className="input-base" />
+            {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
           </div>
 
           {error && (
@@ -116,7 +133,7 @@ export default function RegisterPage() {
           )}
 
           <button type="submit" className="btn-primary w-full mt-2 py-3 text-sm" disabled={isLoading}>
-            {isLoading ? 'Creating account...' : 'Create account'}
+            {isLoading ? 'Sending OTP...' : 'Continue'}
           </button>
         </form>
         
