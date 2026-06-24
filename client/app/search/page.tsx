@@ -878,19 +878,36 @@ function SearchPageInner() {
 
         {/* Map */}
         {viewMode === 'map' && (
-          <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', height: '480px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)', marginBottom: '1.2rem' }}>
-            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
-              <Map defaultCenter={mapCenter} defaultZoom={11} mapId="dooars-search-map" style={{ width: '100%', height: '100%' }} gestureHandling="greedy">
-                {validGeo.map(p => (
-                  <AdvancedMarker key={p._id}
-                    position={{ lat: p.location.coordinates[1], lng: p.location.coordinates[0] }}
-                    onClick={() => router.push(`/profiles/${p.slug || p._id}`)}>
-                    <Pin background={typeColors[p.type] ?? '#1a73e8'} borderColor="#fff" glyphColor="#fff" scale={0.9} />
-                  </AdvancedMarker>
-                ))}
-              </Map>
-            </APIProvider>
-          </div>
+          <>
+            <div style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', height: '480px', border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)', marginBottom: '0.8rem' }}>
+              <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
+                <Map defaultCenter={mapCenter} defaultZoom={11} mapId="dooars-search-map" style={{ width: '100%', height: '100%' }} gestureHandling="greedy">
+                  {validGeo.map(p => (
+                    <AdvancedMarker key={p._id}
+                      position={{ lat: p.location.coordinates[1], lng: p.location.coordinates[0] }}
+                      onClick={() => router.push(`/profiles/${p.slug || p._id}`)}>
+                      <Pin background={typeColors[p.type] ?? '#1a73e8'} borderColor="#fff" glyphColor="#fff" scale={0.9} />
+                    </AdvancedMarker>
+                  ))}
+                </Map>
+              </APIProvider>
+            </div>
+            
+            {/* Map Legend */}
+            <div style={{ 
+              display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', 
+              marginBottom: '1.5rem', background: 'var(--bg-card)', padding: '0.8rem', 
+              borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow-sm)'
+            }}>
+              {Object.entries(typeColors).map(([key, color]) => (
+                <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: color, border: '1px solid rgba(0,0,0,0.1)' }} />
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{typeLabels[key]}</span>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* List / Grid */}
