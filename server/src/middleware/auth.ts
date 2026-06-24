@@ -4,6 +4,7 @@ import { env } from '../config/env';
 import { AppError } from './errorHandler';
 import { UserRole, AuthTokenPayload } from '@dooars/shared';
 import { createClient } from '@supabase/supabase-js';
+import { User } from '../models/User';
 
 // Extend Express Request to carry the authenticated user
 declare global {
@@ -69,16 +70,28 @@ export async function verifyToken(req: Request, _res: Response, next: NextFuncti
  * Always used AFTER verifyToken.
  */
 export function requireRole(...roles: UserRole[]) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return async (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user) {
       return next(new AppError('Not authenticated', 401));
     }
-    // We will need to attach the correct role from MongoDB. 
-    // Usually we fetch the user in verifyToken if we need roles.
-    // For now, if role is missing, we reject.
-    if (!roles.includes(req.user.role)) {
-      return next(new AppError('Insufficient permissions', 403));
+    
+    try {
+      // Fetch user from DB to get the authoritative role
+      const user = await User.findOne({ supabaseId: req.user.supabaseId }).select('role').lean();
+      
+      if (!user) {
+        return next(new AppError('User not found in database', 404));
+      }
+
+      req.user.role = user.role as UserRole;
+
+      if (!roles.includes(user.role as UserRole)) {
+        return next(new AppError('Insufficient permissions', 403));
+      }
+      
+      next();
+    } catch (err) {
+      next(err);
     }
-    next();
   };
 }
