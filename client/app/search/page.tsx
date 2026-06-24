@@ -157,7 +157,7 @@ const categories = [
   { label: 'All',              value: '',                icon: null },
   { label: 'Private Tutors',   value: 'tutor',           icon: BookOpen },
   { label: 'Coaching Centers', value: 'coaching_center', icon: Building2 },
-  { label: 'Sports Trainers',  value: 'sports_trainer',  icon: Trophy },
+  { label: 'Sports',  value: 'sports_trainer',  icon: Trophy },
   { label: 'Arts & Culture',   value: 'arts_trainer',    icon: Music },
   { label: 'Gym & Yoga',       value: 'gym_yoga',        icon: Dumbbell },
 ];
