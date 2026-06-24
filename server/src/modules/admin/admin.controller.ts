@@ -68,6 +68,20 @@ export async function updateUser(req: Request, res: Response, next: NextFunction
   } catch (err) { next(err); }
 }
 
+export async function toggleProfileStatus(req: Request, res: Response, next: NextFunction) {
+  try {
+    const profile = await AdminService.toggleProfileStatus(req.params.id);
+    res.json({ success: true, data: { profile } });
+  } catch (err) { next(err); }
+}
+
+export async function updateProfile(req: Request, res: Response, next: NextFunction) {
+  try {
+    const profile = await AdminService.updateProfile(req.params.id, req.body);
+    res.json({ success: true, data: { profile }, message: 'Profile updated successfully' });
+  } catch (err) { next(err); }
+}
+
 export async function deleteUser(req: Request, res: Response, next: NextFunction) {
   try {
     await AdminService.deleteUser(req.params.id);

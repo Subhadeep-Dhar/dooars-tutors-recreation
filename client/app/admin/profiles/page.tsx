@@ -22,6 +22,18 @@ export default function AdminProfilesPage() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
 
+  // Edit State
+  const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    displayName: '',
+    slug: '',
+    type: '',
+    bio: '',
+    phone: '',
+    email: ''
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+
   async function load(currentPage = page, currentSearch = search, currentType = typeFilter) {
     try {
       setLoading(true);
@@ -67,6 +79,42 @@ export default function AdminProfilesPage() {
     }
   }
 
+  async function toggleStatus(id: string) {
+    try {
+      await api.patch(`/admin/profiles/${id}/status`);
+      toast.success('Profile status updated');
+      load();
+    } catch {
+      toast.error('Action failed');
+    }
+  }
+
+  function handleEditClick(profile: any) {
+    setEditingProfileId(profile._id);
+    setEditFormData({
+      displayName: profile.displayName || '',
+      slug: profile.slug || '',
+      type: profile.type || 'tutor',
+      bio: profile.bio || '',
+      phone: profile.contact?.phone || '',
+      email: profile.contact?.email || ''
+    });
+  }
+
+  async function handleSaveProfile(id: string) {
+    setSavingProfile(true);
+    try {
+      await api.patch(`/admin/profiles/${id}/update`, editFormData);
+      toast.success('Profile updated successfully');
+      setEditingProfileId(null);
+      load();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setSavingProfile(false);
+    }
+  }
+
   const totalPages = Math.ceil(total / limit);
 
   return (
@@ -101,57 +149,147 @@ export default function AdminProfilesPage() {
         <div className="space-y-3">
           {profiles.map((profile) => (
             <Card key={profile._id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-              <CardContent className="p-4 flex items-center justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold">
-                    {profile.displayName?.charAt(0) || 'P'}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{profile.displayName || 'Unknown Profile'}</span>
-                      <Badge variant="outline" className="text-xs">{profile.type}</Badge>
-                      {profile.verificationStatus === 'verified'
-                        ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">Verified</Badge>
-                        : profile.verificationStatus === 'rejected'
-                          ? <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs">Rejected</Badge>
-                          : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Pending</Badge>}
-                      {profile.isFeatured && <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Featured</Badge>}
+              <CardContent className="p-4 flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl gradient-primary text-white flex items-center justify-center font-semibold">
+                      {profile.displayName?.charAt(0) || 'P'}
                     </div>
-                    <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{profile.address?.town || 'No Town'}, {profile.address?.district || 'No District'}</p>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm" style={{ color: 'var(--text-primary)' }}>{profile.displayName || 'Unknown Profile'}</span>
+                        <Badge variant="outline" className="text-xs">{profile.type}</Badge>
+                        {profile.verificationStatus === 'verified'
+                          ? <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-xs">Verified</Badge>
+                          : profile.verificationStatus === 'rejected'
+                            ? <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs">Rejected</Badge>
+                            : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Pending</Badge>}
+                        {profile.isFeatured && <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 text-xs">Featured</Badge>}
+                        {!profile.isActive && <Badge className="bg-red-100 text-red-700 hover:bg-red-100 text-xs">Inactive</Badge>}
+                      </div>
+                      <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{profile.address?.town || 'No Town'}, {profile.address?.district || 'No District'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button
+                      size="sm" variant="outline"
+                      className="h-8 text-xs text-blue-500 border-blue-500/30 hover:bg-blue-500/10"
+                      onClick={() => handleEditClick(profile)}
+                    >
+                      Edit
+                    </Button>
+                    <Link href={`/profiles/${profile.slug}`} target="_blank">
+                      <Button size="sm" variant="outline" className="h-8 gap-1 text-xs btn-secondary">
+                        <ExternalLink size={12} /> View
+                      </Button>
+                    </Link>
+                    <Button
+                      size="sm" variant="outline"
+                      className="h-8 gap-1 text-xs btn-secondary"
+                      onClick={() => toggleFeatured(profile._id)}
+                    >
+                      <Star size={12} /> {profile.isFeatured ? 'Unfeature' : 'Feature'}
+                    </Button>
+                    <Button
+                      size="sm" variant="outline"
+                      className={`h-8 text-xs ${!profile.isActive ? 'text-green-500 border-green-500/30 hover:bg-green-500/10' : 'text-red-500 border-red-500/30 hover:bg-red-500/10'}`}
+                      onClick={() => toggleStatus(profile._id)}
+                    >
+                      {profile.isActive ? 'Deactivate' : 'Activate'}
+                    </Button>
+                    {profile.verificationStatus !== 'verified' ? (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="h-8 gap-1 text-xs bg-green-600 hover:bg-green-700"
+                          onClick={() => approve(profile._id, true)}
+                        >
+                          <CheckCircle size={12} /> Approve
+                        </Button>
+                        <Button
+                          size="sm" variant="outline"
+                          className="h-8 gap-1 text-xs text-red-500 border-red-500/30 hover:bg-red-500/10"
+                          onClick={() => approve(profile._id, false)}
+                        >
+                          <XCircle size={12} /> Reject
+                        </Button>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Link href={`/profiles/${profile.slug}`} target="_blank">
-                    <Button size="sm" variant="outline" className="h-8 gap-1 text-xs btn-secondary">
-                      <ExternalLink size={12} /> View
-                    </Button>
-                  </Link>
-                  <Button
-                    size="sm" variant="outline"
-                    className="h-8 gap-1 text-xs btn-secondary"
-                    onClick={() => toggleFeatured(profile._id)}
-                  >
-                    <Star size={12} /> {profile.isFeatured ? 'Unfeature' : 'Feature'}
-                  </Button>
-                  {profile.verificationStatus !== 'verified' ? (
+
+                {/* Edit Form Block */}
+                {editingProfileId === profile._id && (
+                  <div className="p-4 bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-lg mt-2">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4">Edit Profile Details</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Display Name</label>
+                        <input
+                          type="text"
+                          value={editFormData.displayName}
+                          onChange={(e) => setEditFormData({ ...editFormData, displayName: e.target.value })}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Slug (URL)</label>
+                        <input
+                          type="text"
+                          value={editFormData.slug}
+                          onChange={(e) => setEditFormData({ ...editFormData, slug: e.target.value })}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Bio / Description</label>
+                        <textarea
+                          value={editFormData.bio}
+                          onChange={(e) => setEditFormData({ ...editFormData, bio: e.target.value })}
+                          rows={3}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Contact Phone</label>
+                        <input
+                          type="text"
+                          value={editFormData.phone}
+                          onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Contact Email</label>
+                        <input
+                          type="email"
+                          value={editFormData.email}
+                          onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                    </div>
+
                     <div className="flex gap-2">
                       <Button
                         size="sm"
-                        className="h-8 gap-1 text-xs bg-green-600 hover:bg-green-700"
-                        onClick={() => approve(profile._id, true)}
+                        className="h-8 bg-blue-600 hover:bg-blue-700 text-white border-none disabled:opacity-50"
+                        disabled={savingProfile}
+                        onClick={() => handleSaveProfile(profile._id)}
                       >
-                        <CheckCircle size={12} /> Approve
+                        {savingProfile ? 'Saving...' : 'Save Changes'}
                       </Button>
                       <Button
                         size="sm" variant="outline"
-                        className="h-8 gap-1 text-xs text-red-500 border-red-500/30 hover:bg-red-500/10"
-                        onClick={() => approve(profile._id, false)}
+                        className="h-8"
+                        onClick={() => setEditingProfileId(null)}
                       >
-                        <XCircle size={12} /> Reject
+                        Cancel
                       </Button>
                     </div>
-                  ) : null}
-                </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

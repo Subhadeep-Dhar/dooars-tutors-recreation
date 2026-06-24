@@ -209,6 +209,35 @@ export async function updateUser(userId: string, data: any) {
   return user;
 }
 
+export async function toggleProfileStatus(profileId: string) {
+  const profile = await Profile.findById(profileId);
+  if (!profile) throw new AppError('Profile not found', 404);
+  profile.isActive = !profile.isActive;
+  await profile.save();
+  return profile;
+}
+
+export async function updateProfile(profileId: string, data: any) {
+  const profile = await Profile.findById(profileId);
+  if (!profile) throw new AppError('Profile not found', 404);
+  
+  if (data.displayName) profile.displayName = data.displayName;
+  if (data.slug) profile.slug = data.slug;
+  if (data.type) profile.type = data.type;
+  if (data.bio !== undefined) profile.bio = data.bio;
+  if (data.phone !== undefined) {
+    if (!profile.contact) profile.contact = {};
+    profile.contact.phone = data.phone;
+  }
+  if (data.email !== undefined) {
+    if (!profile.contact) profile.contact = {};
+    profile.contact.email = data.email;
+  }
+  
+  await profile.save();
+  return profile;
+}
+
 export async function deleteUser(userId: string) {
   const user = await User.findById(userId);
   if (!user) throw new AppError('User not found', 404);

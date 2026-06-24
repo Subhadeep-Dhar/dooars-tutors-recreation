@@ -13,6 +13,8 @@ import {
   getAllReviews,
   toggleUserStatus,
   updateUser,
+  toggleProfileStatus,
+  updateProfile,
   deleteUser,
   toggleReviewVisibility,
   toggleProfileFeatured
@@ -35,8 +37,11 @@ router.get('/reviews', getAllReviews);
 router.patch('/users/:id/status', toggleUserStatus);
 router.patch('/users/:id/update', updateUser);
 router.delete('/users/:id', deleteUser);
-router.patch('/reviews/:id/visibility', toggleReviewVisibility);
+
+router.patch('/profiles/:id/status', toggleProfileStatus);
+router.patch('/profiles/:id/update', updateProfile);
 router.patch('/profiles/:id/feature', toggleProfileFeatured);
+router.patch('/reviews/:id/visibility', toggleReviewVisibility);
 
 // Moderation Specific
 router.get('/moderation-queue', getModerationQueue);
