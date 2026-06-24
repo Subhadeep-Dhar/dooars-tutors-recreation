@@ -472,7 +472,7 @@ function TutorCardGrid({ profile }: { profile: any }) {
           <div style={{ background: '#1c1c1e', border: '1px solid #333', borderRadius: '0.8rem', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1rem' }}>
             {slots.slice(0, 2).map((slot: any, i: number) => (
               <p key={i} style={{ margin: 0, fontSize: '0.8rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {slot.subject || slot.activity} : <span style={{ fontWeight: 400 }}>Class {slot.classes?.join(', ')}</span>
+                {slot.subject || slot.activity} : <span style={{ fontWeight: 400 }}>{slot.classes ? slot.classes.join(', ') : (slot.ageGroups?.join(', ') || slot.level || '')}</span>
               </p>
             ))}
             {slots.length > 2 && (
