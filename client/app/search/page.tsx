@@ -406,7 +406,7 @@ function TutorCardGrid({ profile }: { profile: any }) {
       className="stagger-item"
       style={{
         display: 'flex', flexDirection: 'row', gap: '1rem',
-        background: '#151518', borderRadius: '1.25rem', padding: '1.2rem',
+        background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '1.2rem',
         transition: 'transform 0.2s', height: '100%', alignItems: 'stretch'
       }}
       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)' }}
@@ -431,7 +431,7 @@ function TutorCardGrid({ profile }: { profile: any }) {
         </div>
 
         {/* Type Badge */}
-        <div style={{ background: '#1c1c1e', border: '1px solid #333', padding: '0.2rem 0.5rem', borderRadius: '0.5rem', fontSize: '0.65rem', fontWeight: 600, color: '#fff', textAlign: 'center', width: '100%', marginBottom: '0.5rem', textTransform: 'capitalize' }}>
+        <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', padding: '0.2rem 0.5rem', borderRadius: '0.5rem', fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-secondary)', textAlign: 'center', width: '100%', marginBottom: '0.5rem', textTransform: 'capitalize' }}>
            {(profile.type || '').replace('_', ' ')}
         </div>
 
@@ -439,15 +439,15 @@ function TutorCardGrid({ profile }: { profile: any }) {
         {profile.rating?.count > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.1rem', marginBottom: '0.8rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', color: '#fbbf24' }}>
-              {[1,2,3,4,5].map(s => <Star key={s} size={10} fill={s <= Math.round(profile.rating.average) ? '#fbbf24' : 'transparent'} stroke={s <= Math.round(profile.rating.average) ? '#fbbf24' : '#555'} style={{ margin: '0 1px' }} />)}
+              {[1,2,3,4,5].map(s => <Star key={s} size={10} fill={s <= Math.round(profile.rating.average) ? '#fbbf24' : 'transparent'} stroke={s <= Math.round(profile.rating.average) ? '#fbbf24' : 'var(--border)'} style={{ margin: '0 1px' }} />)}
             </div>
-            <span style={{ fontSize: '0.7rem', color: '#999', fontWeight: 600 }}>({profile.rating.count})</span>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>({profile.rating.count})</span>
           </div>
         )}
 
         {/* Location */}
         {profile.address?.town && (
-          <div style={{ fontSize: '0.7rem', color: '#ccc', textAlign: 'center', marginTop: 'auto' }}>
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textAlign: 'center', marginTop: 'auto' }}>
             {profile.address.town}{profile.address.district ? `, ${profile.address.district}` : ''}
           </div>
         )}
@@ -456,27 +456,27 @@ function TutorCardGrid({ profile }: { profile: any }) {
       {/* RIGHT COLUMN */}
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
         {/* Name */}
-        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#fff', margin: '0 0 0.4rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.4rem 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {profile.displayName}
         </h3>
         
         {/* Experience */}
         {profile.experience != null && (
-          <p style={{ fontSize: '0.85rem', color: '#ccc', margin: '0 0 0.8rem 0' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0 0 0.8rem 0' }}>
             {profile.experience} years experience
           </p>
         )}
 
         {/* Subjects Box */}
         {slots.length > 0 && (
-          <div style={{ background: '#1c1c1e', border: '1px solid #333', borderRadius: '0.8rem', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1rem' }}>
+          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.8rem', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1rem' }}>
             {slots.slice(0, 2).map((slot: any, i: number) => (
-              <p key={i} style={{ margin: 0, fontSize: '0.8rem', color: '#fff', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <p key={i} style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {slot.subject || slot.activity} : <span style={{ fontWeight: 400 }}>{slot.classes ? slot.classes.join(', ') : (slot.ageGroups?.join(', ') || slot.level || '')}</span>
               </p>
             ))}
             {slots.length > 2 && (
-              <p style={{ margin: 0, fontSize: '0.75rem', color: '#888' }}>+{slots.length - 2} more subjects</p>
+              <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>+{slots.length - 2} more subjects</p>
             )}
           </div>
         )}
@@ -493,15 +493,15 @@ function TutorCardGrid({ profile }: { profile: any }) {
             )}
             {profile.contact?.phone && (
               <a href={`tel:${profile.contact.phone}`} onClick={e => e.stopPropagation()}>
-                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Phone size={14} color="#000" fill="#000" />
+                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-elevated)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Phone size={14} color="var(--text-primary)" fill="var(--text-primary)" />
                 </div>
               </a>
             )}
           </div>
           <button
             onClick={e => { e.stopPropagation(); router.push(dest); }}
-            style={{ padding: '0.5rem 1.2rem', borderRadius: '9999px', background: '#f8f9fa', color: '#000', fontWeight: 600, fontSize: '0.8rem', border: 'none', cursor: 'pointer' }}
+            style={{ padding: '0.5rem 1.2rem', borderRadius: '9999px', background: 'var(--color-brand)', color: '#fff', fontWeight: 600, fontSize: '0.8rem', border: 'none', cursor: 'pointer' }}
           >
             View Profile
           </button>
