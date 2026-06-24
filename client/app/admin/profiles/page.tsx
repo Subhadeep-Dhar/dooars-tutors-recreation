@@ -24,14 +24,8 @@ export default function AdminProfilesPage() {
 
   // Edit State
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
-  const [editFormData, setEditFormData] = useState({
-    displayName: '',
-    slug: '',
-    type: '',
-    bio: '',
-    phone: '',
-    email: ''
-  });
+  const [confirmingSaveProfileId, setConfirmingSaveProfileId] = useState<string | null>(null);
+  const [editFormData, setEditFormData] = useState<any>({});
   const [savingProfile, setSavingProfile] = useState(false);
 
   async function load(currentPage = page, currentSearch = search, currentType = typeFilter) {
@@ -96,17 +90,37 @@ export default function AdminProfilesPage() {
       slug: profile.slug || '',
       type: profile.type || 'tutor',
       bio: profile.bio || '',
+      about: profile.about || '',
+      tagline: profile.tagline || '',
+      experience: profile.experience || 0,
+      languages: profile.languages ? profile.languages.join(', ') : '',
       phone: profile.contact?.phone || '',
-      email: profile.contact?.email || ''
+      email: profile.contact?.email || '',
+      whatsapp: profile.contact?.whatsapp || '',
+      address: JSON.stringify(profile.address || {}, null, 2),
+      location: JSON.stringify(profile.location || { type: 'Point', coordinates: [0, 0] }, null, 2),
+      teachingSlots: JSON.stringify(profile.teachingSlots || [], null, 2),
+      media: JSON.stringify(profile.media || [], null, 2)
     });
   }
 
   async function handleSaveProfile(id: string) {
     setSavingProfile(true);
     try {
-      await api.patch(`/admin/profiles/${id}/update`, editFormData);
+      const payload: any = {
+        ...editFormData,
+        languages: editFormData.languages.split(',').map((l: string) => l.trim()).filter(Boolean),
+      };
+
+      try { payload.address = JSON.parse(editFormData.address); } catch (e) { toast.error('Invalid JSON in Address'); setSavingProfile(false); return; }
+      try { payload.location = JSON.parse(editFormData.location); } catch (e) { toast.error('Invalid JSON in Location'); setSavingProfile(false); return; }
+      try { payload.teachingSlots = JSON.parse(editFormData.teachingSlots); } catch (e) { toast.error('Invalid JSON in Teaching Slots'); setSavingProfile(false); return; }
+      try { payload.media = JSON.parse(editFormData.media); } catch (e) { toast.error('Invalid JSON in Media'); setSavingProfile(false); return; }
+
+      await api.patch(`/admin/profiles/${id}/update`, payload);
       toast.success('Profile updated successfully');
       setEditingProfileId(null);
+      setConfirmingSaveProfileId(null);
       load();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Failed to update profile');
@@ -234,6 +248,20 @@ export default function AdminProfilesPage() {
                         />
                       </div>
                       <div>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Type</label>
+                        <select
+                          value={editFormData.type}
+                          onChange={(e) => setEditFormData({ ...editFormData, type: e.target.value })}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        >
+                          <option value="tutor">Tutor</option>
+                          <option value="coaching_center">Coaching Center</option>
+                          <option value="sports_trainer">Sports Trainer</option>
+                          <option value="arts_trainer">Arts Trainer</option>
+                          <option value="gym_yoga">Gym Yoga</option>
+                        </select>
+                      </div>
+                      <div>
                         <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Slug (URL)</label>
                         <input
                           type="text"
@@ -243,11 +271,47 @@ export default function AdminProfilesPage() {
                         />
                       </div>
                       <div className="md:col-span-2">
-                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Bio / Description</label>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tagline</label>
+                        <input
+                          type="text"
+                          value={editFormData.tagline}
+                          onChange={(e) => setEditFormData({ ...editFormData, tagline: e.target.value })}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Bio (Short)</label>
                         <textarea
                           value={editFormData.bio}
                           onChange={(e) => setEditFormData({ ...editFormData, bio: e.target.value })}
-                          rows={3}
+                          rows={2}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">About (Long Description)</label>
+                        <textarea
+                          value={editFormData.about}
+                          onChange={(e) => setEditFormData({ ...editFormData, about: e.target.value })}
+                          rows={4}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Experience (Years)</label>
+                        <input
+                          type="number"
+                          value={editFormData.experience}
+                          onChange={(e) => setEditFormData({ ...editFormData, experience: parseInt(e.target.value) || 0 })}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Languages (comma separated)</label>
+                        <input
+                          type="text"
+                          value={editFormData.languages}
+                          onChange={(e) => setEditFormData({ ...editFormData, languages: e.target.value })}
                           className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         />
                       </div>
@@ -269,24 +333,105 @@ export default function AdminProfilesPage() {
                           className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                         />
                       </div>
+                      <div>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">WhatsApp</label>
+                        <input
+                          type="text"
+                          value={editFormData.whatsapp}
+                          onChange={(e) => setEditFormData({ ...editFormData, whatsapp: e.target.value })}
+                          className="w-full px-3 py-1.5 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      
+                      {/* JSON Editor Blocks */}
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 flex justify-between">
+                          <span>Address (JSON Object)</span>
+                        </label>
+                        <textarea
+                          value={editFormData.address}
+                          onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+                          rows={5}
+                          className="w-full font-mono text-xs px-3 py-1.5 border border-slate-200 dark:border-slate-800 rounded-md bg-slate-100 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 flex justify-between">
+                          <span>Location Coordinates (JSON Object)</span>
+                        </label>
+                        <textarea
+                          value={editFormData.location}
+                          onChange={(e) => setEditFormData({ ...editFormData, location: e.target.value })}
+                          rows={3}
+                          className="w-full font-mono text-xs px-3 py-1.5 border border-slate-200 dark:border-slate-800 rounded-md bg-slate-100 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 flex justify-between">
+                          <span>Teaching Slots (JSON Array)</span>
+                        </label>
+                        <textarea
+                          value={editFormData.teachingSlots}
+                          onChange={(e) => setEditFormData({ ...editFormData, teachingSlots: e.target.value })}
+                          rows={8}
+                          className="w-full font-mono text-xs px-3 py-1.5 border border-slate-200 dark:border-slate-800 rounded-md bg-slate-100 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2">
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1 flex justify-between">
+                          <span>Media Gallery (JSON Array)</span>
+                        </label>
+                        <textarea
+                          value={editFormData.media}
+                          onChange={(e) => setEditFormData({ ...editFormData, media: e.target.value })}
+                          rows={4}
+                          className="w-full font-mono text-xs px-3 py-1.5 border border-slate-200 dark:border-slate-800 rounded-md bg-slate-100 dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                        />
+                      </div>
                     </div>
 
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        className="h-8 bg-blue-600 hover:bg-blue-700 text-white border-none disabled:opacity-50"
-                        disabled={savingProfile}
-                        onClick={() => handleSaveProfile(profile._id)}
-                      >
-                        {savingProfile ? 'Saving...' : 'Save Changes'}
-                      </Button>
-                      <Button
-                        size="sm" variant="outline"
-                        className="h-8"
-                        onClick={() => setEditingProfileId(null)}
-                      >
-                        Cancel
-                      </Button>
+                    <div className="flex gap-2 items-center mt-6">
+                      {confirmingSaveProfileId === profile._id ? (
+                        <>
+                          <span className="text-xs font-medium text-amber-600 dark:text-amber-500 mr-2">Are you sure you want to apply these changes?</span>
+                          <Button
+                            size="sm"
+                            className="h-8 bg-amber-600 hover:bg-amber-700 text-white border-none disabled:opacity-50"
+                            disabled={savingProfile}
+                            onClick={() => handleSaveProfile(profile._id)}
+                          >
+                            {savingProfile ? 'Saving...' : 'Yes, Confirm Save'}
+                          </Button>
+                          <Button
+                            size="sm" variant="outline"
+                            className="h-8"
+                            onClick={() => setConfirmingSaveProfileId(null)}
+                            disabled={savingProfile}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            size="sm"
+                            className="h-8 bg-blue-600 hover:bg-blue-700 text-white border-none disabled:opacity-50"
+                            onClick={() => setConfirmingSaveProfileId(profile._id)}
+                          >
+                            Save Changes
+                          </Button>
+                          <Button
+                            size="sm" variant="outline"
+                            className="h-8"
+                            onClick={() => { setEditingProfileId(null); setConfirmingSaveProfileId(null); }}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}

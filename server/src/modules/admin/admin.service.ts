@@ -221,19 +221,47 @@ export async function updateProfile(profileId: string, data: any) {
   const profile = await Profile.findById(profileId);
   if (!profile) throw new AppError('Profile not found', 404);
   
-  if (data.displayName) profile.displayName = data.displayName;
-  if (data.slug) profile.slug = data.slug;
-  if (data.type) profile.type = data.type;
+  if (data.displayName !== undefined) profile.displayName = data.displayName;
+  if (data.slug !== undefined) profile.slug = data.slug;
+  if (data.type !== undefined) profile.type = data.type;
   if (data.bio !== undefined) profile.bio = data.bio;
-  if (data.phone !== undefined) {
-    if (!profile.contact) profile.contact = {};
-    profile.contact.phone = data.phone;
-  }
-  if (data.email !== undefined) {
-    if (!profile.contact) profile.contact = {};
-    profile.contact.email = data.email;
-  }
+  if (data.about !== undefined) profile.about = data.about;
+  if (data.tagline !== undefined) profile.tagline = data.tagline;
+  if (data.experience !== undefined) profile.experience = data.experience;
+  if (data.languages !== undefined) profile.languages = data.languages;
   
+  if (data.isVerified !== undefined) profile.isVerified = data.isVerified;
+  if (data.isVisible !== undefined) profile.isVisible = data.isVisible;
+
+  // Contact
+  if (data.phone !== undefined || data.email !== undefined || data.whatsapp !== undefined) {
+    if (!profile.contact) profile.contact = {};
+    if (data.phone !== undefined) profile.contact.phone = data.phone;
+    if (data.email !== undefined) profile.contact.email = data.email;
+    if (data.whatsapp !== undefined) profile.contact.whatsapp = data.whatsapp;
+  }
+
+  // Address
+  if (data.address !== undefined) {
+    profile.address = { ...profile.address, ...data.address };
+  }
+
+  // Location Coordinates
+  if (data.location?.coordinates !== undefined) {
+    if (!profile.location) profile.location = { type: 'Point', coordinates: [0,0] };
+    profile.location.coordinates = data.location.coordinates;
+  }
+
+  // Teaching Slots
+  if (data.teachingSlots !== undefined) {
+    profile.teachingSlots = data.teachingSlots;
+  }
+
+  // Media
+  if (data.media !== undefined) {
+    profile.media = data.media;
+  }
+
   await profile.save();
   return profile;
 }

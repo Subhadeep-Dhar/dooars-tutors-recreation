@@ -23,6 +23,7 @@ export default function AdminUsersPage() {
 
   // Edit State
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [confirmingSaveUserId, setConfirmingSaveUserId] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState({
     name: '',
     email: '',
@@ -113,6 +114,7 @@ export default function AdminUsersPage() {
       await api.patch(`/admin/users/${id}/update`, payload);
       toast.success('User updated successfully');
       setEditingUserId(null);
+      setConfirmingSaveUserId(null);
       load();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Failed to update user');
@@ -311,22 +313,45 @@ export default function AdminUsersPage() {
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        className="h-8 bg-blue-600 hover:bg-blue-700 text-white border-none disabled:opacity-50"
-                        disabled={savingUser}
-                        onClick={() => handleSaveUser(user._id)}
-                      >
-                        {savingUser ? 'Saving...' : 'Save Changes'}
-                      </Button>
-                      <Button
-                        size="sm" variant="outline"
-                        className="h-8"
-                        onClick={() => setEditingUserId(null)}
-                      >
-                        Cancel
-                      </Button>
+                    <div className="flex gap-2 items-center">
+                      {confirmingSaveUserId === user._id ? (
+                        <>
+                          <span className="text-xs font-medium text-amber-600 dark:text-amber-500 mr-2">Are you sure you want to apply these changes?</span>
+                          <Button
+                            size="sm"
+                            className="h-8 bg-amber-600 hover:bg-amber-700 text-white border-none disabled:opacity-50"
+                            disabled={savingUser}
+                            onClick={() => handleSaveUser(user._id)}
+                          >
+                            {savingUser ? 'Saving...' : 'Yes, Confirm Save'}
+                          </Button>
+                          <Button
+                            size="sm" variant="outline"
+                            className="h-8"
+                            onClick={() => setConfirmingSaveUserId(null)}
+                            disabled={savingUser}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            size="sm"
+                            className="h-8 bg-blue-600 hover:bg-blue-700 text-white border-none disabled:opacity-50"
+                            onClick={() => setConfirmingSaveUserId(user._id)}
+                          >
+                            Save Changes
+                          </Button>
+                          <Button
+                            size="sm" variant="outline"
+                            className="h-8"
+                            onClick={() => { setEditingUserId(null); setConfirmingSaveUserId(null); }}
+                          >
+                            Cancel
+                          </Button>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
