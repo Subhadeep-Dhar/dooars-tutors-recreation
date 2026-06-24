@@ -19,6 +19,9 @@ const PROFILE_TYPES = [
   { value: 'gym_yoga', label: 'Gym & Yoga' },
 ];
 
+const DISTRICTS = ['Alipurduar', 'Cooch Behar', 'Darjeeling', 'Jalpaiguri', 'Kalimpong'];
+const TOWNS = ['Alipurduar', 'Banarhat', 'Binnaguri', 'Birpara', 'Cooch Behar', 'Darjeeling', 'Dhupguri', 'Falakata', 'Hasimara', 'Jaigaon', 'Jalpaiguri', 'Kalchini', 'Kalimpong', 'Kurseong', 'Madarihat', 'Mainaguri', 'Malbazar', 'Siliguri'];
+
 export default function ProfileEditorPage() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -192,11 +195,17 @@ export default function ProfileEditorPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <Label style={{ color: 'var(--text-primary)' }}>Town</Label>
-                  <input className="input-base" placeholder="e.g. Alipurduar" {...register('address.town', { required: true })} />
+                  <select className="input-base" {...register('address.town', { required: true })}>
+                    <option value="" disabled style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Select Town</option>
+                    {TOWNS.map(t => <option key={t} value={t} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{t}</option>)}
+                  </select>
                 </div>
                 <div className="space-y-1.5">
                   <Label style={{ color: 'var(--text-primary)' }}>District</Label>
-                  <input className="input-base" placeholder="e.g. Alipurduar" {...register('address.district', { required: true })} />
+                  <select className="input-base" {...register('address.district', { required: true })}>
+                    <option value="" disabled style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Select District</option>
+                    {DISTRICTS.map(d => <option key={d} value={d} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{d}</option>)}
+                  </select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -213,7 +222,16 @@ export default function ProfileEditorPage() {
               {/* Map Location Picker */}
               <div className="pt-4 mt-4 border-t" style={{ borderColor: 'var(--border)' }}>
                 <Label className="mb-3 block" style={{ color: 'var(--text-primary)' }}>Precise Map Location</Label>
-                <div className="h-64 rounded-xl overflow-hidden border" style={{ borderColor: 'var(--border)' }}>
+                
+                <div className="mb-4 p-3 rounded-lg flex items-start gap-3 bg-red-500/10 border border-red-500/20 text-red-500">
+                  <span className="text-xl">📍</span>
+                  <div>
+                    <h4 className="font-semibold text-sm">IMPORTANT: Accurate location required</h4>
+                    <p className="text-xs mt-0.5 opacity-90">Please drag the map marker to your <strong>exact location</strong>. Students use the map to find tutors nearby, so placing it accurately helps you get more students!</p>
+                  </div>
+                </div>
+
+                <div className="h-64 rounded-xl overflow-hidden border-2 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
                   {mapLocation && (
                     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
                       <Map

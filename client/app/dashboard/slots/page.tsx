@@ -15,6 +15,10 @@ const CLASS_OPTIONS = ['Class 1','Class 2','Class 3','Class 4','Class 5','Class 
 const BOARD_OPTIONS = ['CBSE','ICSE','State','Other'];
 const MEDIUM_OPTIONS = ['Bengali','English','Hindi','Other'];
 
+const SPORTS_OPTIONS = ['Archery', 'Athletics', 'Badminton', 'Basketball', 'Boxing', 'Carrom', 'Chess', 'Cricket', 'Cycling', 'Football', 'Gymnastics', 'Hockey', 'Kabaddi', 'Martial Arts', 'Skating', 'Swimming', 'Table Tennis', 'Tennis', 'Volleyball', 'Weightlifting', 'Wrestling'];
+const ARTS_OPTIONS = ['Acting', 'Classical Dance', 'Classical Music', 'Contemporary Dance', 'Drawing', 'Eastern Dance', 'Hip-hop', 'Painting', 'Recitation', 'Western Music'];
+const GYM_OPTIONS = ['Aerobics', 'Calisthenics', 'Crossfit', 'Gym', 'Yoga', 'Zumba'];
+
 export default function SlotsPage() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -38,14 +42,29 @@ export default function SlotsPage() {
   }
 
   async function onSubmit(data: any) {
-    if (selectedClasses.length === 0) { toast.error('Select at least one class'); return; }
+    const isAcademic = profile?.type === 'tutor' || profile?.type === 'coaching_center';
+    
+    if (isAcademic && selectedClasses.length === 0) {
+      toast.error('Select at least one class');
+      return;
+    }
+    
     setSaving(true);
     try {
-      const res = await api.post(`/profiles/${profile._id}/slots`, {
-        ...data,
+      const payload: any = {
         feePerMonth: data.feePerMonth ? Number(data.feePerMonth) : null,
-        classes: selectedClasses,
-      });
+      };
+
+      if (isAcademic) {
+        payload.subject = data.subject;
+        payload.classes = selectedClasses;
+        payload.board = data.board;
+        payload.medium = data.medium;
+      } else {
+        payload.activity = data.activity;
+      }
+
+      const res = await api.post(`/profiles/${profile._id}/slots`, payload);
       setProfile(res.data.data.profile);
       reset();
       setSelectedClasses([]);
@@ -125,45 +144,59 @@ export default function SlotsPage() {
             <CardHeader><CardTitle className="text-base">Add new slot</CardTitle></CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label style={{ color: 'var(--text-primary)' }}>Subject</Label>
-                  <input className="input-base" placeholder="e.g. Mathematics" {...register('subject', { required: true })} />
-                </div>
+                {(profile.type === 'tutor' || profile.type === 'coaching_center') ? (
+                  <>
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }}>Subject</Label>
+                      <input className="input-base" placeholder="e.g. Mathematics" {...register('subject', { required: true })} />
+                    </div>
 
-                <div className="space-y-2">
-                  <Label style={{ color: 'var(--text-primary)' }}>Classes</Label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {CLASS_OPTIONS.map((cls) => (
-                      <button
-                        key={cls} type="button"
-                        onClick={() => toggleClass(cls)}
-                        className="px-2 py-1.5 rounded-lg text-xs transition-colors"
-                        style={{
-                          background: selectedClasses.includes(cls) ? 'var(--gradient-to)' : 'transparent',
-                          color: selectedClasses.includes(cls) ? '#fff' : 'var(--text-secondary)',
-                          border: `1px solid ${selectedClasses.includes(cls) ? 'var(--gradient-to)' : 'var(--border)'}`
-                        }}
-                      >
-                        {cls.replace('Class ', '')}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                    <div className="space-y-2">
+                      <Label style={{ color: 'var(--text-primary)' }}>Classes</Label>
+                      <div className="grid grid-cols-4 gap-2">
+                        {CLASS_OPTIONS.map((cls) => (
+                          <button
+                            key={cls} type="button"
+                            onClick={() => toggleClass(cls)}
+                            className="px-2 py-1.5 rounded-lg text-xs transition-colors"
+                            style={{
+                              background: selectedClasses.includes(cls) ? 'var(--gradient-to)' : 'transparent',
+                              color: selectedClasses.includes(cls) ? '#fff' : 'var(--text-secondary)',
+                              border: `1px solid ${selectedClasses.includes(cls) ? 'var(--gradient-to)' : 'var(--border)'}`
+                            }}
+                          >
+                            {cls.replace('Class ', '')}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label style={{ color: 'var(--text-primary)' }}>Board</Label>
+                        <select {...register('board')} className="input-base">
+                          {BOARD_OPTIONS.map((b) => <option key={b} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{b}</option>)}
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label style={{ color: 'var(--text-primary)' }}>Medium</Label>
+                        <select {...register('medium')} className="input-base">
+                          {MEDIUM_OPTIONS.map((m) => <option key={m} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{m}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  </>
+                ) : (
                   <div className="space-y-1.5">
-                    <Label style={{ color: 'var(--text-primary)' }}>Board</Label>
-                    <select {...register('board')} className="input-base">
-                      {BOARD_OPTIONS.map((b) => <option key={b} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{b}</option>)}
+                    <Label style={{ color: 'var(--text-primary)' }}>Activity</Label>
+                    <select {...register('activity', { required: true })} className="input-base">
+                      <option value="" disabled style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Select Activity</option>
+                      {profile.type === 'sports_trainer' && SPORTS_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
+                      {profile.type === 'arts_trainer' && ARTS_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
+                      {profile.type === 'gym_yoga' && GYM_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
                     </select>
                   </div>
-                  <div className="space-y-1.5">
-                    <Label style={{ color: 'var(--text-primary)' }}>Medium</Label>
-                    <select {...register('medium')} className="input-base">
-                      {MEDIUM_OPTIONS.map((m) => <option key={m} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{m}</option>)}
-                    </select>
-                  </div>
-                </div>
+                )}
 
                 <div className="space-y-1.5">
                   <Label style={{ color: 'var(--text-primary)' }}>Fee per month (₹)</Label>
