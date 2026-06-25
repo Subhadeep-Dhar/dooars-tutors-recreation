@@ -188,8 +188,7 @@ export async function getAdminStats(timeframe: string = '30d') {
         { $match: { _subjectIndex: { $exists: true, $type: 'array', $ne: [] } } },
         { $unwind: '$_subjectIndex' },
         { $group: { _id: '$_subjectIndex', value: { $sum: 1 } } },
-        { $sort: { value: -1 } },
-        { $limit: 10 }
+        { $sort: { value: -1 } }
       ]),
       Review.aggregate([
         { $group: { _id: '$rating', value: { $sum: 1 } } },
@@ -251,10 +250,27 @@ export async function getAdminStats(timeframe: string = '30d') {
           };
         });
 
+        // Calculate Bayesian Average for True Rating Ranking
+        const ratedProfiles = scoredProfiles.filter((p: any) => p.rating?.count > 0);
+        const globalAverageRating = ratedProfiles.length > 0 
+          ? ratedProfiles.reduce((sum: number, p: any) => sum + p.rating.average, 0) / ratedProfiles.length 
+          : 0;
+        const m = 10; // Minimum reviews threshold for Bayesian confidence
+
         return {
           leaderboard: [...scoredProfiles].sort((a, b) => b.adminScore - a.adminScore).slice(0, 5),
           mostReviewed: [...scoredProfiles].sort((a, b) => (b.rating?.count || 0) - (a.rating?.count || 0)).slice(0, 5),
-          topRated: [...scoredProfiles].filter(p => (p.rating?.count || 0) >= 3).sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0)).slice(0, 5)
+          topRated: [...scoredProfiles].sort((a, b) => {
+            const vA = a.rating?.count || 0;
+            const rA = a.rating?.average || 0;
+            const bayesianA = (vA / (vA + m)) * rA + (m / (vA + m)) * globalAverageRating;
+
+            const vB = b.rating?.count || 0;
+            const rB = b.rating?.average || 0;
+            const bayesianB = (vB / (vB + m)) * rB + (m / (vB + m)) * globalAverageRating;
+            
+            return bayesianB - bayesianA;
+          }).slice(0, 5)
         };
       })()
     };
