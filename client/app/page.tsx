@@ -6,6 +6,7 @@ import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, Mes
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import Link from 'next/link';
+import FoundersSection from '@/components/FoundersSection';
 
 const categories = [
   { label: 'Private Tutors', value: 'tutor', icon: BookOpen },
@@ -346,6 +347,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ── Founders ── */}
+      <FoundersSection />
 
       {/* ── Footer ── */}
       <footer style={{ background: 'var(--color-inkstone)', padding: 'var(--section-gap) 1rem' }}>
