@@ -327,9 +327,10 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Star, MapPin, Clock, Globe, MessageCircle, Phone, Mail,
-  BookOpen, ArrowLeft, CheckCircle, Flag, Loader2,
+  BookOpen, ArrowLeft, CheckCircle, Flag, Loader2, Shield
 } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
@@ -847,7 +848,43 @@ export default function ProfilePage() {
                 )}
               </div>
 
+              <div style={{
+                marginBottom: '1.25rem', padding: '1rem',
+                background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.15)',
+                borderRadius: 'var(--radius-md)', display: 'flex', gap: '0.75rem', alignItems: 'flex-start'
+              }}>
+                <Shield size={20} style={{ color: '#3b82f6', flexShrink: 0, marginTop: '0.1rem' }} />
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
+                  <strong>Privacy Note:</strong> If you see "Reviewed by Name", it is a review imported from our previous website. Moving forward, <strong>all new reviews are completely anonymous</strong>. No one can see who wrote the review, ensuring your freedom of speech. Please share your honest experience!
+                </p>
+              </div>
+
               {/* Write review (student only) */}
+              {!user && (
+                <div style={{
+                  marginBottom: '1.25rem', padding: '1.5rem 1rem',
+                  background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-md)', textAlign: 'center'
+                }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem', marginTop: 0 }}>
+                    You must be logged in as a student to write a review for this tutor.
+                  </p>
+                  <Link href="/register">
+                    <button style={{
+                      padding: '0.6rem 1.25rem', fontSize: '0.875rem', fontWeight: 600,
+                      background: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border)', borderRadius: 'var(--radius-buttons)',
+                      cursor: 'pointer',
+                      transition: 'background 0.2s',
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)' }}
+                    >
+                      Create an Account / Log In
+                    </button>
+                  </Link>
+                </div>
+              )}
+
               {user && user.role === 'student' && (
                 <form onSubmit={submitReview} style={{
                   marginBottom: '1.25rem', padding: '1rem',
