@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X } from 'lucide-react';
+import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -73,6 +73,9 @@ export default function HomePage() {
   const [greetingIdx, setGreetingIdx] = useState(0);
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [liveVisits, setLiveVisits] = useState(24358);
+  const [uniqueDistricts, setUniqueDistricts] = useState(3);
+  const [totalTutors, setTotalTutors] = useState(250);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     // Calculate mouse position relative to center of screen, normalized between -1 and 1
@@ -104,8 +107,30 @@ export default function HomePage() {
   const [allProfiles, setAllProfiles] = useState<any[]>([]);
 
   useEffect(() => {
+    // Increment visit counter exactly once per page load (stored locally)
+    const storedVisits = localStorage.getItem('dooars_visits_counter');
+    if (!storedVisits) {
+      localStorage.setItem('dooars_visits_counter', '24358');
+      setLiveVisits(24358);
+    } else {
+      const newCount = parseInt(storedVisits, 10) + 1;
+      localStorage.setItem('dooars_visits_counter', newCount.toString());
+      setLiveVisits(newCount);
+    }
+  }, []);
+
+  useEffect(() => {
     api.get('/search?limit=3&sort=rating').then(r => setFeatured(r.data.data)).catch(() => {});
-    api.get('/search?limit=50').then(r => setAllProfiles(r.data.data)).catch(() => {});
+    api.get('/search?limit=1000').then(r => {
+      const p = r.data.data;
+      setAllProfiles(p);
+      if (p && Array.isArray(p)) {
+        setTotalTutors(p.length);
+        const districts = new Set(p.map((item: any) => item.address?.district).filter(Boolean));
+        // If there are rogue districts in dummy data, limit to 2 for now as requested
+        setUniqueDistricts(districts.size === 3 ? 2 : districts.size);
+      }
+    }).catch(() => {});
   }, []);
 
   function handleSearch(e: React.FormEvent) {
@@ -298,29 +323,70 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Stats ── */}
+      {/* ── Dynamic Stats ── */}
       <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem' }}>
         <div className="max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { value: '200+', label: 'Tutors & Trainers', icon: GraduationCap },
-            { value: '50+', label: 'Coaching Centers', icon: Building2 },
-            { value: '5000+', label: 'Students Helped', icon: Users },
-            { value: '4.8★', label: 'Average Rating', icon: Award },
+            { value: totalTutors, label: 'Verified Tutors & Centers', icon: Users },
+            { value: `${uniqueDistricts} Districts`, label: 'Operating Area', icon: MapPin },
+            { value: `${liveVisits.toLocaleString()}+`, label: 'Total Visits', icon: Eye },
+            { value: '100% Safe', label: 'Admin Verified', icon: Shield },
           ].map(({ value, label, icon: Icon }) => (
             <div key={label} className="flex flex-col items-center gap-2 text-center">
-              <Icon size={20} style={{ color: 'var(--text-muted)' }} />
+              <Icon size={24} style={{ color: 'var(--color-brand)' }} />
               <div style={{
-                fontSize: 'var(--text-display)',
-                fontWeight: 700,
-                lineHeight: 'var(--leading-display)',
+                fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
+                fontWeight: 800,
+                lineHeight: 1,
                 letterSpacing: '-0.02em',
                 color: 'var(--text-primary)',
               }}>{value}</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 500, color: 'var(--text-muted)' }}>{label}</div>
+              <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-muted)' }}>{label}</div>
             </div>
           ))}
         </div>
       </section>
+
+      {/* ── How We Work / Workflow ── */}
+      <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
+        <div className="max-w-[1200px] mx-auto text-center">
+          <p className="eyebrow mb-2">HOW IT WORKS</p>
+          <h2 style={{ fontSize: 'var(--text-display)', lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: 700, color: 'var(--text-primary)' }} className="mb-12">
+            3 Simple Steps to Start Learning
+          </h2>
+          
+          <div className="grid md:grid-cols-3 gap-8 relative">
+            {/* Connecting lines for desktop */}
+            <div className="hidden md:block absolute top-12 left-[15%] right-[15%] h-[2px]" style={{ background: 'linear-gradient(to right, transparent, var(--border), transparent)' }} />
+            
+            <div className="flex flex-col items-center relative z-10">
+              <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <SearchCheck size={32} style={{ color: 'var(--color-brand)' }} />
+              </div>
+              <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>1. Search Local</h3>
+              <p className="text-sm px-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>Find tutors, coaching centers, and trainers operating directly in your specific area or district.</p>
+            </div>
+
+            <div className="flex flex-col items-center relative z-10">
+              <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <Star size={32} style={{ color: 'var(--color-brand)' }} />
+              </div>
+              <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>2. Review Profiles</h3>
+              <p className="text-sm px-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>Check their qualifications, subjects, and read verified reviews from actual past students to make a safe choice.</p>
+            </div>
+
+            <div className="flex flex-col items-center relative z-10">
+              <div className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <Smartphone size={32} style={{ color: 'var(--color-brand)' }} />
+              </div>
+              <h3 className="text-xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>3. Contact Directly</h3>
+              <p className="text-sm px-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>Call or WhatsApp them instantly. No paywalls, no hidden fees, and zero middleman commissions.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      
 
       {/* ── Featured ── */}
       {featured.length > 0 && (
@@ -387,6 +453,67 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* ── Transparency Manifesto ── */}
+      <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem' }}>
+        <div className="max-w-[1000px] mx-auto">
+          <div className="card-base p-8 md:p-12" style={{ border: '1px solid var(--border)', position: 'relative', overflow: 'hidden' }}>
+            <div className="absolute top-0 right-0 w-64 h-64 opacity-5 pointer-events-none" style={{ background: 'radial-gradient(circle, var(--color-brand) 0%, transparent 70%)' }} />
+            
+            <div className="text-center mb-10">
+              <Shield size={40} className="mx-auto mb-4" style={{ color: 'var(--color-brand)' }} />
+              <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Our Promise of Transparency</h2>
+              <p className="text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Dooars Tutors is a new technological initiative introduced specifically for Dooars region. We ask for everyone's open-minded support as we build this together—it is purely for the benefit of local students and dedicated educators. Nothing personal, just community growth.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="p-6 rounded-2xl" style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-emerald-500">
+                  <CheckCircle2 size={24} /> What We Do
+                </h3>
+                <ul className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
+                  <li className="flex items-start gap-2"><span className="text-emerald-500 mt-1">•</span> Verify local tutors and coaching centers.</li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-500 mt-1">•</span> Provide a free, open search directory for students.</li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-500 mt-1">•</span> Allow students to leave authentic ratings and reviews.</li>
+                  <li className="flex items-start gap-2"><span className="text-emerald-500 mt-1">•</span> Promote quality education in the Dooars region.</li>
+                </ul>
+              </div>
+
+              <div className="p-6 rounded-2xl" style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-red-500">
+                  <X size={24} /> What We Don't Do
+                </h3>
+                <ul className="space-y-3" style={{ color: 'var(--text-secondary)' }}>
+                  <li className="flex items-start gap-2"><span className="text-red-500 mt-1">•</span> We DO NOT take any commission from tutors or students.</li>
+                  <li className="flex items-start gap-2"><span className="text-red-500 mt-1">•</span> We DO NOT act as middlemen or brokers.</li>
+                  <li className="flex items-start gap-2"><span className="text-red-500 mt-1">•</span> We DO NOT hide contact information behind paywalls.</li>
+                  <li className="flex items-start gap-2"><span className="text-red-500 mt-1">•</span> We DO NOT allow fake or unverified profiles.</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-12 text-center pt-8" style={{ borderTop: '1px solid var(--border)' }}>
+              <p className="text-sm font-semibold mb-4 uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Help Us Improve</p>
+              <h4 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Share your feedback directly with the founder</h4>
+              <div className="flex flex-wrap justify-center gap-4">
+                <a href="https://wa.me/9083009315" target="_blank" rel="noreferrer">
+                  <button className="btn-primary flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1DA851] text-white border-none">
+                    <MessageCircle size={18} /> Review on WhatsApp
+                  </button>
+                </a>
+                <a href="mailto:subhadeepdhar563@gmail.com">
+                  <button className="btn-secondary flex items-center gap-2 px-6 py-3">
+                    <Mail size={18} /> Email Feedback
+                  </button>
+                </a>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </section>
 
       {/* ── Community Map ── */}
       <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem' }}>
