@@ -498,7 +498,7 @@ export default function HomePage() {
               <p className="text-sm font-semibold mb-4 uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Help Us Improve</p>
               <h4 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Share your feedback directly with the founder</h4>
               <div className="flex flex-wrap justify-center gap-4">
-                <a href={`https://wa.me/${process.env.NEXT_PUBLIC_FOUNDER_WHATSAPP}`} target="_blank" rel="noreferrer">
+                <a href={`https://wa.me/91${process.env.NEXT_PUBLIC_FOUNDER_WHATSAPP}`} target="_blank" rel="noreferrer">
                   <button className="btn-primary flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1DA851] text-white border-none">
                     <MessageCircle size={18} /> Review on WhatsApp
                   </button>
