@@ -205,9 +205,9 @@ export async function getAdminStats(timeframe: string = '30d') {
         { $group: { _id: { $dateToString: { format: dateFormat, date: "$createdAt" } }, value: { $sum: 1 } } },
         { $sort: { _id: 1 } }
       ]),
-      // Map data & scatter plot data
+      // Map data & scatter plot data (extended for performers score)
       Profile.find({})
-        .select('location type rating displayName slug address.town')
+        .select('location type rating displayName slug address.town contact media bio verificationStatus')
         .lean()
     ]);
 
@@ -230,7 +230,33 @@ export async function getAdminStats(timeframe: string = '30d') {
         users: usersOverTime.map(i => ({ date: i._id, count: i.value })),
         profiles: profilesOverTime.map(i => ({ date: i._id, count: i.value }))
       },
-      mapData: profilesForMap
+      mapData: profilesForMap,
+      performers: (() => {
+        const scoredProfiles = profilesForMap.map((p: any) => {
+          let score = 0;
+          if (p.rating?.average) score += p.rating.average * 10; // Max 50
+          if (p.rating?.count) score += Math.min(p.rating.count, 50) * 0.6; // Max 30
+          if (p.contact?.phone) score += 3;
+          if (p.media && p.media.length > 0) score += 4;
+          if (p.bio && p.bio.trim().length > 20) score += 3; // Max 10 combined
+          if (p.verificationStatus === 'verified') score += 10; // Max 10
+          return {
+            _id: p._id,
+            displayName: p.displayName,
+            slug: p.slug,
+            type: p.type,
+            town: p.address?.town,
+            rating: p.rating || { average: 0, count: 0 },
+            adminScore: Math.round(score * 10) / 10
+          };
+        });
+
+        return {
+          leaderboard: [...scoredProfiles].sort((a, b) => b.adminScore - a.adminScore).slice(0, 5),
+          mostReviewed: [...scoredProfiles].sort((a, b) => (b.rating?.count || 0) - (a.rating?.count || 0)).slice(0, 5),
+          topRated: [...scoredProfiles].filter(p => (p.rating?.count || 0) >= 3).sort((a, b) => (b.rating?.average || 0) - (a.rating?.average || 0)).slice(0, 5)
+        };
+      })()
     };
   } catch (err) {
     console.error('[AdminService] getAdminStats failed:', err);
