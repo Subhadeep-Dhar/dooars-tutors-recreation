@@ -3,7 +3,8 @@ import * as AdminService from './admin.service';
 
 export async function getAdminStats(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = await AdminService.getAdminStats();
+    const { timeframe } = req.query;
+    const data = await AdminService.getAdminStats(timeframe as string);
     res.json({ success: true, data });
   } catch (err) { next(err); }
 }

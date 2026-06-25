@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
-import { Users, BookOpen, Clock, Star, Loader2, ArrowRight, Activity, ShieldAlert, PhoneOff, ImageOff } from 'lucide-react';
+import { Users, BookOpen, Clock, Star, Loader2, ArrowRight, Activity, ShieldAlert, PhoneOff, ImageOff, MapPin } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
-  AreaChart, Area
+  AreaChart, Area,
+  ScatterChart, Scatter, ZAxis
 } from 'recharts';
 
 const COLORS = ['#1a73e8', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6', '#f43f5e'];
@@ -15,15 +16,18 @@ const COLORS = ['#1a73e8', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'
 export default function AdminOverviewPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [timeframe, setTimeframe] = useState('30d');
+  const [chartType, setChartType] = useState('daily'); // 'daily' or 'compound'
 
   useEffect(() => {
-    api.get('/admin/stats')
+    setLoading(true);
+    api.get(`/admin/stats?timeframe=${timeframe}`)
       .then((res) => setData(res.data.data))
       .catch(() => { })
       .finally(() => setLoading(false));
-  }, []);
+  }, [timeframe]);
 
-  if (loading) {
+  if (!data && loading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <Loader2 className="animate-spin text-slate-400" size={32} />
@@ -33,7 +37,33 @@ export default function AdminOverviewPage() {
 
   if (!data) return null;
 
-  const { overview, profilesByType, profilesByDistrict, profilesBySubject, recentActivity, health, growth, ratingDistribution } = data;
+  const { overview, profilesByType, profilesByDistrict, profilesBySubject, recentActivity, health, growth, ratingDistribution, mapData } = data;
+
+  // Calculate Compound Growth
+  const compoundGrowthUsers: any[] = [];
+  let userSum = 0;
+  growth.users.forEach((u: any) => {
+    userSum += u.count;
+    compoundGrowthUsers.push({ date: u.date, count: userSum });
+  });
+
+  // Calculate Scatter Data (Rating vs Reviews) - Includes profiles with 0 reviews
+  const scatterData = (mapData || []).map((p: any) => ({
+    name: p.displayName,
+    rating: p.rating?.average || 0,
+    reviews: p.rating?.count || 0,
+    type: p.type
+  }));
+
+  // Calculate Geographic Silhouette Data (Lng vs Lat)
+  const geoMapData = (mapData || [])
+    .filter((p: any) => p.location?.coordinates && p.location.coordinates.length === 2)
+    .map((p: any) => ({
+      name: p.displayName,
+      lng: p.location.coordinates[0],
+      lat: p.location.coordinates[1],
+      type: p.type
+    }));
 
   const cards = [
     { label: 'Total users', value: overview.users, icon: Users, href: '/admin/users' },
@@ -78,18 +108,40 @@ export default function AdminOverviewPage() {
         ))}
       </div>
 
-      {/* Advanced Analytics Grids */}
+      {/* Advanced Analytics Grids - Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         
         {/* Growth Area Chart (2/3 width) */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm lg:col-span-2">
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm lg:col-span-2 relative">
+          {loading && (
+            <div className="absolute inset-0 bg-black/5 dark:bg-black/20 z-10 flex items-center justify-center rounded-[var(--radius-lg)]">
+              <Loader2 className="animate-spin text-slate-400" />
+            </div>
+          )}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Growth (Last 30 Days)</h2>
-            <Activity size={16} style={{ color: 'var(--color-brand)' }} />
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Growth Tracker</h2>
+              <select 
+                value={chartType} 
+                onChange={(e) => setChartType(e.target.value)}
+                className="text-xs bg-transparent border-none outline-none font-semibold cursor-pointer"
+                style={{ color: 'var(--color-brand)' }}
+              >
+                <option value="daily">New vs Time</option>
+                <option value="compound">Compound (Cumulative)</option>
+              </select>
+            </div>
+            
+            <div className="flex gap-1" style={{ background: 'var(--bg-elevated)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <button onClick={() => setTimeframe('30d')} className={`text-xs px-3 py-1 rounded-md transition-colors ${timeframe === '30d' ? 'bg-white dark:bg-slate-700 text-black dark:text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>30 Days</button>
+              <button onClick={() => setTimeframe('6m')} className={`text-xs px-3 py-1 rounded-md transition-colors ${timeframe === '6m' ? 'bg-white dark:bg-slate-700 text-black dark:text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>6 Months</button>
+              <button onClick={() => setTimeframe('1y')} className={`text-xs px-3 py-1 rounded-md transition-colors ${timeframe === '1y' ? 'bg-white dark:bg-slate-700 text-black dark:text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>1 Year</button>
+            </div>
           </div>
+          
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={growth.users} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+              <AreaChart data={chartType === 'daily' ? growth.users : compoundGrowthUsers} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#1a73e8" stopOpacity={0.3}/>
@@ -106,13 +158,13 @@ export default function AdminOverviewPage() {
         </div>
 
         {/* Profile Health Metrics (1/3 width) */}
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm">
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm flex flex-col justify-between">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Profile Health</h2>
             <ShieldAlert size={16} className="text-amber-500" />
           </div>
           
-          <div className="space-y-6">
+          <div className="space-y-6 flex-1 flex flex-col justify-center">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-500/10">
                 <PhoneOff size={20} className="text-amber-500" />
@@ -136,12 +188,37 @@ export default function AdminOverviewPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      {/* Row 2: Silhouette Map & Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         
+        {/* Silhouette Geographic Map */}
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm lg:col-span-2">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Geographic Hotspots (Silhouette)</h2>
+            <MapPin size={16} style={{ color: 'var(--text-muted)' }} />
+          </div>
+          <div className="h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart margin={{ top: 10, right: 10, bottom: -10, left: -20 }}>
+                {/* Lng is X, Lat is Y. Hidden axes to create a pure silhouette map effect */}
+                <XAxis type="number" dataKey="lng" name="Longitude" hide domain={['dataMin - 0.02', 'dataMax + 0.02']} />
+                <YAxis type="number" dataKey="lat" name="Latitude" hide domain={['dataMin - 0.02', 'dataMax + 0.02']} />
+                <Tooltip 
+                  cursor={{ strokeDasharray: '3 3' }} 
+                  contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }} 
+                  formatter={(value, name, props) => props.payload.name}
+                />
+                <Scatter name="Regions" data={geoMapData} fill="#14b8a6" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="text-xs text-center mt-2" style={{ color: 'var(--text-muted)' }}>Abstract map representation based on tutor coordinates.</p>
+        </div>
+
         {/* Recent Profiles Feed */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm overflow-hidden flex flex-col">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Recently Added Profiles</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Recently Added</h2>
             <Link href="/admin/profiles" className="text-sm hover:underline" style={{ color: 'var(--color-brand)' }}>View All</Link>
           </div>
           <div className="space-y-4 flex-1">
@@ -149,7 +226,7 @@ export default function AdminOverviewPage() {
               <div key={p._id} className="flex justify-between items-center p-3 rounded-lg" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                 <div>
                   <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{p.displayName}</p>
-                  <p className="text-xs mt-1 capitalize" style={{ color: 'var(--text-muted)' }}>{p.type.replace('_', ' ')} • {p.verificationStatus}</p>
+                  <p className="text-xs mt-1 capitalize" style={{ color: 'var(--text-muted)' }}>{p.type?.replace('_', ' ')} • {p.verificationStatus}</p>
                 </div>
                 <Link href={`/admin/profiles/${p._id}`} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                   <ArrowRight size={16} style={{ color: 'var(--text-muted)' }} />
@@ -157,6 +234,29 @@ export default function AdminOverviewPage() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Row 3: Performance Clusters & Rating Distribution */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Scatter Plot (Clusters) */}
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Performance Clusters (Reviews vs Rating)</h2>
+            <Activity size={16} style={{ color: 'var(--text-muted)' }} />
+          </div>
+          <div className="h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart margin={{ top: 10, right: 10, bottom: -10, left: -20 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis type="number" dataKey="reviews" name="Total Reviews" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis type="number" dataKey="rating" name="Avg Rating" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} domain={[0, 5]} />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }} />
+                <Scatter name="Profiles" data={scatterData} fill="#8b5cf6" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="text-xs text-center mt-2" style={{ color: 'var(--text-muted)' }}>Top right cluster indicates best performing profiles.</p>
         </div>
 
         {/* Rating Distribution */}
@@ -175,6 +275,7 @@ export default function AdminOverviewPage() {
         </div>
       </div>
 
+      {/* Row 4: Profiles Data Breakdowns */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children mb-6">
         {/* Profiles by District Pie Chart */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm">

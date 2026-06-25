@@ -142,10 +142,21 @@ export async function getAllReviews(options: { page: number, limit: number }) {
   }
 }
 
-export async function getAdminStats() {
+export async function getAdminStats(timeframe: string = '30d') {
   try {
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const startDate = new Date();
+    let dateFormat = "%Y-%m-%d"; // Daily
+
+    if (timeframe === '6m') {
+      startDate.setMonth(startDate.getMonth() - 6);
+      dateFormat = "%Y-%m"; // Monthly
+    } else if (timeframe === '1y') {
+      startDate.setFullYear(startDate.getFullYear() - 1);
+      dateFormat = "%Y-%m"; // Monthly
+    } else {
+      // Default 30d
+      startDate.setDate(startDate.getDate() - 30);
+    }
 
     const [
       users, profiles, reviews, pending,
@@ -164,7 +175,7 @@ export async function getAdminStats() {
     ]);
 
     // Aggregations for charts - with defensive matches
-    const [profilesByType, profilesByDistrict, profilesBySubject, ratingDistribution, usersOverTime, profilesOverTime] = await Promise.all([
+    const [profilesByType, profilesByDistrict, profilesBySubject, ratingDistribution, usersOverTime, profilesOverTime, profilesForMap] = await Promise.all([
       Profile.aggregate([
         { $match: { type: { $exists: true, $ne: null } } },
         { $group: { _id: '$type', value: { $sum: 1 } } }
@@ -185,15 +196,19 @@ export async function getAdminStats() {
         { $sort: { _id: -1 } }
       ]),
       User.aggregate([
-        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-        { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, value: { $sum: 1 } } },
+        { $match: { createdAt: { $gte: startDate } } },
+        { $group: { _id: { $dateToString: { format: dateFormat, date: "$createdAt" } }, value: { $sum: 1 } } },
         { $sort: { _id: 1 } }
       ]),
       Profile.aggregate([
-        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
-        { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, value: { $sum: 1 } } },
+        { $match: { createdAt: { $gte: startDate } } },
+        { $group: { _id: { $dateToString: { format: dateFormat, date: "$createdAt" } }, value: { $sum: 1 } } },
         { $sort: { _id: 1 } }
-      ])
+      ]),
+      // Map data & scatter plot data
+      Profile.find({})
+        .select('location type rating displayName slug address.town')
+        .lean()
     ]);
 
     return {
@@ -214,7 +229,8 @@ export async function getAdminStats() {
       growth: {
         users: usersOverTime.map(i => ({ date: i._id, count: i.value })),
         profiles: profilesOverTime.map(i => ({ date: i._id, count: i.value }))
-      }
+      },
+      mapData: profilesForMap
     };
   } catch (err) {
     console.error('[AdminService] getAdminStats failed:', err);
