@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight } from 'lucide-react';
+import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -350,6 +350,34 @@ export default function HomePage() {
 
       {/* ── Founders ── */}
       <FoundersSection />
+
+      {/* ── Support Us ── */}
+      <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem', borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-[800px] mx-auto text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6" style={{ background: 'rgba(236, 72, 153, 0.1)' }}>
+            <Heart size={28} className="text-pink-500 fill-pink-500 animate-pulse" />
+          </div>
+          <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', letterSpacing: '-0.02em', fontWeight: 700, lineHeight: '1.1', color: 'var(--text-primary)', marginBottom: '1rem' }}>
+            Support Our Mission
+          </h2>
+          <p className="max-w-2xl mx-auto mb-10 text-lg" style={{ color: 'var(--text-secondary)' }}>
+            Dooars Tutors is providing its services totally free of cost, but it is not free to operate. If you like our work, please consider donating for more development or rating us on Google to help us reach more students!
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="https://g.page/r/CbdYh-pFhGNPEBM/review" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
+              <button className="btn-primary w-full sm:w-auto px-8 py-3.5 flex items-center justify-center gap-2 text-base shadow-lg shadow-blue-500/20">
+                <Star size={18} className="fill-current" /> Rate us on Google
+              </button>
+            </a>
+            {/* Replace href="#" with your actual UPI/Payment link */}
+            <a href="#" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto px-8 py-3.5 flex items-center justify-center gap-2 text-base rounded-full font-medium transition-all duration-200" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+                <Heart size={18} className="text-pink-500" /> Donate for Development
+              </button>
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* ── Footer ── */}
       <footer style={{ background: 'var(--color-inkstone)', padding: 'var(--section-gap) 1rem' }}>
