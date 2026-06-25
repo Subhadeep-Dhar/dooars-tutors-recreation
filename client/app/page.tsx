@@ -132,9 +132,9 @@ export default function HomePage() {
         const hasVisited = sessionStorage.getItem('dooars_global_visit_counted');
         let res;
         if (hasVisited) {
-          res = await api.get('/api/v1/stats/visits');
+          res = await api.get('/stats/visits');
         } else {
-          res = await api.post('/api/v1/stats/visits/increment');
+          res = await api.post('/stats/visits/increment');
         }
         
         if (res.data?.data?.totalVisits) {

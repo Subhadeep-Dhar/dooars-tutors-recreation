@@ -21,7 +21,7 @@ export default function AdminReportsPage() {
   async function fetchReports() {
     try {
       setLoading(true);
-      const res = await api.get('/api/v1/admin/reports');
+      const res = await api.get('/admin/reports');
       setReports(res.data.data);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Failed to fetch reports');
