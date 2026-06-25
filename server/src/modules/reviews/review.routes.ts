@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { verifyToken } from '../../middleware/auth';
 import { requireRole } from '../../middleware/auth';
-import { getReviews, createReview, createReviewValidation } from './review.controller';
+import { getReviews, createReview, createReviewValidation, getMyAnonymousReviews } from './review.controller';
 
 const router = Router({ mergeParams: true });
 
+router.get('/me', verifyToken, requireRole('tutor', 'org', 'admin'), getMyAnonymousReviews);
 router.get('/', getReviews);
 router.post('/', verifyToken, requireRole('student'), createReviewValidation, createReview);
 

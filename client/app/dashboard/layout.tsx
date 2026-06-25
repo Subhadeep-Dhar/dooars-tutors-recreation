@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/authStore';
 import { useTheme } from 'next-themes';
-import { LayoutDashboard, User, BookOpen, Image, LogOut, Menu, Sun, Moon, Home, Search, GraduationCap, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, User, BookOpen, Image, LogOut, Menu, Sun, Moon, Home, Search, GraduationCap, AlertTriangle, Star } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ const navItems = [
   { label: 'My Profile', href: '/dashboard/profile', icon: User },
   { label: 'Teaching Slots', href: '/dashboard/slots', icon: BookOpen },
   { label: 'Media', href: '/dashboard/media', icon: Image },
+  { label: 'Reviews', href: '/dashboard/reviews', icon: Star },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

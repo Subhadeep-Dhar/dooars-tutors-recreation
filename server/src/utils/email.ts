@@ -87,3 +87,26 @@ export async function sendReportConfirmation(reporterEmail: string, reportedProf
     `
   });
 }
+
+export async function sendReviewNotification(tutorEmail: string, rating: number, reviewText: string) {
+  if (!process.env.RESEND_API_KEY) {
+    console.log(`[Email Mock] New review notification sent to: ${tutorEmail} | Rating: ${rating}`);
+    return;
+  }
+
+  await resend.emails.send({
+    from: 'Dooars Tutors <notifications@resend.dev>',
+    to: tutorEmail,
+    subject: '⭐ You received a new review!',
+    html: `
+      <h2>New Review Received!</h2>
+      <p>Congratulations, someone has left a new review on your profile.</p>
+      <div style="background: #f4f4f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+        <p><strong>Rating:</strong> ${rating} / 5</p>
+        <p><strong>Review:</strong> "${reviewText}"</p>
+      </div>
+      <p>Log in to your dashboard to see your updated rating.</p>
+      <a href="https://dooarstutors.in/dashboard/reviews" style="display:inline-block;padding:10px 20px;background:#3b82f6;color:#fff;text-decoration:none;border-radius:5px;">View Dashboard</a>
+    `
+  });
+}

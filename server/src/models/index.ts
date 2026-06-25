@@ -18,3 +18,6 @@ export type { IRawPlaceDocument } from './RawPlace';
 
 export { ImportSummary } from './ImportSummary';
 export type { IImportSummaryDocument } from './ImportSummary';
+
+export * from './PlatformStat';
+export * from './Report';

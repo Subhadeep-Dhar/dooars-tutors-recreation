@@ -126,16 +126,28 @@ export default function HomePage() {
   }, [allProfiles]);
 
   useEffect(() => {
-    // Increment visit counter exactly once per page load (stored locally)
-    const storedVisits = localStorage.getItem('dooars_visits_counter');
-    if (!storedVisits) {
-      localStorage.setItem('dooars_visits_counter', '24358');
-      setLiveVisits(24358);
-    } else {
-      const newCount = parseInt(storedVisits, 10) + 1;
-      localStorage.setItem('dooars_visits_counter', newCount.toString());
-      setLiveVisits(newCount);
-    }
+    // Fetch and optionally increment universal visit counter
+    const fetchVisits = async () => {
+      try {
+        const hasVisited = sessionStorage.getItem('dooars_global_visit_counted');
+        let res;
+        if (hasVisited) {
+          res = await api.get('/api/v1/stats/visits');
+        } else {
+          res = await api.post('/api/v1/stats/visits/increment');
+        }
+        
+        if (res.data?.data?.totalVisits) {
+          setLiveVisits(res.data.data.totalVisits);
+          if (!hasVisited) {
+            sessionStorage.setItem('dooars_global_visit_counted', 'true');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch platform stats', err);
+      }
+    };
+    fetchVisits();
   }, []);
 
   useEffect(() => {

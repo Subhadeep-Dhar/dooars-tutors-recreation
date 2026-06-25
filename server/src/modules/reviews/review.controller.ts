@@ -15,6 +15,13 @@ export async function getReviews(req: Request, res: Response, next: NextFunction
   } catch (err) { next(err); }
 }
 
+export async function getMyAnonymousReviews(req: Request, res: Response, next: NextFunction) {
+  try {
+    const reviews = await ReviewService.getMyAnonymousReviews(req.user!.userId);
+    res.json({ success: true, data: { reviews } });
+  } catch (err) { next(err); }
+}
+
 export async function createReview(req: Request, res: Response, next: NextFunction) {
   try {
     const errors = validationResult(req);

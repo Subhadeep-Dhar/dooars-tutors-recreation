@@ -1,6 +1,7 @@
 import { Review, Profile } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
 import { resolveProfileId } from '../profiles/profile.service';
+import { sendReviewNotification } from '../../utils/email';
 
 export async function getProfileReviews(profileIdOrSlug: string) {
   // Resolve slug → ObjectId if needed (prevents CastError)
@@ -13,6 +14,23 @@ export async function getProfileReviews(profileIdOrSlug: string) {
   return reviews;
 }
 
+export async function getMyAnonymousReviews(userId: string) {
+  // Find all profiles owned by this user
+  const profiles = await Profile.find({ userId }).select('_id').lean();
+  const profileIds = profiles.map(p => p._id);
+
+  if (profileIds.length === 0) return [];
+
+  // Find all reviews for these profiles
+  // Exclude reviewerId and createdAt for anonymity
+  const reviews = await Review.find({ profileId: { $in: profileIds }, isVisible: true })
+    .select('-reviewerId -createdAt -updatedAt')
+    .sort({ rating: -1 }) // Sort by rating since we don't return dates
+    .lean();
+    
+  return reviews;
+}
+
 export async function createReview(
   profileIdOrSlug: string,
   reviewerId: string,
@@ -21,7 +39,7 @@ export async function createReview(
   // Resolve slug → ObjectId if needed
   const profileId = await resolveProfileId(profileIdOrSlug);
 
-  const profile = await Profile.findOne({ _id: profileId, verificationStatus: 'verified', isActive: true });
+  const profile = await Profile.findOne({ _id: profileId, verificationStatus: 'verified', isActive: true }).populate('userId', 'email');
   if (!profile) throw new AppError('Profile not found', 404);
 
   // One review per student per profile
@@ -41,6 +59,13 @@ export async function createReview(
     'rating.count': count,
     'rating.score': Math.round(score * 100) / 100
   });
+
+  if (profile.userId && (profile.userId as any).email) {
+    // Send email asynchronously without blocking the response
+    sendReviewNotification((profile.userId as any).email, data.rating, data.text).catch(err => {
+      console.error('Failed to send review notification email:', err);
+    });
+  }
 
   return review;
 }
