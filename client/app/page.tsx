@@ -25,31 +25,31 @@ const typeColors: Record<string, string> = {
 };
 
 const FLOATING_TAGS = [
-  { text: 'Guitar', top: '15%', left: '10%', anim: 1, delay: '0s' },
-  { text: 'Physics', top: '60%', left: '15%', anim: 2, delay: '-2s' },
-  { text: 'Yoga', top: '25%', left: '80%', anim: 3, delay: '-5s' },
-  { text: 'Football', top: '75%', left: '75%', anim: 1, delay: '-1s' },
-  { text: 'Coding', top: '10%', left: '45%', anim: 2, delay: '-4s' },
-  { text: 'Dance', top: '85%', left: '40%', anim: 3, delay: '-3s' },
-  { text: 'NEET', top: '40%', left: '5%', anim: 1, delay: '-6s' },
-  { text: 'Maths', top: '45%', left: '85%', anim: 2, delay: '0s' },
-  { text: 'Chemistry', top: '5%', left: '25%', anim: 3, delay: '-2s' },
-  { text: 'Biology', top: '80%', left: '15%', anim: 1, delay: '-5s' },
-  { text: 'English', top: '20%', left: '60%', anim: 2, delay: '-1s' },
-  { text: 'Bengali', top: '50%', left: '95%', anim: 3, delay: '-4s' },
-  { text: 'WBCS', top: '90%', left: '60%', anim: 1, delay: '-7s' },
-  { text: 'Art', top: '35%', left: '25%', anim: 2, delay: '-3s' },
-  { text: 'Music', top: '70%', left: '90%', anim: 3, delay: '-8s' },
-  { text: 'Cricket', top: '55%', left: '35%', anim: 1, delay: '-1s' },
-  { text: 'Gym', top: '15%', left: '90%', anim: 2, delay: '-6s' },
-  { text: 'Martial Arts', top: '95%', left: '20%', anim: 3, delay: '-2s' },
-  { text: 'Spoken English', top: '30%', left: '45%', anim: 1, delay: '-4s' },
-  { text: 'History', top: '65%', left: '55%', anim: 2, delay: '-5s' },
-  { text: 'Geography', top: '85%', left: '5%', anim: 3, delay: '-1s' },
-  { text: 'Computer', top: '5%', left: '75%', anim: 1, delay: '-3s' },
-  { text: 'Abacus', top: '45%', left: '20%', anim: 2, delay: '-7s' },
-  { text: 'JEE', top: '35%', left: '70%', anim: 3, delay: '-2s' },
-  { text: 'Vedic Maths', top: '75%', left: '40%', anim: 1, delay: '-6s' },
+  { text: 'Guitar', top: '15%', left: '10%', anim: 1, delay: '0s', major: true },
+  { text: 'Physics', top: '60%', left: '15%', anim: 2, delay: '-2s', major: true },
+  { text: 'Yoga', top: '25%', left: '80%', anim: 3, delay: '-5s', major: true },
+  { text: 'Football', top: '75%', left: '75%', anim: 1, delay: '-1s', major: true },
+  { text: 'Coding', top: '10%', left: '45%', anim: 2, delay: '-4s', major: true },
+  { text: 'Dance', top: '85%', left: '40%', anim: 3, delay: '-3s', major: true },
+  { text: 'NEET', top: '40%', left: '5%', anim: 1, delay: '-6s', major: false },
+  { text: 'Maths', top: '45%', left: '85%', anim: 2, delay: '0s', major: true },
+  { text: 'Chemistry', top: '5%', left: '25%', anim: 3, delay: '-2s', major: false },
+  { text: 'Biology', top: '80%', left: '15%', anim: 1, delay: '-5s', major: false },
+  { text: 'English', top: '20%', left: '60%', anim: 2, delay: '-1s', major: false },
+  { text: 'Bengali', top: '50%', left: '95%', anim: 3, delay: '-4s', major: false },
+  { text: 'WBCS', top: '90%', left: '60%', anim: 1, delay: '-7s', major: false },
+  { text: 'Art', top: '35%', left: '25%', anim: 2, delay: '-3s', major: false },
+  { text: 'Music', top: '70%', left: '90%', anim: 3, delay: '-8s', major: false },
+  { text: 'Cricket', top: '55%', left: '35%', anim: 1, delay: '-1s', major: false },
+  { text: 'Gym', top: '15%', left: '90%', anim: 2, delay: '-6s', major: false },
+  { text: 'Martial Arts', top: '95%', left: '20%', anim: 3, delay: '-2s', major: false },
+  { text: 'Spoken English', top: '30%', left: '45%', anim: 1, delay: '-4s', major: false },
+  { text: 'History', top: '65%', left: '55%', anim: 2, delay: '-5s', major: false },
+  { text: 'Geography', top: '85%', left: '5%', anim: 3, delay: '-1s', major: false },
+  { text: 'Computer', top: '5%', left: '75%', anim: 1, delay: '-3s', major: false },
+  { text: 'Abacus', top: '45%', left: '20%', anim: 2, delay: '-7s', major: false },
+  { text: 'JEE', top: '35%', left: '70%', anim: 3, delay: '-2s', major: true },
+  { text: 'Vedic Maths', top: '75%', left: '40%', anim: 1, delay: '-6s', major: false },
 ];
 
 export default function HomePage() {
@@ -144,7 +144,7 @@ export default function HomePage() {
             return (
               <div 
                 key={i} 
-                className="absolute transition-transform duration-300 ease-out"
+                className={`absolute transition-transform duration-300 ease-out ${!tag.major ? 'hidden md:block' : ''}`}
                 style={{
                   top: tag.top,
                   left: tag.left,
