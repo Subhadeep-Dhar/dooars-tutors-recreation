@@ -7,6 +7,7 @@ import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps
 import api from '@/lib/api';
 import Link from 'next/link';
 import FoundersSection from '@/components/FoundersSection';
+import QRCode from 'react-qr-code';
 
 const categories = [
   { label: 'Private Tutors', value: 'tutor', icon: BookOpen },
@@ -25,31 +26,44 @@ const typeColors: Record<string, string> = {
 };
 
 const FLOATING_TAGS = [
-  { text: 'Guitar', top: '15%', left: '10%', anim: 1, delay: '0s', major: true },
-  { text: 'Physics', top: '60%', left: '15%', anim: 2, delay: '-2s', major: true },
-  { text: 'Yoga', top: '25%', left: '80%', anim: 3, delay: '-5s', major: true },
-  { text: 'Football', top: '75%', left: '75%', anim: 1, delay: '-1s', major: true },
-  { text: 'Coding', top: '10%', left: '45%', anim: 2, delay: '-4s', major: true },
-  { text: 'Dance', top: '85%', left: '40%', anim: 3, delay: '-3s', major: true },
-  { text: 'NEET', top: '40%', left: '5%', anim: 1, delay: '-6s', major: false },
-  { text: 'Maths', top: '45%', left: '85%', anim: 2, delay: '0s', major: true },
-  { text: 'Chemistry', top: '5%', left: '25%', anim: 3, delay: '-2s', major: false },
-  { text: 'Biology', top: '80%', left: '15%', anim: 1, delay: '-5s', major: false },
-  { text: 'English', top: '20%', left: '60%', anim: 2, delay: '-1s', major: false },
-  { text: 'Bengali', top: '50%', left: '95%', anim: 3, delay: '-4s', major: false },
-  { text: 'WBCS', top: '90%', left: '60%', anim: 1, delay: '-7s', major: false },
-  { text: 'Art', top: '35%', left: '25%', anim: 2, delay: '-3s', major: false },
-  { text: 'Music', top: '70%', left: '90%', anim: 3, delay: '-8s', major: false },
-  { text: 'Cricket', top: '55%', left: '35%', anim: 1, delay: '-1s', major: false },
-  { text: 'Gym', top: '15%', left: '90%', anim: 2, delay: '-6s', major: false },
-  { text: 'Martial Arts', top: '95%', left: '20%', anim: 3, delay: '-2s', major: false },
-  { text: 'Spoken English', top: '30%', left: '45%', anim: 1, delay: '-4s', major: false },
-  { text: 'History', top: '65%', left: '55%', anim: 2, delay: '-5s', major: false },
-  { text: 'Geography', top: '85%', left: '5%', anim: 3, delay: '-1s', major: false },
-  { text: 'Computer', top: '5%', left: '75%', anim: 1, delay: '-3s', major: false },
-  { text: 'Abacus', top: '45%', left: '20%', anim: 2, delay: '-7s', major: false },
-  { text: 'JEE', top: '35%', left: '70%', anim: 3, delay: '-2s', major: true },
-  { text: 'Vedic Maths', top: '75%', left: '40%', anim: 1, delay: '-6s', major: false },
+  // Top Left Quadrant
+  { text: 'Guitar', top: '12%', left: '8%', anim: 1, delay: '0s', major: true },
+  { text: 'Chemistry', top: '18%', left: '25%', anim: 3, delay: '-2s', major: false },
+  { text: 'Computer', top: '8%', left: '40%', anim: 1, delay: '-3s', major: true },
+  
+  // Top Right Quadrant
+  { text: 'Coding', top: '15%', left: '60%', anim: 2, delay: '-4s', major: true },
+  { text: 'Yoga', top: '10%', left: '85%', anim: 3, delay: '-5s', major: true },
+  { text: 'English', top: '25%', left: '75%', anim: 2, delay: '-1s', major: true },
+  
+  // Middle Left Quadrant
+  { text: 'NEET', top: '45%', left: '5%', anim: 1, delay: '-6s', major: false },
+  { text: 'Art', top: '38%', left: '20%', anim: 2, delay: '-3s', major: true },
+  { text: 'Abacus', top: '55%', left: '15%', anim: 2, delay: '-7s', major: false },
+  { text: 'Spoken English', top: '40%', left: '35%', anim: 1, delay: '-4s', major: false },
+
+  // Middle Right Quadrant
+  { text: 'History', top: '35%', left: '85%', anim: 2, delay: '-5s', major: false },
+  { text: 'JEE', top: '48%', left: '65%', anim: 3, delay: '-2s', major: true },
+  { text: 'Maths', top: '55%', left: '90%', anim: 2, delay: '0s', major: true },
+  { text: 'Gym', top: '42%', left: '50%', anim: 2, delay: '-6s', major: false },
+
+  // Bottom Left Quadrant
+  { text: 'Physics', top: '75%', left: '10%', anim: 2, delay: '-2s', major: true },
+  { text: 'Biology', top: '85%', left: '25%', anim: 1, delay: '-5s', major: false },
+  { text: 'Geography', top: '68%', left: '30%', anim: 3, delay: '-1s', major: true },
+  { text: 'Dance', top: '90%', left: '8%', anim: 3, delay: '-3s', major: true },
+  
+  // Bottom Right Quadrant
+  { text: 'Football', top: '75%', left: '80%', anim: 1, delay: '-1s', major: true },
+  { text: 'Cricket', top: '85%', left: '60%', anim: 1, delay: '-1s', major: true },
+  { text: 'WBCS', top: '70%', left: '45%', anim: 1, delay: '-7s', major: false },
+  { text: 'Music', top: '88%', left: '75%', anim: 3, delay: '-8s', major: true },
+  { text: 'Bengali', top: '80%', left: '92%', anim: 3, delay: '-4s', major: true },
+  
+  // Center-ish but safe
+  { text: 'Vedic Maths', top: '60%', left: '55%', anim: 1, delay: '-6s', major: false },
+  { text: 'Martial Arts', top: '92%', left: '42%', anim: 3, delay: '-2s', major: false },
 ];
 
 export default function HomePage() {
@@ -527,10 +541,11 @@ export default function HomePage() {
             <p className="text-sm text-zinc-400 mb-6">Scan the QR code with any UPI app (GPay, PhonePe, Paytm) to donate.</p>
             
             <div className="bg-white p-3 rounded-xl inline-block mb-6 mx-auto shadow-inner">
-              <img 
-                src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi%3A%2F%2Fpay%3Fpa%3Dsubhadeepdhar563%40okhdfcbank%26pn%3DSubhadeep%2520Dhar%26cu%3DINR" 
-                alt="UPI QR Code" 
-                className="w-48 h-48"
+              <QRCode 
+                value="upi://pay?pa=subhadeepdhar563@okhdfcbank&pn=Subhadeep%20Dhar&cu=INR"
+                size={180}
+                style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                viewBox={`0 0 180 180`}
               />
             </div>
             
