@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart } from 'lucide-react';
+import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -29,6 +29,7 @@ export default function HomePage() {
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
   const [greetingIdx, setGreetingIdx] = useState(0);
+  const [showDonateModal, setShowDonateModal] = useState(false);
 
   const greetings = [
     'Welcome',       // English
@@ -369,12 +370,9 @@ export default function HomePage() {
                 <Star size={18} className="fill-current" /> Rate us on Google
               </button>
             </a>
-            {/* Replace href="#" with your actual UPI/Payment link */}
-            <a href="#" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto px-8 py-3.5 flex items-center justify-center gap-2 text-base rounded-full font-medium transition-all duration-200" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
-                <Heart size={18} className="text-pink-500" /> Donate for Development
-              </button>
-            </a>
+            <button onClick={() => setShowDonateModal(true)} className="w-full sm:w-auto px-8 py-3.5 flex items-center justify-center gap-2 text-base rounded-full font-medium transition-all duration-200" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+              <Heart size={18} className="text-pink-500" /> Donate for Development
+            </button>
           </div>
         </div>
       </section>
@@ -424,6 +422,42 @@ export default function HomePage() {
           </div>
         </div>
       </footer>
+      {/* ── Donate Modal ── */}
+      {showDonateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-all" onClick={() => setShowDonateModal(false)}>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-sm text-center relative shadow-2xl animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowDonateModal(false)} className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors">
+              <X size={20} />
+            </button>
+            
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mb-4 bg-pink-500/10">
+              <Heart size={24} className="text-pink-500 fill-pink-500" />
+            </div>
+            
+            <h3 className="text-xl font-bold text-white mb-2">Support Dooars Tutors</h3>
+            <p className="text-sm text-zinc-400 mb-6">Scan the QR code with any UPI app (GPay, PhonePe, Paytm) to donate.</p>
+            
+            <div className="bg-white p-3 rounded-xl inline-block mb-6 mx-auto shadow-inner">
+              <img 
+                src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi%3A%2F%2Fpay%3Fpa%3Dsubhadeepdhar563%40okhdfcbank%26pn%3DSubhadeep%2520Dhar%26cu%3DINR" 
+                alt="UPI QR Code" 
+                className="w-48 h-48"
+              />
+            </div>
+            
+            <p className="text-xs font-mono text-zinc-400 bg-zinc-950 p-2 rounded-lg border border-zinc-800 mb-2">
+              subhadeepdhar563@okhdfcbank
+            </p>
+            
+            {/* The mobile intent link only shows on mobile devices effectively if they click it */}
+            <a href="upi://pay?pa=subhadeepdhar563@okhdfcbank&pn=Subhadeep%20Dhar&cu=INR" className="block sm:hidden mt-4">
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium transition-colors shadow-lg shadow-blue-600/20">
+                Pay directly via UPI App
+              </button>
+            </a>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
