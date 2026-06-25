@@ -79,7 +79,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import { LayoutDashboard, BookOpen, Star, Users, LogOut, Menu, Sun, Moon, Home, Search, GraduationCap, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Star, Users, LogOut, Menu, Sun, Moon, Home, Search, GraduationCap, AlertTriangle, Flag } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -87,6 +87,7 @@ const navItems = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
   { label: 'Profiles', href: '/admin/profiles', icon: BookOpen },
   { label: 'Reviews', href: '/admin/reviews', icon: Star },
+  { label: 'Reports', href: '/admin/reports', icon: Flag },
   { label: 'Users', href: '/admin/users', icon: Users },
 ];
 

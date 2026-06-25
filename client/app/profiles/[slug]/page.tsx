@@ -433,6 +433,7 @@ function STitle({ children, style }: { children: React.ReactNode, style?: React.
 
 /* ── Main Page ─────────────────────────────────────────────────────────────── */
 export default function ProfilePage() {
+  // console.log('Profile page loaded');
   /*
    * Next.js dynamic route: /profiles/[slug] OR /profiles/[id]
    * The param name depends on your folder structure.
@@ -461,6 +462,11 @@ export default function ProfilePage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deletingAccount, setDeletingAccount] = useState(false);
+
+  // Report profile
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reporting, setReporting] = useState(false);
 
   useEffect(() => {
     if (!slugOrId) return;
@@ -491,6 +497,34 @@ export default function ProfilePage() {
 
     load();
   }, [slugOrId]);
+
+  async function handleReportSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user) {
+      toast.error('You must log in or create an account to report a profile.');
+      router.push('/register');
+      return;
+    }
+    if (!reportReason.trim()) {
+      toast.error('Please enter a reason for reporting.');
+      return;
+    }
+    
+    setReporting(true);
+    try {
+      await api.post('/api/v1/reports', {
+        reportedProfileId: profile._id,
+        reason: reportReason
+      });
+      toast.success('Report submitted successfully. Our team will review it shortly.');
+      setShowReportModal(false);
+      setReportReason('');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to submit report. You may have already reported this profile.');
+    } finally {
+      setReporting(false);
+    }
+  }
 
   async function submitReview(e: React.FormEvent) {
     e.preventDefault();
@@ -644,20 +678,44 @@ export default function ProfilePage() {
                   </div>
 
                   {/* Rating pill */}
-                  {r_cnt > 0 && (
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-                      padding: '0.4rem 0.875rem', borderRadius: '9999px',
-                      background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)',
-                      flexShrink: 0,
-                    }}>
-                      <PremiumStar size={17} active={true} />
-                      <span style={{ fontSize: '1rem', fontWeight: 700, color: '#f59e0b' }}>{r_avg}</span>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 400 }}>
-                        {r_cnt} {r_cnt === 1 ? 'review' : 'reviews'}
-                      </span>
-                    </div>
-                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    {r_cnt > 0 && (
+                      <div style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                        padding: '0.4rem 0.875rem', borderRadius: '9999px',
+                        background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)',
+                        flexShrink: 0,
+                      }}>
+                        <PremiumStar size={17} active={true} />
+                        <span style={{ fontSize: '1rem', fontWeight: 700, color: '#f59e0b' }}>{r_avg}</span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                          {r_cnt} {r_cnt === 1 ? 'review' : 'reviews'}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <button 
+                      onClick={() => {
+                        if (!user) {
+                          toast.error('You must log in or create an account to report a profile.');
+                          router.push('/register');
+                        } else {
+                          setShowReportModal(true);
+                        }
+                      }}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                        padding: '0.4rem 0.875rem', borderRadius: '9999px',
+                        background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)',
+                        color: '#ef4444', fontSize: '0.85rem', fontWeight: 500, cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239, 68, 68, 0.1)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239, 68, 68, 0.05)'; }}
+                    >
+                      <Flag size={14} /> Report
+                    </button>
+                  </div>
                 </div>
 
                 {/* Meta chips */}
@@ -1105,12 +1163,21 @@ export default function ProfilePage() {
             </SCard>
 
             {/* Report */}
-            <button style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-              fontSize: '0.78rem', color: 'var(--text-muted)',
-              background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-              transition: 'color 0.17s',
-            }}
+            <button 
+              onClick={() => {
+                if (!user) {
+                  toast.error('You must log in or create an account to report a profile.');
+                  router.push('/register');
+                } else {
+                  setShowReportModal(true);
+                }
+              }}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                fontSize: '0.78rem', color: 'var(--text-muted)',
+                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                transition: 'color 0.17s',
+              }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f87171'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; }}>
               <Flag size={11} /> Report this profile
@@ -1118,6 +1185,76 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      
+      {/* Report Modal */}
+      {showReportModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'var(--bg-card)', padding: '2rem', borderRadius: 'var(--radius-lg)',
+            width: '100%', maxWidth: '450px',
+            boxShadow: 'var(--shadow-lg)', position: 'relative'
+          }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem', marginTop: 0 }}>
+              Report Profile
+            </h3>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+              Please let us know why you are reporting <strong>{profile.displayName}</strong>. Your report will be reviewed by our team and kept confidential.
+            </p>
+            
+            <form onSubmit={handleReportSubmit}>
+              <textarea
+                value={reportReason}
+                onChange={e => setReportReason(e.target.value)}
+                placeholder="Write your reason here in detail..."
+                rows={4}
+                style={{
+                  width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-md)',
+                  border: '1px solid var(--border)', background: 'var(--bg-elevated)',
+                  color: 'var(--text-primary)', fontSize: '0.9rem', marginBottom: '1.25rem',
+                  resize: 'vertical'
+                }}
+                required
+              />
+              
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => { setShowReportModal(false); setReportReason(''); }}
+                  style={{
+                    padding: '0.5rem 1rem', borderRadius: 'var(--radius-buttons)',
+                    border: '1px solid var(--border)', background: 'transparent',
+                    color: 'var(--text-primary)', fontSize: '0.9rem', fontWeight: 500,
+                    cursor: 'pointer'
+                  }}
+                  disabled={reporting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: '0.5rem 1.25rem', borderRadius: 'var(--radius-buttons)',
+                    border: 'none', background: '#ef4444',
+                    color: '#fff', fontSize: '0.9rem', fontWeight: 600,
+                    cursor: reporting ? 'not-allowed' : 'pointer',
+                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                    opacity: reporting ? 0.7 : 1
+                  }}
+                  disabled={reporting}
+                >
+                  {reporting ? <Loader2 size={16} className="animate-spin" /> : <Flag size={16} />}
+                  {reporting ? 'Submitting...' : 'Submit Report'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

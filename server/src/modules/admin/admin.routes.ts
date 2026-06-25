@@ -19,6 +19,7 @@ import {
   toggleReviewVisibility,
   toggleProfileFeatured
 } from './admin.controller';
+import { getReports, updateReportStatus } from '../reports/report.controller';
 
 const router = Router();
 
@@ -32,6 +33,7 @@ router.get('/stats', getAdminStats);
 router.get('/profiles', getAllProfiles);
 router.get('/users', getAllUsers);
 router.get('/reviews', getAllReviews);
+router.get('/reports', getReports);
 
 // Action Routes
 router.patch('/users/:id/status', toggleUserStatus);
@@ -42,6 +44,7 @@ router.patch('/profiles/:id/status', toggleProfileStatus);
 router.patch('/profiles/:id/update', updateProfile);
 router.patch('/profiles/:id/feature', toggleProfileFeatured);
 router.patch('/reviews/:id/visibility', toggleReviewVisibility);
+router.patch('/reports/:id/status', updateReportStatus);
 
 // Moderation Specific
 router.get('/moderation-queue', getModerationQueue);

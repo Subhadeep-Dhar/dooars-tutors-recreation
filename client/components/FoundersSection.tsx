@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { Globe, Mail } from 'lucide-react';
-import founder1Img from '@/public/images/founders/founder1.jpeg';
+import founder1Img from '@/public/images/founders/founder1.1.jpeg';
 import founder2Img from '@/public/images/founders/founder2.jpeg';
 
 
@@ -63,7 +63,7 @@ export default function FoundersSection() {
               <a href="https://github.com/Subhadeep-Dhar/" className="text-zinc-400 hover:text-white transition-colors p-2 bg-zinc-900 rounded-full hover:bg-zinc-800">
                 <GithubIcon className="w-5 h-5" />
               </a>
-              <a href="www.linkedin.com/in/subhadeep-dhar-030458296" className="text-zinc-400 hover:text-white transition-colors p-2 bg-zinc-900 rounded-full hover:bg-zinc-800">
+              <a href="https://www.linkedin.com/in/subhadeep-dhar-030458296/" className="text-zinc-400 hover:text-white transition-colors p-2 bg-zinc-900 rounded-full hover:bg-zinc-800">
                 <LinkedinIcon className="w-5 h-5" />
               </a>
               <a href="https://portfolio-subhadeep-dhar.vercel.app/" className="text-zinc-400 hover:text-white transition-colors p-2 bg-zinc-900 rounded-full hover:bg-zinc-800">

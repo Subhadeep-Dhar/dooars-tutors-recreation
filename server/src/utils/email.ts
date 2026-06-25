@@ -44,3 +44,46 @@ export async function sendAdminNotification(userEmail: string, role: string) {
     `
   });
 }
+
+export async function sendReportAdminNotification(reporterEmail: string, reportedProfileName: string, reason: string) {
+  if (!process.env.RESEND_API_KEY) {
+    console.log(`[Email Mock] Admin notified of report against: ${reportedProfileName}`);
+    return;
+  }
+
+  const adminEmail = 'subhadeepdhar563@gmail.com';
+  
+  await resend.emails.send({
+    from: 'System <notifications@resend.dev>',
+    to: adminEmail,
+    subject: '🚨 Profile Reported',
+    html: `
+      <h2>A profile has been reported</h2>
+      <p>Please review this report in the admin dashboard.</p>
+      <ul>
+        <li><strong>Reported Profile:</strong> ${reportedProfileName}</li>
+        <li><strong>Reporter Email:</strong> ${reporterEmail}</li>
+        <li><strong>Reason:</strong> ${reason}</li>
+      </ul>
+    `
+  });
+}
+
+export async function sendReportConfirmation(reporterEmail: string, reportedProfileName: string) {
+  if (!process.env.RESEND_API_KEY) {
+    console.log(`[Email Mock] Report confirmation sent to: ${reporterEmail}`);
+    return;
+  }
+
+  await resend.emails.send({
+    from: 'Dooars Tutors <support@resend.dev>',
+    to: reporterEmail,
+    subject: 'Report Submitted Successfully',
+    html: `
+      <h2>Report Received</h2>
+      <p>Thank you for helping keep Dooars Tutors safe.</p>
+      <p>We have successfully received your report regarding the profile: <strong>${reportedProfileName}</strong>.</p>
+      <p>Our team will review this report shortly and take appropriate action. We will get back to you if we need further details.</p>
+    `
+  });
+}
