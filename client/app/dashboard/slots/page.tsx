@@ -98,6 +98,14 @@ export default function SlotsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Teaching Slots</h1>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage the subjects and activities you teach, along with your pricing.</p>
+        <div className="mt-4 p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+          <h3 className="text-indigo-400 font-semibold mb-1 flex items-center gap-2">
+            <BookOpen size={16} /> What is a Teaching Slot?
+          </h3>
+          <p className="text-sm text-indigo-400/80">
+            A "Slot" represents a specific subject or activity you teach. If you teach Mathematics to Class 10 and Physics to Class 12, you should create two separate slots. This helps students find exactly what they are looking for when they search!
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

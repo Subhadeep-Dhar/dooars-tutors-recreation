@@ -40,7 +40,10 @@ export default function DashboardPage() {
  
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Welcome to your tutor control panel. Manage your public profile and track your performance here.</p>
+      </div>
 
       {loading && (
         <div className="flex justify-center py-12">
@@ -54,8 +57,13 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
               <AlertCircle size={20} className="text-amber-500" />
               <div>
-                <p className="font-medium text-amber-500">No profile yet</p>
-                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Create your profile to appear in search results</p>
+                <p className="font-medium text-amber-500 text-lg">Your profile is currently hidden!</p>
+                <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>You must create a profile before students can find you in search results.</p>
+                <ul className="text-sm mt-3 space-y-1" style={{ color: 'var(--text-muted)' }}>
+                  <li>Step 1: Fill out your basic details and exact location.</li>
+                  <li>Step 2: Add the subjects you teach (Teaching Slots).</li>
+                  <li>Step 3: Wait for admin verification (usually within 24 hours).</li>
+                </ul>
               </div>
             </div>
             <Link href="/dashboard/profile">

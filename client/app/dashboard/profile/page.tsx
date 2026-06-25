@@ -160,19 +160,22 @@ export default function ProfileEditorPage() {
               <div className="space-y-1.5">
                 <Label style={{ color: 'var(--text-primary)' }}>Display name</Label>
                 <input className="input-base" placeholder="Your name or organization name" {...register('displayName', { required: true })} />
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>This is the main name students will see. Use your real full name or official coaching center name.</p>
               </div>
               <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Tagline</Label>
-                <input className="input-base" placeholder="Short description shown in search results" {...register('tagline')} />
+                <Label style={{ color: 'var(--text-primary)' }}>Tagline (Optional)</Label>
+                <input className="input-base" placeholder="e.g. Expert Math Tutor for CBSE & ICSE" {...register('tagline')} />
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>A short, catchy headline that appears right below your name in search results.</p>
               </div>
               <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Bio</Label>
+                <Label style={{ color: 'var(--text-primary)' }}>Bio / About You</Label>
                 <textarea
                   {...register('bio')}
                   rows={4}
-                  placeholder="Tell students about yourself, your experience, and teaching style..."
+                  placeholder="Tell students about your qualifications, teaching methodology, and why they should choose you..."
                   className="input-base resize-none"
                 />
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Write 3-4 sentences. Mention your degrees, past successes, and what makes your teaching unique.</p>
               </div>
               <div className="space-y-1.5">
                 <Label style={{ color: 'var(--text-primary)' }}>Years of experience</Label>
@@ -277,6 +280,7 @@ export default function ProfileEditorPage() {
               <div className="space-y-1.5">
                 <Label style={{ color: 'var(--text-primary)' }}>WhatsApp number</Label>
                 <input className="input-base" placeholder="WhatsApp number (if different)" {...register('contact.whatsapp')} />
+                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Students prefer WhatsApp. We highly recommend providing this!</p>
               </div>
               <div className="space-y-1.5">
                 <Label style={{ color: 'var(--text-primary)' }}>Contact email</Label>
