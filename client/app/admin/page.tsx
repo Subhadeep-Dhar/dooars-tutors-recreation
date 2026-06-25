@@ -17,7 +17,7 @@ export default function AdminOverviewPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('30d');
-  const [chartType, setChartType] = useState('daily'); // 'daily' or 'compound'
+  const [chartType, setChartType] = useState('compound'); // 'daily' or 'compound'
 
   useEffect(() => {
     setLoading(true);
@@ -201,8 +201,8 @@ export default function AdminOverviewPage() {
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ top: 10, right: 10, bottom: -10, left: -20 }}>
                 {/* Lng is X, Lat is Y. Hidden axes to create a pure silhouette map effect */}
-                <XAxis type="number" dataKey="lng" name="Longitude" hide domain={['dataMin - 0.02', 'dataMax + 0.02']} />
-                <YAxis type="number" dataKey="lat" name="Latitude" hide domain={['dataMin - 0.02', 'dataMax + 0.02']} />
+                <XAxis type="number" dataKey="lng" name="Longitude" hide domain={[(dataMin: number) => isFinite(dataMin) ? dataMin - 0.02 : 0, (dataMax: number) => isFinite(dataMax) ? dataMax + 0.02 : 100]} />
+                <YAxis type="number" dataKey="lat" name="Latitude" hide domain={[(dataMin: number) => isFinite(dataMin) ? dataMin - 0.02 : 0, (dataMax: number) => isFinite(dataMax) ? dataMax + 0.02 : 100]} />
                 <Tooltip 
                   cursor={{ strokeDasharray: '3 3' }} 
                   contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }} 
@@ -249,7 +249,7 @@ export default function AdminOverviewPage() {
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ top: 10, right: 10, bottom: -10, left: -20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis type="number" dataKey="reviews" name="Total Reviews" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} />
+                <XAxis type="number" dataKey="reviews" name="Total Reviews" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} domain={[0, (dataMax: number) => Math.max(isFinite(dataMax) ? dataMax : 0, 5)]} />
                 <YAxis type="number" dataKey="rating" name="Avg Rating" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} domain={[0, 5]} />
                 <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }} />
                 <Scatter name="Profiles" data={scatterData} fill="#8b5cf6" />
