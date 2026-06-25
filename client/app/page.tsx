@@ -73,9 +73,9 @@ export default function HomePage() {
   const [greetingIdx, setGreetingIdx] = useState(0);
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [liveVisits, setLiveVisits] = useState(24358);
-  const [uniqueDistricts, setUniqueDistricts] = useState(3);
-  const [totalTutors, setTotalTutors] = useState(250);
+  const [liveVisits, setLiveVisits] = useState(0);
+  const [uniqueDistricts, setUniqueDistricts] = useState(0);
+  const [totalTutors, setTotalTutors] = useState(0);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     // Calculate mouse position relative to center of screen, normalized between -1 and 1
@@ -157,8 +157,7 @@ export default function HomePage() {
       if (p && Array.isArray(p)) {
         setTotalTutors(p.length);
         const districts = new Set(p.map((item: any) => item.address?.district).filter(Boolean));
-        // If there are rogue districts in dummy data, limit to 2 for now as requested
-        setUniqueDistricts(districts.size === 3 ? 2 : districts.size);
+        setUniqueDistricts(districts.size);
       }
     }).catch(() => {});
   }, []);
@@ -357,9 +356,9 @@ export default function HomePage() {
       <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem' }}>
         <div className="max-w-[1200px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { value: totalTutors, label: 'Verified Tutors & Centers', icon: Users },
-            { value: `${uniqueDistricts} Districts`, label: 'Operating Area', icon: MapPin },
-            { value: `${liveVisits.toLocaleString()}+`, label: 'Total Visits', icon: Eye },
+            { value: totalTutors > 0 ? totalTutors : '-', label: 'Verified Tutors & Centers', icon: Users },
+            { value: uniqueDistricts > 0 ? `${uniqueDistricts} Districts` : '-', label: 'Operating Area', icon: MapPin },
+            { value: liveVisits > 0 ? `${liveVisits.toLocaleString()}+` : '-', label: 'Total Visits', icon: Eye },
             { value: '100% Safe', label: 'Admin Verified', icon: Shield },
           ].map(({ value, label, icon: Icon }) => (
             <div key={label} className="flex flex-col items-center gap-2 text-center">
