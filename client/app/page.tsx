@@ -24,12 +24,48 @@ const typeColors: Record<string, string> = {
   gym_yoga: '#f59e0b',
 };
 
+const FLOATING_TAGS = [
+  { text: 'Guitar', top: '15%', left: '10%', anim: 1, delay: '0s' },
+  { text: 'Physics', top: '60%', left: '15%', anim: 2, delay: '-2s' },
+  { text: 'Yoga', top: '25%', left: '80%', anim: 3, delay: '-5s' },
+  { text: 'Football', top: '75%', left: '75%', anim: 1, delay: '-1s' },
+  { text: 'Coding', top: '10%', left: '45%', anim: 2, delay: '-4s' },
+  { text: 'Dance', top: '85%', left: '40%', anim: 3, delay: '-3s' },
+  { text: 'NEET', top: '40%', left: '5%', anim: 1, delay: '-6s' },
+  { text: 'Maths', top: '45%', left: '85%', anim: 2, delay: '0s' },
+  { text: 'Chemistry', top: '5%', left: '25%', anim: 3, delay: '-2s' },
+  { text: 'Biology', top: '80%', left: '15%', anim: 1, delay: '-5s' },
+  { text: 'English', top: '20%', left: '60%', anim: 2, delay: '-1s' },
+  { text: 'Bengali', top: '50%', left: '95%', anim: 3, delay: '-4s' },
+  { text: 'WBCS', top: '90%', left: '60%', anim: 1, delay: '-7s' },
+  { text: 'Art', top: '35%', left: '25%', anim: 2, delay: '-3s' },
+  { text: 'Music', top: '70%', left: '90%', anim: 3, delay: '-8s' },
+  { text: 'Cricket', top: '55%', left: '35%', anim: 1, delay: '-1s' },
+  { text: 'Gym', top: '15%', left: '90%', anim: 2, delay: '-6s' },
+  { text: 'Martial Arts', top: '95%', left: '20%', anim: 3, delay: '-2s' },
+  { text: 'Spoken English', top: '30%', left: '45%', anim: 1, delay: '-4s' },
+  { text: 'History', top: '65%', left: '55%', anim: 2, delay: '-5s' },
+  { text: 'Geography', top: '85%', left: '5%', anim: 3, delay: '-1s' },
+  { text: 'Computer', top: '5%', left: '75%', anim: 1, delay: '-3s' },
+  { text: 'Abacus', top: '45%', left: '20%', anim: 2, delay: '-7s' },
+  { text: 'JEE', top: '35%', left: '70%', anim: 3, delay: '-2s' },
+  { text: 'Vedic Maths', top: '75%', left: '40%', anim: 1, delay: '-6s' },
+];
+
 export default function HomePage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
   const [greetingIdx, setGreetingIdx] = useState(0);
   const [showDonateModal, setShowDonateModal] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    // Calculate mouse position relative to center of screen, normalized between -1 and 1
+    const x = (e.clientX / window.innerWidth) * 2 - 1;
+    const y = (e.clientY / window.innerHeight) * 2 - 1;
+    setMousePos({ x, y });
+  };
 
   const greetings = [
     'Welcome',       // English
@@ -75,8 +111,61 @@ export default function HomePage() {
     <main style={{ background: 'var(--bg-base)' }}>
 
       {/* ── Hero ── */}
-      <section style={{ background: 'var(--bg-base)', paddingTop: '5rem', paddingBottom: '5rem' }}>
-        <div className="max-w-3xl mx-auto px-4 text-center">
+      <section 
+        onMouseMove={handleMouseMove}
+        style={{ background: 'var(--bg-base)', paddingTop: '5rem', paddingBottom: '5rem', position: 'relative', overflow: 'hidden' }}
+      >
+        
+        {/* Floating Background Tags */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none" style={{ zIndex: 0 }}>
+          <style dangerouslySetInnerHTML={{__html: `
+            @keyframes float-roam-1 { 0% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(20px, -30px) rotate(5deg); } 66% { transform: translate(-15px, 20px) rotate(-3deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
+            @keyframes float-roam-2 { 0% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(-25px, 25px) rotate(-5deg); } 66% { transform: translate(20px, -15px) rotate(3deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
+            @keyframes float-roam-3 { 0% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(30px, 15px) rotate(8deg); } 66% { transform: translate(-20px, -25px) rotate(-4deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
+            .floating-tag {
+              padding: 0.5rem 1rem;
+              background: var(--bg-card);
+              border: 1px solid var(--border);
+              border-radius: 9999px;
+              color: var(--text-secondary);
+              font-size: 0.875rem;
+              font-weight: 500;
+              opacity: 0.6;
+              box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+              white-space: nowrap;
+            }
+          `}} />
+          
+          {FLOATING_TAGS.map((tag, i) => {
+            // Calculate parallax distance based on anim index to give depth (some move more than others)
+            const parallaxX = mousePos.x * (tag.anim * -15);
+            const parallaxY = mousePos.y * (tag.anim * -15);
+            
+            return (
+              <div 
+                key={i} 
+                className="absolute transition-transform duration-300 ease-out"
+                style={{
+                  top: tag.top,
+                  left: tag.left,
+                  transform: `translate(${parallaxX}px, ${parallaxY}px)`
+                }}
+              >
+                <div 
+                  className="floating-tag" 
+                  style={{ 
+                    animation: `float-roam-${tag.anim} ${10 + tag.anim * 2}s ease-in-out infinite`,
+                    animationDelay: tag.delay 
+                  }}
+                >
+                  {tag.text}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="max-w-3xl mx-auto px-4 text-center relative" style={{ zIndex: 10 }}>
           <div className="mb-4 flex items-center justify-center">
             <span style={{
               color: 'var(--text-primary)', fontWeight: 'normal',
