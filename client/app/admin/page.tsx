@@ -8,7 +8,7 @@ import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
   AreaChart, Area,
-  ScatterChart, Scatter, ZAxis
+  ScatterChart, Scatter, ZAxis, LabelList
 } from 'recharts';
 
 const COLORS = ['#1a73e8', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6', '#f43f5e'];
@@ -62,8 +62,52 @@ export default function AdminOverviewPage() {
       name: p.displayName,
       lng: p.location.coordinates[0],
       lat: p.location.coordinates[1],
-      type: p.type
+      type: p.type,
+      town: p.address?.town || 'Unknown'
     }));
+
+  // Calculate Town Centroids for Labels
+  const townGroups: Record<string, { lngs: number[], lats: number[] }> = {};
+  geoMapData.forEach((p: any) => {
+    if (p.town && p.town !== 'Unknown') {
+      if (!townGroups[p.town]) townGroups[p.town] = { lngs: [], lats: [] };
+      townGroups[p.town].lngs.push(p.lng);
+      townGroups[p.town].lats.push(p.lat);
+    }
+  });
+
+  const townLabelsData = Object.entries(townGroups).map(([town, coords]) => ({
+    town,
+    lng: coords.lngs.reduce((a, b) => a + b, 0) / coords.lngs.length,
+    lat: coords.lats.reduce((a, b) => a + b, 0) / coords.lats.length
+  }));
+
+  // Deep Insights Calculations
+  const allRatings = scatterData.map((d: any) => d.rating).filter((r: number) => r > 0).sort((a: number, b: number) => a - b);
+  const allReviews = scatterData.map((d: any) => d.reviews).sort((a: number, b: number) => a - b);
+  
+  const getMedian = (arr: number[]) => {
+    if (!arr.length) return 0;
+    const mid = Math.floor(arr.length / 2);
+    return arr.length % 2 !== 0 ? arr[mid] : (arr[mid - 1] + arr[mid]) / 2;
+  };
+  
+  const insights = {
+    rating: {
+      avg: allRatings.length ? (allRatings.reduce((a: number, b: number) => a + b, 0) / allRatings.length).toFixed(1) : '0',
+      median: getMedian(allRatings),
+      min: allRatings.length ? allRatings[0] : 0,
+      max: allRatings.length ? allRatings[allRatings.length - 1] : 0
+    },
+    reviews: {
+      avg: allReviews.length ? Math.round(allReviews.reduce((a: number, b: number) => a + b, 0) / allReviews.length) : 0,
+      median: getMedian(allReviews),
+      max: allReviews.length ? allReviews[allReviews.length - 1] : 0,
+    },
+    density: {
+      topTown: profilesByDistrict.length ? [...profilesByDistrict].sort((a: any, b: any) => b.value - a.value)[0].name : 'N/A'
+    }
+  };
 
   const cards = [
     { label: 'Total users', value: overview.users, icon: Users, href: '/admin/users' },
@@ -206,9 +250,12 @@ export default function AdminOverviewPage() {
                 <Tooltip 
                   cursor={{ strokeDasharray: '3 3' }} 
                   contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }} 
-                  formatter={(value, name, props) => props.payload.name}
+                  formatter={(value, name, props) => props.payload.town || props.payload.name}
                 />
                 <Scatter name="Regions" data={geoMapData} fill="#14b8a6" />
+                <Scatter name="Labels" data={townLabelsData} fill="transparent">
+                  <LabelList dataKey="town" position="top" style={{ fill: 'var(--text-primary)', fontSize: 10, fontWeight: 'bold', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }} />
+                </Scatter>
               </ScatterChart>
             </ResponsiveContainer>
           </div>
@@ -275,7 +322,61 @@ export default function AdminOverviewPage() {
         </div>
       </div>
 
-      {/* Row 4: Profiles Data Breakdowns */}
+      {/* Row 4: Deep Insights Dashboard */}
+      <div className="grid grid-cols-1 mb-6">
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm">
+          <h2 className="text-sm font-semibold mb-6 uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
+            <Activity size={16} /> Deep Statistical Insights
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            
+            <div className="p-4 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
+              <p className="text-xs uppercase font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>Ratings (Active)</p>
+              <div className="flex justify-between items-end mb-2">
+                <span className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{insights.rating.avg}</span>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>avg</span>
+              </div>
+              <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
+                <span>Min: {insights.rating.min}</span>
+                <span>Max: {insights.rating.max}</span>
+                <span>Med: {insights.rating.median}</span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
+              <p className="text-xs uppercase font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>Reviews per Profile</p>
+              <div className="flex justify-between items-end mb-2">
+                <span className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{insights.reviews.avg}</span>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>avg</span>
+              </div>
+              <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
+                <span>Peak (Max): {insights.reviews.max}</span>
+                <span>Median: {insights.reviews.median}</span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
+              <p className="text-xs uppercase font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>Geographic Density</p>
+              <div className="flex justify-between items-end mb-2">
+                <span className="text-xl font-bold truncate" style={{ color: 'var(--text-primary)' }} title={insights.density.topTown}>{insights.density.topTown}</span>
+              </div>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Top District / Town</p>
+            </div>
+
+            <div className="p-4 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
+              <p className="text-xs uppercase font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>Data Health</p>
+              <div className="flex justify-between items-end mb-2">
+                <span className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{scatterData.filter((d: any) => d.reviews > 0).length}</span>
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>profiles</span>
+              </div>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Profiles with at least 1 review</p>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+      {/* Row 5: Profiles Data Breakdowns */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 stagger-children mb-6">
         {/* Profiles by District Pie Chart */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm">
