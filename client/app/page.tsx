@@ -37,14 +37,14 @@ const FLOATING_TAGS = [
   { text: 'English', top: '25%', left: '75%', anim: 2, delay: '-1s', major: true },
   
   // Middle Left Quadrant
-  { text: 'NEET', top: '45%', left: '5%', anim: 1, delay: '-6s', major: false },
+  { text: 'Skating', top: '45%', left: '5%', anim: 1, delay: '-6s', major: false },
   { text: 'Art', top: '38%', left: '20%', anim: 2, delay: '-3s', major: true },
   { text: 'Abacus', top: '55%', left: '15%', anim: 2, delay: '-7s', major: false },
   { text: 'Spoken English', top: '40%', left: '35%', anim: 1, delay: '-4s', major: false },
 
   // Middle Right Quadrant
   { text: 'History', top: '35%', left: '85%', anim: 2, delay: '-5s', major: false },
-  { text: 'JEE', top: '48%', left: '65%', anim: 3, delay: '-2s', major: true },
+  { text: 'Education', top: '48%', left: '65%', anim: 3, delay: '-2s', major: true },
   { text: 'Maths', top: '55%', left: '90%', anim: 2, delay: '0s', major: true },
   { text: 'Gym', top: '42%', left: '50%', anim: 2, delay: '-6s', major: false },
 
@@ -130,8 +130,12 @@ export default function HomePage() {
         style={{ background: 'var(--bg-base)', paddingTop: '5rem', paddingBottom: '5rem', position: 'relative', overflow: 'hidden' }}
       >
         
-        {/* Floating Background Tags */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none" style={{ zIndex: 0 }}>
+        {/* Floating Background Tags with Fade-out Mask */}
+        <div className="absolute inset-0 pointer-events-none select-none" style={{ 
+          zIndex: 0,
+          maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 95%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 95%)'
+        }}>
           <style dangerouslySetInnerHTML={{__html: `
             @keyframes float-roam-1 { 0% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(20px, -30px) rotate(5deg); } 66% { transform: translate(-15px, 20px) rotate(-3deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
             @keyframes float-roam-2 { 0% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(-25px, 25px) rotate(-5deg); } 66% { transform: translate(20px, -15px) rotate(3deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
@@ -249,6 +253,15 @@ export default function HomePage() {
             </button>
           </form>
         </div>
+
+        {/* Seamless transition gradient to next section */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none" 
+          style={{ 
+            background: 'linear-gradient(to bottom, transparent, var(--bg-section))',
+            zIndex: 5 
+          }} 
+        />
       </section>
 
       {/* ── Categories ── */}
