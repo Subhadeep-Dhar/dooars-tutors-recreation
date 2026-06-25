@@ -62,7 +62,7 @@ const FLOATING_TAGS = [
   { text: 'Bengali', top: '80%', left: '92%', anim: 3, delay: '-4s', major: true },
   
   // Center-ish but safe
-  { text: 'Vedic Maths', top: '60%', left: '55%', anim: 1, delay: '-6s', major: false },
+  { text: 'Badminton', top: '60%', left: '55%', anim: 1, delay: '-6s', major: false },
   { text: 'Martial Arts', top: '92%', left: '42%', anim: 3, delay: '-2s', major: false },
 ];
 
