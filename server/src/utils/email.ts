@@ -31,7 +31,7 @@ export async function sendAdminNotification(userEmail: string, role: string) {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@dooarstutors.in';
   
   await resend.emails.send({
-    from: 'System <notifications@resend.dev>', // Update with verified domain
+    from: 'Dooars Tutors <onboarding@resend.dev>', // Update with verified domain
     to: adminEmail,
     subject: 'New User Registration',
     html: `
@@ -54,7 +54,7 @@ export async function sendReportAdminNotification(reporterEmail: string, reporte
   const adminEmail = 'subhadeepdhar563@gmail.com';
   
   await resend.emails.send({
-    from: 'System <notifications@resend.dev>',
+    from: 'Dooars Tutors <onboarding@resend.dev>',
     to: adminEmail,
     subject: '🚨 Profile Reported',
     html: `
@@ -76,7 +76,7 @@ export async function sendReportConfirmation(reporterEmail: string, reportedProf
   }
 
   await resend.emails.send({
-    from: 'Dooars Tutors <support@resend.dev>',
+    from: 'Dooars Tutors <onboarding@resend.dev>',
     to: reporterEmail,
     subject: 'Report Submitted Successfully',
     html: `
@@ -94,9 +94,11 @@ export async function sendReviewNotification(tutorEmail: string, rating: number,
     return;
   }
 
-  await resend.emails.send({
-    from: 'Dooars Tutors <notifications@resend.dev>',
-    to: tutorEmail,
+  console.log(`[Email Attempt] Sending review notification via Resend to ${tutorEmail}`);
+  try {
+    const data = await resend.emails.send({
+      from: 'Dooars Tutors <onboarding@resend.dev>',
+      to: tutorEmail,
     subject: '⭐ You received a new review!',
     html: `
       <h2>New Review Received!</h2>
@@ -108,5 +110,9 @@ export async function sendReviewNotification(tutorEmail: string, rating: number,
       <p>Log in to your dashboard to see your updated rating.</p>
       <a href="https://dooarstutors.in/dashboard/reviews" style="display:inline-block;padding:10px 20px;background:#3b82f6;color:#fff;text-decoration:none;border-radius:5px;">View Dashboard</a>
     `
-  });
+    });
+    console.log(`[Email Success] Review notification sent successfully to ${tutorEmail}, resend response:`, data);
+  } catch (error) {
+    console.error(`[Email Error] Failed to send review notification to ${tutorEmail}`, error);
+  }
 }
