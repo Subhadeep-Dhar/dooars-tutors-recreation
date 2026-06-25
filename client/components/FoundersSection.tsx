@@ -69,7 +69,7 @@ export default function FoundersSection() {
               <a href="https://portfolio-subhadeep-dhar.vercel.app/" className="text-zinc-400 hover:text-white transition-colors p-2 bg-zinc-900 rounded-full hover:bg-zinc-800">
                 <Globe className="w-5 h-5" />
               </a>
-              <a href="mailto:subhadeepdhar563@gmail.com" className="text-zinc-400 hover:text-white transition-colors p-2 bg-zinc-900 rounded-full hover:bg-zinc-800">
+              <a href={`mailto:${process.env.NEXT_PUBLIC_FOUNDER_EMAIL}`} className="text-zinc-400 hover:text-white transition-colors p-2 bg-zinc-900 rounded-full hover:bg-zinc-800">
                 <Mail className="w-5 h-5" />
               </a>
             </div>
