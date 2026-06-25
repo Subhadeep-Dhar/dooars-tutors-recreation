@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
-import { Users, BookOpen, Clock, Star, Loader2, ArrowRight, Activity, ShieldAlert, PhoneOff, ImageOff, MapPin } from 'lucide-react';
+import { Users, BookOpen, Clock, Star, Loader2, ArrowRight, Activity, ShieldAlert, PhoneOff, ImageOff, MapPin, Award, MessageSquare } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
@@ -18,6 +18,7 @@ export default function AdminOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('30d');
   const [chartType, setChartType] = useState('compound'); // 'daily' or 'compound'
+  const [leaderboardTab, setLeaderboardTab] = useState('overall'); // 'overall', 'reviewed', 'rated'
 
   useEffect(() => {
     setLoading(true);
@@ -37,7 +38,7 @@ export default function AdminOverviewPage() {
 
   if (!data) return null;
 
-  const { overview, profilesByType, profilesByDistrict, profilesBySubject, recentActivity, health, growth, ratingDistribution, mapData } = data;
+  const { overview, profilesByType, profilesByDistrict, profilesBySubject, recentActivity, health, growth, ratingDistribution, mapData, performers } = data;
 
   // Calculate Compound Growth
   const compoundGrowthUsers: any[] = [];
@@ -172,7 +173,7 @@ export default function AdminOverviewPage() {
                 style={{ color: 'var(--color-brand)' }}
               >
                 <option value="daily">New vs Time</option>
-                <option value="compound">Compound (Cumulative)</option>
+                <option value="compound">Cumulative</option>
               </select>
             </div>
             
@@ -238,7 +239,7 @@ export default function AdminOverviewPage() {
         {/* Silhouette Geographic Map */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm lg:col-span-2">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Geographic Hotspots (Silhouette)</h2>
+            <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Geographic Hotspots</h2>
             <MapPin size={16} style={{ color: 'var(--text-muted)' }} />
           </div>
           <div className="h-[280px]">
@@ -249,8 +250,18 @@ export default function AdminOverviewPage() {
                 <YAxis type="number" dataKey="lat" name="Latitude" hide domain={[(dataMin: number) => isFinite(dataMin) ? dataMin - 0.02 : 0, (dataMax: number) => isFinite(dataMax) ? dataMax + 0.02 : 100]} />
                 <Tooltip 
                   cursor={{ strokeDasharray: '3 3' }} 
-                  contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }} 
-                  formatter={(value, name, props) => props.payload.town || props.payload.name}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      if (!data.name && data.town) return null; // Don't show tooltip for just the labels if you only want tutor names, or return town
+                      return (
+                        <div className="p-2 rounded-lg shadow-xl text-xs font-bold" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}>
+                          {data.name || data.town}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
                 <Scatter name="Regions" data={geoMapData} fill="#14b8a6" />
                 <Scatter name="Labels" data={townLabelsData} fill="transparent">
@@ -418,23 +429,73 @@ export default function AdminOverviewPage() {
         {/* Profiles by Subject Bar Chart */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm">
           <h2 className="text-sm font-semibold mb-4 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Top Subjects</h2>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={profilesBySubject} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} angle={-45} textAnchor="end" />
-                <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} />
-                <Tooltip cursor={{ fill: 'var(--bg-elevated)' }} contentStyle={{ background: 'var(--bg-card)', borderColor: 'var(--border)', borderRadius: '8px' }} />
-                <Bar dataKey="value" fill="#10b981" radius={[4, 4, 0, 0]}>
-                  {profilesBySubject.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-[250px] w-full" style={{ overflowY: 'auto', overflowX: 'hidden' }}>
+            <div style={{ height: Math.max(250, (profilesBySubject?.length || 0) * 35) }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={profilesBySubject} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={true} horizontal={false} stroke="var(--border)" />
+                  <XAxis type="number" stroke="var(--text-muted)" fontSize={10} hide />
+                  <YAxis dataKey="name" type="category" stroke="var(--text-muted)" fontSize={12} width={90} tickLine={false} axisLine={false} />
+                  <Tooltip cursor={{ fill: 'var(--bg-elevated)' }} contentStyle={{ background: 'var(--bg-card)', borderColor: 'var(--border)', borderRadius: '8px' }} />
+                  <Bar dataKey="value" fill="#10b981" radius={[0, 4, 4, 0]}>
+                    {profilesBySubject.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </div>
 
+      </div>
+
+      {/* Row 6: Platform Leaderboard */}
+      <div className="grid grid-cols-1 mb-6">
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-lg)' }} className="p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2" style={{ color: 'var(--text-muted)' }}>
+              <Award size={16} className="text-amber-500" /> Platform Leaderboard & Top Performers
+            </h2>
+            <div className="flex gap-1" style={{ background: 'var(--bg-elevated)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+              <button onClick={() => setLeaderboardTab('overall')} className={`text-xs px-3 py-1 rounded-md transition-colors ${leaderboardTab === 'overall' ? 'bg-white dark:bg-slate-700 text-black dark:text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>Tutor of the Year</button>
+              <button onClick={() => setLeaderboardTab('reviewed')} className={`text-xs px-3 py-1 rounded-md transition-colors ${leaderboardTab === 'reviewed' ? 'bg-white dark:bg-slate-700 text-black dark:text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>Most Reviewed</button>
+              <button onClick={() => setLeaderboardTab('rated')} className={`text-xs px-3 py-1 rounded-md transition-colors ${leaderboardTab === 'rated' ? 'bg-white dark:bg-slate-700 text-black dark:text-white shadow-sm' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>Top Rated</button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {(leaderboardTab === 'overall' ? performers?.leaderboard : leaderboardTab === 'reviewed' ? performers?.mostReviewed : performers?.topRated)?.map((tutor: any, index: number) => (
+              <Link href={`/admin/profiles/${tutor._id}`} key={tutor._id} className="p-4 rounded-xl flex flex-col items-center text-center transition-all hover:-translate-y-1 hover:shadow-md relative" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+                {index === 0 && <div className="absolute -top-3 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm shadow-amber-500/20 whitespace-nowrap">#1 {leaderboardTab === 'overall' ? 'OVERALL' : leaderboardTab === 'reviewed' ? 'REVIEWED' : 'RATED'}</div>}
+                <div className="w-12 h-12 rounded-full mb-3 flex items-center justify-center font-bold text-xl" style={{ background: 'var(--bg-card)', color: 'var(--color-brand)', border: '1px solid var(--border)' }}>
+                  {index + 1}
+                </div>
+                <h3 className="font-semibold text-sm line-clamp-1 mb-1" style={{ color: 'var(--text-primary)' }} title={tutor.displayName}>{tutor.displayName}</h3>
+                <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>{tutor.town || 'Dooars Area'}</p>
+                
+                <div className="w-full flex justify-between items-center text-xs px-2 py-1.5 rounded-lg mt-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                  {leaderboardTab === 'overall' ? (
+                    <>
+                      <span className="font-medium">Score</span>
+                      <span className="font-bold text-emerald-500">{tutor.adminScore}</span>
+                    </>
+                  ) : leaderboardTab === 'reviewed' ? (
+                    <>
+                      <span className="font-medium flex items-center gap-1"><MessageSquare size={10} /> Reviews</span>
+                      <span className="font-bold">{tutor.rating?.count || 0}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-medium flex items-center gap-1"><Star size={10} /> Rating</span>
+                      <span className="font-bold">{tutor.rating?.average || 0}</span>
+                    </>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
