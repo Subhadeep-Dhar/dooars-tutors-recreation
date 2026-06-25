@@ -144,15 +144,27 @@ export async function getAllReviews(options: { page: number, limit: number }) {
 
 export async function getAdminStats() {
   try {
-    const [users, profiles, reviews, pending] = await Promise.all([
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [
+      users, profiles, reviews, pending,
+      recentUsers, recentProfiles, recentReviews,
+      profilesWithoutPhone, profilesWithoutImage
+    ] = await Promise.all([
       User.countDocuments({}),
       Profile.countDocuments({}),
       Review.countDocuments({}),
-      Profile.countDocuments({ verificationStatus: 'pending' })
+      Profile.countDocuments({ verificationStatus: 'pending' }),
+      User.find({}).sort({ createdAt: -1 }).limit(5).select('name email role createdAt').lean(),
+      Profile.find({}).sort({ createdAt: -1 }).limit(5).select('displayName type verificationStatus createdAt').lean(),
+      Review.find({}).sort({ createdAt: -1 }).limit(5).select('rating comment createdAt').lean(),
+      Profile.countDocuments({ 'contact.phone': { $exists: false } }),
+      Profile.countDocuments({ $or: [{ images: { $exists: false } }, { images: { $size: 0 } }] })
     ]);
 
     // Aggregations for charts - with defensive matches
-    const [profilesByType, profilesByDistrict] = await Promise.all([
+    const [profilesByType, profilesByDistrict, profilesBySubject, ratingDistribution, usersOverTime, profilesOverTime] = await Promise.all([
       Profile.aggregate([
         { $match: { type: { $exists: true, $ne: null } } },
         { $group: { _id: '$type', value: { $sum: 1 } } }
@@ -160,22 +172,49 @@ export async function getAdminStats() {
       Profile.aggregate([
         { $match: { 'address.district': { $exists: true, $ne: null } } },
         { $group: { _id: '$address.district', value: { $sum: 1 } } }
+      ]),
+      Profile.aggregate([
+        { $match: { _subjectIndex: { $exists: true, $type: 'array', $ne: [] } } },
+        { $unwind: '$_subjectIndex' },
+        { $group: { _id: '$_subjectIndex', value: { $sum: 1 } } },
+        { $sort: { value: -1 } },
+        { $limit: 10 }
+      ]),
+      Review.aggregate([
+        { $group: { _id: '$rating', value: { $sum: 1 } } },
+        { $sort: { _id: -1 } }
+      ]),
+      User.aggregate([
+        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+        { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, value: { $sum: 1 } } },
+        { $sort: { _id: 1 } }
+      ]),
+      Profile.aggregate([
+        { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+        { $group: { _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, value: { $sum: 1 } } },
+        { $sort: { _id: 1 } }
       ])
-    ]);
-
-    const profilesBySubject = await Profile.aggregate([
-      { $match: { _subjectIndex: { $exists: true, $type: 'array', $ne: [] } } },
-      { $unwind: '$_subjectIndex' },
-      { $group: { _id: '$_subjectIndex', value: { $sum: 1 } } },
-      { $sort: { value: -1 } },
-      { $limit: 10 }
     ]);
 
     return {
       overview: { users, profiles, reviews, pending },
+      recentActivity: {
+        users: recentUsers,
+        profiles: recentProfiles,
+        reviews: recentReviews
+      },
+      health: {
+        missingPhone: profilesWithoutPhone,
+        missingImage: profilesWithoutImage
+      },
       profilesByType: (profilesByType || []).map(i => ({ name: i._id || 'Unknown', value: i.value })),
       profilesByDistrict: (profilesByDistrict || []).map(i => ({ name: i._id || 'Unknown', value: i.value })),
-      profilesBySubject: (profilesBySubject || []).map(i => ({ name: i._id || 'Unknown', value: i.value }))
+      profilesBySubject: (profilesBySubject || []).map(i => ({ name: i._id || 'Unknown', value: i.value })),
+      ratingDistribution: (ratingDistribution || []).map(i => ({ name: `${i._id} Stars`, value: i.value })),
+      growth: {
+        users: usersOverTime.map(i => ({ date: i._id, count: i.value })),
+        profiles: profilesOverTime.map(i => ({ date: i._id, count: i.value }))
+      }
     };
   } catch (err) {
     console.error('[AdminService] getAdminStats failed:', err);
