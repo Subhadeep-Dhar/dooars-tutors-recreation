@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
@@ -103,8 +103,27 @@ export default function HomePage() {
     }, 1500);
     return () => clearInterval(interval);
   }, []);
-  const [featured, setFeatured] = useState<any[]>([]);
   const [allProfiles, setAllProfiles] = useState<any[]>([]);
+
+  const highlightedTutors = useMemo(() => {
+    if (!allProfiles || allProfiles.length === 0) return [];
+    
+    // Sort by Bayesian score (Top Rated / Tutor of the Year)
+    const topRatedList = [...allProfiles].sort((a, b) => (b.rating?.score || b.rating?.average || 0) - (a.rating?.score || a.rating?.average || 0));
+    // Sort by review count (Most Reviewed)
+    const mostReviewedList = [...allProfiles].sort((a, b) => (b.rating?.count || 0) - (a.rating?.count || 0));
+
+    let tutorOfYear = topRatedList[0];
+    let mostRev = mostReviewedList.find(p => p._id !== tutorOfYear?._id) || mostReviewedList[1];
+    let topRat = topRatedList.find(p => p._id !== tutorOfYear?._id && p._id !== mostRev?._id) || topRatedList[2];
+
+    const result = [];
+    if (tutorOfYear) result.push({ profile: tutorOfYear, badge: 'Tutor of the Year', color: '#d97706', bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.2)' });
+    if (mostRev) result.push({ profile: mostRev, badge: 'Most Reviewed', color: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.2)' });
+    if (topRat) result.push({ profile: topRat, badge: 'Top Rated', color: '#059669', bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.2)' });
+
+    return result.filter(r => r.profile);
+  }, [allProfiles]);
 
   useEffect(() => {
     // Increment visit counter exactly once per page load (stored locally)
@@ -120,7 +139,6 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    api.get('/search?limit=3&sort=rating').then(r => setFeatured(r.data.data)).catch(() => {});
     api.get('/search?limit=1000').then(r => {
       const p = r.data.data;
       setAllProfiles(p);
@@ -389,13 +407,14 @@ export default function HomePage() {
       
 
       {/* ── Featured ── */}
-      {featured.length > 0 && (
+      {/* ── Community Highlights ── */}
+      {highlightedTutors.length > 0 && (
         <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
           <div className="max-w-[1200px] mx-auto">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <p className="eyebrow mb-1">TOP RATED</p>
-                <h2 style={{ fontSize: 'var(--text-display)', lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: 700, color: 'var(--text-primary)' }}>Top Rated Tutors</h2>
+                <p className="eyebrow mb-1">PLATFORM HIGHLIGHTS</p>
+                <h2 style={{ fontSize: 'var(--text-display)', lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: 700, color: 'var(--text-primary)' }}>Community Favorites</h2>
               </div>
               <Link href="/search">
                 <button className="btn-ghost text-sm px-4 py-2 flex items-center gap-1.5">
@@ -404,11 +423,17 @@ export default function HomePage() {
               </Link>
             </div>
             <div className="grid md:grid-cols-3 gap-5">
-              {featured.map(profile => (
-                <div key={profile._id} className="card-base p-6">
+              {highlightedTutors.map(({ profile, badge, color, bg, border }) => (
+                <div key={profile._id} className="card-base p-6 relative overflow-hidden" style={{ border: `1px solid ${border}` }}>
+                  <div className="absolute top-0 right-0 left-0 h-1" style={{ backgroundColor: color }} />
+                  
+                  <div className="inline-block px-3 py-1 mb-4 rounded-full text-xs font-bold" style={{ backgroundColor: bg, color: color }}>
+                    {badge}
+                  </div>
+
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shrink-0"
-                      style={{ backgroundColor: 'var(--color-brand)' }}>
+                      style={{ backgroundColor: color }}>
                       {profile.displayName.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
