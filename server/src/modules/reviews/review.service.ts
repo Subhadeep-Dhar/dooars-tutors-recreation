@@ -42,9 +42,7 @@ export async function createReview(
   const profile = await Profile.findOne({ _id: profileId, verificationStatus: 'verified', isActive: true }).populate('userId', 'email');
   if (!profile) throw new AppError('Profile not found', 404);
 
-  // One review per student per profile
-  const existing = await Review.findOne({ profileId, reviewerId });
-  if (existing) throw new AppError('You have already reviewed this profile', 409);
+  // Multiple reviews allowed per student per profile
 
   const review = await Review.create({ profileId, reviewerId, ...data });
 

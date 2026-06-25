@@ -232,13 +232,7 @@ export async function getAdminStats(timeframe: string = '30d') {
       mapData: profilesForMap,
       performers: (() => {
         const scoredProfiles = profilesForMap.map((p: any) => {
-          let score = 0;
-          if (p.rating?.average) score += p.rating.average * 10; // Max 50
-          if (p.rating?.count) score += Math.min(p.rating.count, 50) * 0.6; // Max 30
-          if (p.contact?.phone) score += 3;
-          if (p.media && p.media.length > 0) score += 4;
-          if (p.bio && p.bio.trim().length > 20) score += 3; // Max 10 combined
-          if (p.verificationStatus === 'verified') score += 10; // Max 10
+          let score = p.rating?.score || p.rating?.average || 0;
           return {
             _id: p._id,
             displayName: p.displayName,
@@ -246,7 +240,7 @@ export async function getAdminStats(timeframe: string = '30d') {
             type: p.type,
             town: p.address?.town,
             rating: p.rating || { average: 0, count: 0 },
-            adminScore: Math.round(score * 10) / 10
+            adminScore: Math.round(score * 100) / 100
           };
         });
 
@@ -258,7 +252,7 @@ export async function getAdminStats(timeframe: string = '30d') {
         const m = 10; // Minimum reviews threshold for Bayesian confidence
 
         return {
-          leaderboard: [...scoredProfiles].sort((a, b) => b.adminScore - a.adminScore).slice(0, 5),
+          leaderboard: [...scoredProfiles].sort((a, b) => (b.rating.score || b.rating.average || 0) - (a.rating.score || a.rating.average || 0)).slice(0, 5),
           mostReviewed: [...scoredProfiles].sort((a, b) => (b.rating?.count || 0) - (a.rating?.count || 0)).slice(0, 5),
           topRated: [...scoredProfiles].sort((a, b) => {
             const vA = a.rating?.count || 0;

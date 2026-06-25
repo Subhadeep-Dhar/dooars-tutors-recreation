@@ -25,15 +25,14 @@ export async function createReport(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    // Check if user already reported this profile and it's still pending
+    // Check if user already reported this profile
     const existingReport = await Report.findOne({ 
       reporterId, 
-      reportedProfileId,
-      status: 'pending' 
+      reportedProfileId
     });
 
     if (existingReport) {
-      res.status(400).json({ success: false, message: 'You already have a pending report for this profile.' });
+      res.status(400).json({ success: false, message: 'You have already reported this profile.' });
       return;
     }
 

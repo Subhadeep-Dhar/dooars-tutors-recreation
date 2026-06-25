@@ -21,8 +21,7 @@ const ReviewSchema = new Schema<IReviewDocument>(
   { timestamps: true }
 );
 
-// One review per student per profile
-ReviewSchema.index({ profileId: 1, reviewerId: 1 }, { unique: true });
+// Reviews are no longer limited to one per student per profile
 ReviewSchema.index({ profileId: 1, isVisible: 1 });
 
 export const Review = mongoose.model<IReviewDocument>('Review', ReviewSchema);

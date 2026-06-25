@@ -24,7 +24,7 @@ const ReportSchema = new Schema<IReportDocument>(
   { timestamps: true }
 );
 
-// Prevent a user from reporting the same profile multiple times while one is pending
-ReportSchema.index({ reporterId: 1, reportedProfileId: 1, status: 1 });
+// Prevent a user from reporting the same profile multiple times ever
+ReportSchema.index({ reporterId: 1, reportedProfileId: 1 }, { unique: true });
 
 export const Report = mongoose.model<IReportDocument>('Report', ReportSchema);
