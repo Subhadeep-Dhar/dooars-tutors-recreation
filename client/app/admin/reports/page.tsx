@@ -32,7 +32,7 @@ export default function AdminReportsPage() {
 
   async function updateStatus(id: string, newStatus: string) {
     try {
-      await api.patch(`/api/v1/admin/reports/${id}/status`, { status: newStatus });
+      await api.patch(`/admin/reports/${id}/status`, { status: newStatus });
       toast.success(`Report marked as ${newStatus}`);
       fetchReports();
     } catch (err: any) {

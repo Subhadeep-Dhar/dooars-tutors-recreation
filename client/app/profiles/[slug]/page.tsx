@@ -512,7 +512,7 @@ export default function ProfilePage() {
     
     setReporting(true);
     try {
-      await api.post('/api/v1/reports', {
+      await api.post('/reports', {
         reportedProfileId: profile._id,
         reason: reportReason
       });
