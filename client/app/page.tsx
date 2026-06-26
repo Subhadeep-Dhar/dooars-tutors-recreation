@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail } from 'lucide-react';
+import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail, AlertTriangle } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -630,6 +630,75 @@ export default function HomePage() {
 
       {/* ── Founders ── */}
       <FoundersSection />
+
+      {/* ── Public Directory Disclaimer ── */}
+      <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
+        <div className="max-w-[1000px] mx-auto">
+          <div style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-xl)',
+            padding: '2rem',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.02)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Subtle background accent */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+            
+            <div className="flex flex-col md:flex-row gap-6 relative z-10">
+              <div className="shrink-0 flex justify-center md:justify-start">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                  <AlertTriangle size={32} />
+                </div>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>
+                  Platform Disclaimer & Safety Notice
+                </h2>
+                <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--text-secondary)' }}>
+                  Dooars Tutors serves exclusively as a free public directory. We function as a digital platform connecting the Dooars tutors' and trainers' community.
+                </p>
+                
+                <div className="grid md:grid-cols-2 gap-6 text-sm">
+                  <div>
+                    <h3 className="font-bold flex items-center gap-2 mb-2" style={{ color: 'var(--text-primary)' }}>
+                      <MessageCircle size={16} className="text-amber-500" /> Independent Engagements
+                    </h3>
+                    <p style={{ color: 'var(--text-secondary)' }} className="leading-relaxed">
+                      We do not employ, evaluate, or manage the educators listed on this platform. All engagements are established independently between parents, students and tutors.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold flex items-center gap-2 mb-2" style={{ color: 'var(--text-primary)' }}>
+                      <Eye size={16} className="text-amber-500" /> Unverified Listings
+                    </h3>
+                    <p style={{ color: 'var(--text-secondary)' }} className="leading-relaxed">
+                      As an open public directory, profiles are self-reported. We do not conduct background checks or verify the academic credentials and identities of listed individuals.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold flex items-center gap-2 mb-2" style={{ color: 'var(--text-primary)' }}>
+                      <Shield size={16} className="text-amber-500" /> User Diligence
+                    </h3>
+                    <p style={{ color: 'var(--text-secondary)' }} className="leading-relaxed">
+                      We strongly encourage all users to exercise due diligence. Please independently verify identities, qualifications, and references before finalizing any arrangements.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold flex items-center gap-2 mb-2" style={{ color: 'var(--text-primary)' }}>
+                      <CheckCircle2 size={16} className="text-amber-500" /> Zero Financial Involvement
+                    </h3>
+                    <p style={{ color: 'var(--text-secondary)' }} className="leading-relaxed">
+                      Our platform is completely free to use. We do not process payments, charge commissions, or act as an intermediary for any financial transactions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ── Support Us ── */}
       <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem', borderTop: '1px solid var(--border)' }}>
