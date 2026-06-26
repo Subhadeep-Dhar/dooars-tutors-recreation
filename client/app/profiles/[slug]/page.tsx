@@ -1094,7 +1094,18 @@ export default function ProfilePage() {
             {hasMap && (
               <SCard>
                 <STitle>Location</STitle>
-                <div style={{ borderRadius: 'var(--radius-md)', overflow: 'hidden', height: '172px', border: '1px solid var(--border)', marginBottom: '0.875rem' }}>
+                <div 
+                  style={{ 
+                    borderRadius: 'var(--radius-md)', 
+                    overflow: 'hidden', 
+                    height: '172px', 
+                    border: '1px solid var(--border)', 
+                    marginBottom: '0.875rem',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${coords[1]},${coords[0]}`, '_blank')}
+                  title="Click to view on Google Maps"
+                >
                   <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
                     <Map
                       defaultCenter={{ lat: coords[1], lng: coords[0] }}
