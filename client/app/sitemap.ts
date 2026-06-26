@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-const BASE_URL = 'https://dooarstutors.com';
+const BASE_URL = 'https://dooarstutors.in';
 
 // Comprehensive list of cities/towns in the Dooars & North Bengal region
 const LOCATIONS = [

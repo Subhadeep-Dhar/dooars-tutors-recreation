@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${subject} ${type} in ${location} | Verified Profiles & Reviews`,
       description: `Looking for ${subject} ${type.toLowerCase()} in ${location}? Connect with the best local educators to boost your learning.`,
-      url: `https://dooarstutors.com/tuition/${resolvedParams.slug}`,
+      url: `https://dooarstutors.in/tuition/${resolvedParams.slug}`,
       siteName: 'Dooars Tutors',
       locale: 'en_IN',
       type: 'website',
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: `Find top-rated ${subject} ${type.toLowerCase()} and coaching in ${location}.`,
     },
     alternates: {
-      canonical: `https://dooarstutors.com/tuition/${resolvedParams.slug}`,
+      canonical: `https://dooarstutors.in/tuition/${resolvedParams.slug}`,
     }
   };
 }
@@ -99,7 +99,7 @@ export default async function TuitionLandingPage({ params }: PageProps) {
     provider: {
       '@type': 'Organization',
       name: 'Dooars Tutors',
-      url: 'https://dooarstutors.com',
+      url: 'https://dooarstutors.in',
     },
     makesOffer: {
       '@type': 'Offer',
