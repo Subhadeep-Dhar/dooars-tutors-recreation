@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail, AlertTriangle } from 'lucide-react';
+import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail, AlertTriangle, Linkedin, Instagram, Youtube, Twitter } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -798,9 +798,23 @@ export default function HomePage() {
                 </div>
                 Dooars Tutors
               </div>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--color-ash)' }}>
+              <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--color-ash)' }}>
                 Connecting students with the best tutors and trainers across the Dooars region.
               </p>
+              <div className="flex items-center gap-4">
+                <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
+                  <Linkedin size={20} />
+                </a>
+                <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
+                  <Instagram size={20} />
+                </a>
+                <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
+                  <Youtube size={22} />
+                </a>
+                <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
+                  <Twitter size={20} />
+                </a>
+              </div>
             </div>
             <div>
               <p className="font-medium text-sm mb-4" style={{ color: '#ffffff' }}>Quick Links</p>
