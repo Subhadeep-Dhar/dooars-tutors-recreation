@@ -700,8 +700,70 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Frequently Asked Questions ── */}
+      <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem' }}>
+        <div className="max-w-[1000px] mx-auto">
+          <div className="text-center mb-12">
+            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', letterSpacing: '-0.02em', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Frequently Asked Questions
+            </h2>
+            <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Everything you need to know about how Dooars Tutors works.</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Q1 */}
+            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
+              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>Are you a tuition agency?</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                No. We serve strictly as a free digital directory for the Dooars region. We do not employ tutors, arrange classes, or act as middlemen.
+              </p>
+            </div>
+            
+            {/* Q2 */}
+            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
+              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>Are there any hidden fees or commissions?</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Our platform is 100% free. Parents can browse and contact educators at no cost, and we take zero commission from tutors. All financial arrangements are made directly between you and the educator.
+              </p>
+            </div>
+            
+            {/* Q3 */}
+            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
+              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>How are the listed profiles verified?</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                While our team verifies basic identity to ensure platform integrity, we do not independently authenticate physical addresses, academic degrees, or professional credentials. We encourage parents to verify qualifications directly.
+              </p>
+            </div>
+            
+            {/* Q4 */}
+            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
+              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>Do I need an account to find a tutor?</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                No registration is required for students or parents. You can freely browse profiles, search your area, and contact educators directly using the provided phone numbers.
+              </p>
+            </div>
+            
+            {/* Q5 */}
+            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
+              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>How do I list my teaching services?</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                Simply click "Register" at the top of the page. You can create a profile by providing your contact details, subjects taught, and location. Your listing will be visible to the community instantly.
+              </p>
+            </div>
+            
+            {/* Q6 */}
+            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
+              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>What if a profile seems fake or unresponsive?</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                We rely on community feedback to maintain a safe directory. If you encounter incorrect information or dead numbers, please use the "Report" button on the tutor's profile. Flagged profiles are reviewed and removed by our moderation system.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Support Us ── */}
-      <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem', borderTop: '1px solid var(--border)' }}>
+      <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem', borderTop: '1px solid var(--border)' }}>
         <div className="max-w-[800px] mx-auto text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full mb-6" style={{ background: 'rgba(236, 72, 153, 0.1)' }}>
             <Heart size={28} className="text-pink-500 fill-pink-500 animate-pulse" />
