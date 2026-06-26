@@ -64,9 +64,14 @@ function VerifyOtpContent() {
       
       // 3. Force fetch the user profile from our backend now that the account is activated
       await useAuthStore.getState().fetchMe();
+      const user = useAuthStore.getState().user;
       
-      // 4. Route to dashboard
-      router.push('/dashboard');
+      // 4. Route based on role
+      if (user?.role === 'admin') {
+        router.push('/');
+      } else {
+        router.push('/dashboard');
+      }
       
     } catch (err: any) {
       setError(err?.response?.data?.message || err?.message || 'Verification failed');
