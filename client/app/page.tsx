@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail, AlertTriangle, Linkedin, Instagram, Youtube, Twitter } from 'lucide-react';
+import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail, AlertTriangle } from 'lucide-react';
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -24,6 +24,37 @@ const typeColors: Record<string, string> = {
   arts_trainer: '#ec4899',
   gym_yoga: '#f59e0b',
 };
+
+// Social Icons as simple SVGs since Lucide removed brand icons
+const LinkedinIcon = ({ size = 20, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect width="4" height="12" x="2" y="9" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+);
+
+const InstagramIcon = ({ size = 20, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+  </svg>
+);
+
+const YoutubeIcon = ({ size = 20, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M2.5 7.1C2.5 7.1 2.3 5.4 3.1 4.6 4.1 3.5 5.2 3.5 5.8 3.4 8.5 3.2 12 3.2 12 3.2s3.5 0 6.2.2c.5.1 1.7.1 2.7 1.2.8.8 1 2.5 1 2.5s.2 2 .2 4v2c0 2-.2 4-.2 4s-.2 1.7-1 2.5c-1 1.1-2.4 1-3 1.1-3 .3-6.2.3-6.2.3s-3.5 0-6.2-.2c-.6-.1-1.7-.1-2.7-1.2-.8-.8-1-2.5-1-2.5s-.2-2-.2-4v-2c0-2 .2-4 .2-4z" />
+    <polygon points="9.5,15.5 9.5,8.5 16.5,12" />
+  </svg>
+);
+
+const XIcon = ({ size = 20, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M4 4l11.733 16h4.267l-11.733 -16z" />
+    <path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" />
+  </svg>
+);
 
 const FLOATING_TAGS = [
   // Top Left Quadrant
@@ -803,16 +834,16 @@ export default function HomePage() {
               </p>
               <div className="flex items-center gap-4">
                 <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
-                  <Linkedin size={20} />
+                  <LinkedinIcon size={20} />
                 </a>
                 <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
-                  <Instagram size={20} />
+                  <InstagramIcon size={20} />
                 </a>
                 <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
-                  <Youtube size={22} />
+                  <YoutubeIcon size={22} />
                 </a>
                 <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
-                  <Twitter size={20} />
+                  <XIcon size={20} />
                 </a>
               </div>
             </div>
