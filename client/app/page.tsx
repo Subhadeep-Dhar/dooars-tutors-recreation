@@ -671,10 +671,10 @@ export default function HomePage() {
                   </div>
                   <div>
                     <h3 className="font-bold flex items-center gap-2 mb-2" style={{ color: 'var(--text-primary)' }}>
-                      <Eye size={16} className="text-amber-500" /> Unverified Listings
+                      <Eye size={16} className="text-amber-500" /> Profile Verification
                     </h3>
                     <p style={{ color: 'var(--text-secondary)' }} className="leading-relaxed">
-                      As an open public directory, profiles are self-reported. We do not conduct background checks or verify the academic credentials and identities of listed individuals.
+                      While our team verifies basic profile information to ensure platform safety, we do not independently authenticate physical addresses, academic degrees, or professional credentials.
                     </p>
                   </div>
                   <div>
