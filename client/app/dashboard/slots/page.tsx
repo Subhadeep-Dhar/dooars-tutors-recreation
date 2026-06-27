@@ -25,7 +25,7 @@ export default function SlotsPage() {
   const [saving, setSaving] = useState(false);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
   const { register, handleSubmit, reset, watch } = useForm({
-    defaultValues: { subject: '', activity: '', board: 'CBSE', medium: 'Bengali', feePerMonth: '' },
+    defaultValues: { subject: '', activity: '', customActivity: '', board: 'CBSE', medium: 'Bengali', feePerMonth: '' },
   });
 
   useEffect(() => {
@@ -213,8 +213,9 @@ export default function SlotsPage() {
                     </div>
                   )}
                 </>
+              )}
 
-                <div className="space-y-1.5">
+              <div className="space-y-1.5">
                   <Label style={{ color: 'var(--text-primary)' }}>Fee per month (₹)</Label>
                   <input className="input-base" type="number" placeholder="e.g. 1000" {...register('feePerMonth')} />
                 </div>
