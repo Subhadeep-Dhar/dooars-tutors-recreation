@@ -45,6 +45,32 @@ export async function sendAdminNotification(userEmail: string, role: string) {
   });
 }
 
+export async function sendProfileCreationAdminNotification(userEmail: string, profileName: string, profileType: string) {
+  if (!process.env.RESEND_API_KEY) {
+    console.log(`[Email Mock] Admin notified of new profile: ${profileName} by ${userEmail}`);
+    return;
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL || 'subhadeepdhar563@gmail.com';
+  
+  await resend.emails.send({
+    from: 'Dooars Tutors <onboarding@resend.dev>',
+    to: adminEmail,
+    subject: 'New Tutor Profile Created',
+    html: `
+      <h2>New Profile Alert</h2>
+      <p>A user has just completed setting up their public profile.</p>
+      <ul>
+        <li><strong>Profile Name:</strong> ${profileName}</li>
+        <li><strong>Profile Type:</strong> ${profileType}</li>
+        <li><strong>User Email:</strong> ${userEmail}</li>
+      </ul>
+      <br/>
+      <a href="https://dooarstutors.in/admin" style="display:inline-block;padding:10px 20px;background:#10b981;color:#fff;text-decoration:none;border-radius:5px;">Go to Admin Panel</a>
+    `
+  });
+}
+
 export async function sendReportAdminNotification(reporterEmail: string, reportedProfileName: string, reason: string) {
   if (!process.env.RESEND_API_KEY) {
     console.log(`[Email Mock] Admin notified of report against: ${reportedProfileName}`);

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
 import * as ProfileService from './profile.service';
 import { AppError } from '../../middleware/errorHandler';
+import { sendProfileCreationAdminNotification } from '../../utils/email';
 
 // ── Validation ────────────────────────────────────────────────────────────────
 
@@ -41,6 +42,11 @@ export async function createProfile(req: Request, res: Response, next: NextFunct
     }
 
     const profile = await ProfileService.createProfile(req.user!.userId, req.body);
+    
+    if (req.user?.email) {
+      sendProfileCreationAdminNotification(req.user.email, profile.displayName, profile.type).catch(console.error);
+    }
+
     res.status(201).json({ success: true, data: { profile }, message: 'Profile created. Pending admin approval.' });
   } catch (err) { next(err); }
 }
