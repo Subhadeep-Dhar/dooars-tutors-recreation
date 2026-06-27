@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useAuthStore } from '@/store/authStore';
@@ -47,9 +48,7 @@ export default function Navbar() {
     <div className="sticky top-4 z-50 px-4 mb-4">
       <nav className="max-w-[1200px] mx-auto h-16 flex items-center justify-between px-6" style={{ background: 'var(--bg-glass)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--border)', borderRadius: '99px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
         <Link href="/" className="flex items-center gap-2.5 font-bold text-xl md:text-2xl" style={{ color: 'var(--text-primary)' }}>
-          <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
-            <GraduationCap size={22} className="text-white" />
-          </div>
+          <Image src="/images/logo.jpg" alt="Logo" width={44} height={44} className="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover shrink-0" priority />
           <span>Dooars Tutors</span>
         </Link>
 

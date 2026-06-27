@@ -6,6 +6,7 @@ import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, Mes
 import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import Link from 'next/link';
+import Image from 'next/image';
 import FoundersSection from '@/components/FoundersSection';
 import QRCode from 'react-qr-code';
 
@@ -824,9 +825,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8 mb-10">
             <div>
               <div className="flex items-center gap-3 font-bold text-2xl md:text-3xl mb-4" style={{ color: '#ffffff' }}>
-                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
-                  <GraduationCap size={28} className="text-white" />
-                </div>
+                <Image src="/images/logo.jpg" alt="Logo" width={56} height={56} className="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover shrink-0" priority />
                 Dooars Tutors
               </div>
               <p className="text-sm leading-relaxed mb-6" style={{ color: 'var(--color-ash)' }}>
