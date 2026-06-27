@@ -302,6 +302,26 @@ export default function ProfileEditorPage() {
             </CardContent>
           </Card>
 
+          <Card style={{ background: '#ecfdf5', border: '1px solid #6ee7b7' }}>
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">💬</span>
+                <h3 className="font-bold text-emerald-800">Join Our Community!</h3>
+              </div>
+              <p className="text-sm text-emerald-700 mb-4">
+                Connect with other tutors, get the latest updates, and receive premium leads directly on WhatsApp.
+              </p>
+              <div className="flex flex-col gap-2">
+                <a href="https://chat.whatsapp.com/GFxRBRpDUp0242LgNNEOTY" target="_blank" rel="noreferrer" className="w-full text-center py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md text-sm font-semibold transition-colors shadow-sm">
+                  Join WhatsApp Group
+                </a>
+                <a href="https://whatsapp.com/channel/0029VbDPxuKG3R3mN8CudI3X" target="_blank" rel="noreferrer" className="w-full text-center py-2 bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md text-sm font-semibold transition-colors">
+                  Follow Our Channel
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+
           {!isNew && (
             <Card style={{ borderColor: 'rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.02)' }}>
               <CardHeader>
