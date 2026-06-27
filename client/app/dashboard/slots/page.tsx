@@ -61,7 +61,7 @@ export default function SlotsPage() {
         payload.board = data.board;
         payload.medium = data.medium;
       } else {
-        payload.activity = data.activity;
+        payload.activity = data.activity === 'Other' ? data.customActivity : data.activity;
       }
 
       const res = await api.post(`/profiles/${profile._id}/slots`, payload);
@@ -195,16 +195,24 @@ export default function SlotsPage() {
                     </div>
                   </>
                 ) : (
-                  <div className="space-y-1.5">
+                  <>
+                    <div className="space-y-1.5">
                     <Label style={{ color: 'var(--text-primary)' }}>Activity</Label>
                     <select {...register('activity', { required: true })} className="input-base">
                       <option value="" disabled style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Select Activity</option>
                       {profile.type === 'sports_trainer' && SPORTS_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
                       {profile.type === 'arts_trainer' && ARTS_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
                       {profile.type === 'gym_yoga' && GYM_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
+                      <option value="Other" style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Other (Type your own)</option>
                     </select>
                   </div>
-                )}
+                  {watch('activity') === 'Other' && (
+                    <div className="space-y-1.5 mt-4">
+                      <Label style={{ color: 'var(--text-primary)' }}>Specify your activity</Label>
+                      <input className="input-base" placeholder="e.g. Karate, Flute, etc." {...register('customActivity', { required: true })} />
+                    </div>
+                  )}
+                </>
 
                 <div className="space-y-1.5">
                   <Label style={{ color: 'var(--text-primary)' }}>Fee per month (₹)</Label>
