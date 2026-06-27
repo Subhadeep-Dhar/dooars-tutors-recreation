@@ -833,16 +833,16 @@ export default function HomePage() {
                 Connecting students with the best tutors and trainers across the Dooars region.
               </p>
               <div className="flex items-center gap-4">
-                <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
+                <a href="https://www.linkedin.com/company/dooars-tutors/" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
                   <LinkedinIcon size={20} />
                 </a>
-                <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
+                <a href="https://www.instagram.com/dooars_tutors_in/" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
                   <InstagramIcon size={20} />
                 </a>
-                <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
+                <a href="https://www.youtube.com/@DooarsTutors" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
                   <YoutubeIcon size={22} />
                 </a>
-                <a href="#" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
+                <a href="https://x.com/dooars_tutors?t=NYo5oIQN_1XerNFxQXG0qA&s=09" target="_blank" rel="noreferrer" className="transition-colors hover:scale-110 duration-200" style={{ color: 'var(--color-smoke)' }} onMouseEnter={e => (e.currentTarget.style.color = '#ffffff')} onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-smoke)')}>
                   <XIcon size={20} />
                 </a>
               </div>
