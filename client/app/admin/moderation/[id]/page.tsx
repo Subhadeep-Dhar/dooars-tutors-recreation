@@ -30,7 +30,7 @@ export default function ProfileReviewPage() {
     try {
       setLoading(true);
       const res = await api.get(`/admin/moderation/${id}`);
-      setData(res.data);
+      setData(res.data.data);
     } catch {
       toast.error('Failed to load profile details');
       router.push('/admin/moderation');
