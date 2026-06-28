@@ -466,7 +466,7 @@ export default function AdminOverviewPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {(leaderboardTab === 'overall' ? performers?.leaderboard : leaderboardTab === 'reviewed' ? performers?.mostReviewed : performers?.topRated)?.map((tutor: any, index: number) => (
-              <Link href={`/tuition/${tutor.slug || tutor._id}`} key={tutor._id} className="p-4 rounded-xl flex flex-col items-center text-center transition-all hover:-translate-y-1 hover:shadow-md relative" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+              <Link href={`/profiles/${tutor.slug || tutor._id}`} key={tutor._id} className="p-4 rounded-xl flex flex-col items-center text-center transition-all hover:-translate-y-1 hover:shadow-md relative" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
                 {index === 0 && <div className="absolute -top-3 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-sm shadow-amber-500/20 whitespace-nowrap">#1 {leaderboardTab === 'overall' ? 'OVERALL' : leaderboardTab === 'reviewed' ? 'REVIEWED' : 'RATED'}</div>}
                 <div className="w-12 h-12 rounded-full mb-3 flex items-center justify-center font-bold text-xl" style={{ background: 'var(--bg-card)', color: 'var(--color-brand)', border: '1px solid var(--border)' }}>
                   {index + 1}
