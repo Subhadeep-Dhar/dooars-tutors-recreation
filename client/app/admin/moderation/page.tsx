@@ -86,9 +86,9 @@ export default function ModerationPage() {
               value={filters.status}
               onChange={(e) => setFilters(f => ({ ...f, status: e.target.value }))}
             >
-              <option value="pending">Pending</option>
-              <option value="verified">Verified</option>
-              <option value="rejected">Rejected</option>
+              <option value="pending" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Pending</option>
+              <option value="verified" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Verified</option>
+              <option value="rejected" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Rejected</option>
             </select>
           </div>
           <div className="flex gap-4 mb-1">
