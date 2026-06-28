@@ -1,12 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
@@ -23,10 +25,12 @@ const DISTRICTS = ['Alipurduar', 'Cooch Behar', 'Darjeeling', 'Jalpaiguri', 'Kal
 const TOWNS = ['Alipurduar', 'Banarhat', 'Binnaguri', 'Birpara', 'Cooch Behar', 'Darjeeling', 'Dhupguri', 'Falakata', 'Hasimara', 'Jaigaon', 'Jalpaiguri', 'Kalchini', 'Kalimpong', 'Kurseong', 'Madarihat', 'Mainaguri', 'Malbazar', 'Siliguri'];
 
 export default function ProfileEditorPage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isNew, setIsNew] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [mapLocation, setMapLocation] = useState<{lat: number, lng: number} | null>(null);
 
   // Delete profile
@@ -100,7 +104,7 @@ export default function ProfileEditorPage() {
         const res = await api.post('/profiles', payload);
         setProfile(res.data.data.profile);
         setIsNew(false);
-        toast.success('Profile created! Pending admin approval.');
+        setShowSuccessModal(true);
       } else {
         const res = await api.put(`/profiles/${profile._id}`, payload);
         setProfile(res.data.data.profile);
@@ -378,6 +382,27 @@ export default function ProfileEditorPage() {
           )}
         </div>
       </form>
+
+      <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <DialogContent className="sm:max-w-md" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <DialogHeader>
+            <DialogTitle style={{ color: 'var(--text-primary)' }}>Profile Created Successfully!</DialogTitle>
+            <DialogDescription style={{ color: 'var(--text-secondary)' }}>
+              Your profile is almost ready. However, students won't know what you teach until you set up your teaching niches.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Click the button below to go to the <strong>Teaching Slots</strong> section and configure the subjects, activities, and fees you want to offer.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => router.push('/dashboard/slots')} className="w-full btn-primary py-2.5">
+              Set Up Teaching Slots Now
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
