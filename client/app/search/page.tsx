@@ -674,6 +674,11 @@ function SearchPageInner() {
   const router       = useRouter();
   const searchParams = useSearchParams();
 
+  // Ensure page always opens from the top
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   /*
    * KEY FIX — URL strategy:
    * 1. We read the URL ONCE on mount to seed initial state (q, type, subject).
