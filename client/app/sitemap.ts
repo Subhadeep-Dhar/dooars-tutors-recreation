@@ -105,7 +105,7 @@ const NICHES = {
   }
 };
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const sitemapEntries: MetadataRoute.Sitemap = [
     // Core pages
     {
@@ -133,6 +133,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.5,
     }
   ];
+
+  // Fetch verified profiles dynamically
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const res = await fetch(`${apiUrl}/search?limit=1000`, { next: { revalidate: 3600 } });
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.data) {
+        data.data.forEach((profile: any) => {
+          if (profile.slug || profile._id) {
+            sitemapEntries.push({
+              url: `${BASE_URL}/profiles/${profile.slug || profile._id}`,
+              lastModified: new Date(profile.updatedAt || new Date()),
+              changeFrequency: 'weekly',
+              priority: 0.8,
+            });
+          }
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch profiles for sitemap', error);
+  }
 
   // Generate all dynamic SEO URLs
   const date = new Date();
