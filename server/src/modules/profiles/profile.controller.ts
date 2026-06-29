@@ -18,17 +18,19 @@ export const createProfileValidation = [
   body('address.pincode').optional({ checkFalsy: true }).trim(),
 ];
 
-export const academicSlotValidation = [
-  body('subject').trim().notEmpty().withMessage('Subject required'),
-  body('classes').isArray({ min: 1 }).withMessage('At least one class required'),
-  body('board').isIn(['CBSE', 'ICSE', 'State', 'Other']).withMessage('Invalid board'),
-  body('medium').isIn(['Bengali', 'English', 'Hindi', 'Other']).withMessage('Invalid medium'),
-  body('feePerMonth').optional().isNumeric().withMessage('Fee must be a number'),
-];
-
-export const nonAcademicSlotValidation = [
-  body('activity').trim().notEmpty().withMessage('Activity required'),
-  body('feePerMonth').optional().isNumeric().withMessage('Fee must be a number'),
+export const slotValidation = [
+  body().custom((value, { req }) => {
+    if (!req.body.subject && !req.body.activity) {
+      throw new Error('Either subject or activity is required');
+    }
+    return true;
+  }),
+  body('subject').if(body('subject').exists()).trim().notEmpty().withMessage('Subject required'),
+  body('classes').if(body('subject').exists()).isArray({ min: 1 }).withMessage('At least one class required'),
+  body('board').if(body('subject').exists()).isIn(['CBSE', 'ICSE', 'State', 'Other']).withMessage('Invalid board'),
+  body('medium').if(body('subject').exists()).isIn(['Bengali', 'English', 'Hindi', 'Other']).withMessage('Invalid medium'),
+  body('activity').if(body('activity').exists()).trim().notEmpty().withMessage('Activity required'),
+  body('feePerMonth').optional({ checkFalsy: true }).isNumeric().withMessage('Fee must be a number'),
 ];
 
 // ── Handlers ──────────────────────────────────────────────────────────────────

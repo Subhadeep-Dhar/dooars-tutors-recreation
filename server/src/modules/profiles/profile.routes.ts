@@ -12,8 +12,7 @@ import {
   updateSlot,
   deleteSlot,
   createProfileValidation,
-  academicSlotValidation,
-  nonAcademicSlotValidation,
+  slotValidation,
 } from './profile.controller';
 
 const router = Router();
@@ -27,7 +26,7 @@ router.post('/', verifyToken, requireRole('tutor', 'org', 'admin'), createProfil
 router.put('/:id', verifyToken, requireRole('tutor', 'org', 'admin'), updateProfile);
 
 // Slot management
-router.post('/:id/slots', verifyToken, requireRole('tutor', 'org', 'admin'), academicSlotValidation, addSlot);
+router.post('/:id/slots', verifyToken, requireRole('tutor', 'org', 'admin'), slotValidation, addSlot);
 router.put('/:id/slots/:slotId', verifyToken, requireRole('tutor', 'org', 'admin'), updateSlot);
 router.delete('/:id/slots/:slotId', verifyToken, requireRole('tutor', 'org', 'admin'), deleteSlot);
 
