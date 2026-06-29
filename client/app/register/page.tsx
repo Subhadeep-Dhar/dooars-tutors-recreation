@@ -26,7 +26,7 @@ type FormData = z.infer<typeof schema>;
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<{ message: string; action?: string; link?: string } | null>(null);
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema as any),
@@ -36,7 +36,7 @@ export default function RegisterPage() {
   const selectedRole = watch('role');
 
   async function onSubmit(data: FormData) {
-    setError('');
+    setError(null);
     setIsLoading(true);
     try {
       // 1. Supabase OTP Sign Up
@@ -61,7 +61,15 @@ export default function RegisterPage() {
       // 3. Route to /verify-otp
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
-      setError(err?.message || err?.response?.data?.message || 'Registration failed');
+      if (err?.response?.status === 409) {
+        setError({
+          message: 'An account with this email already exists.',
+          action: 'Login instead',
+          link: '/login'
+        });
+      } else {
+        setError({ message: err?.message || err?.response?.data?.message || 'Registration failed' });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -127,8 +135,13 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <div className="p-3 rounded-lg text-sm text-red-400 border border-red-500/20 bg-red-500/10">
-              {error}
+            <div className="p-4 rounded-xl text-sm flex flex-col gap-3" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              <div className="text-red-400 font-medium">{error.message}</div>
+              {error.action && error.link && (
+                <Link href={error.link} className="inline-flex items-center justify-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors border border-white/10 w-full font-medium">
+                  {error.action}
+                </Link>
+              )}
             </div>
           )}
 
