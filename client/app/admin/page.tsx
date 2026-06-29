@@ -286,7 +286,7 @@ export default function AdminOverviewPage() {
                   <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{p.displayName}</p>
                   <p className="text-xs mt-1 capitalize" style={{ color: 'var(--text-muted)' }}>{p.type?.replace('_', ' ')} • {p.verificationStatus}</p>
                 </div>
-                <Link href={`/admin/profiles/${p._id}`} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <Link href={`/profiles/${p.slug || p._id}`} target="_blank" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                   <ArrowRight size={16} style={{ color: 'var(--text-muted)' }} />
                 </Link>
               </div>
