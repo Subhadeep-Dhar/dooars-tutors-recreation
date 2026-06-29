@@ -28,7 +28,7 @@ export async function sendAdminNotification(userEmail: string, role: string) {
   }
 
   // Define admin email from env or default
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@dooarstutors.in';
+  const adminEmail = process.env.ADMIN_EMAIL || 'subhadeepdhar563@gmail.com';
   
   await resend.emails.send({
     from: 'Dooars Tutors <onboarding@resend.dev>', // Update with verified domain
