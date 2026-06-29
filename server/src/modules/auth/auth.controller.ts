@@ -7,7 +7,7 @@ import { sendWelcomeEmail, sendAdminNotification } from '../../utils/email';
 // ── Validation rules ──────────────────────────────────────────────────────────
 
 export const registerValidation = [
-  body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
+  body('email').isEmail().withMessage('Valid email required'),
   body('name').trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
   body('phone').optional().isMobilePhone('any').withMessage('Invalid phone number'),
   body('category')
