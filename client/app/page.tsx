@@ -64,9 +64,9 @@ const FLOATING_TAGS = [
   { text: 'Computer', top: '8%', left: '40%', anim: 1, delay: '-3s', major: true },
   
   // Top Right Quadrant
-  { text: 'Coding', top: '15%', left: '60%', anim: 2, delay: '-4s', major: true },
-  { text: 'Yoga', top: '10%', left: '85%', anim: 3, delay: '-5s', major: true },
-  { text: 'English', top: '25%', left: '75%', anim: 2, delay: '-1s', major: true },
+  { text: 'Coding', top: '15%', left: '60%', mobileLeft: '55%', anim: 2, delay: '-4s', major: true },
+  { text: 'Yoga', top: '10%', left: '85%', mobileLeft: '75%', anim: 3, delay: '-5s', major: true },
+  { text: 'English', top: '25%', left: '75%', mobileLeft: '65%', anim: 2, delay: '-1s', major: true },
   
   // Middle Left Quadrant
   { text: 'Skating', top: '45%', left: '5%', anim: 1, delay: '-6s', major: false },
@@ -76,22 +76,22 @@ const FLOATING_TAGS = [
 
   // Middle Right Quadrant
   { text: 'History', top: '35%', left: '85%', anim: 2, delay: '-5s', major: false },
-  { text: 'Education', top: '48%', left: '65%', anim: 3, delay: '-2s', major: true },
-  { text: 'Maths', top: '55%', left: '90%', anim: 2, delay: '0s', major: true },
+  { text: 'Education', top: '48%', left: '65%', mobileLeft: '55%', anim: 3, delay: '-2s', major: true },
+  { text: 'Maths', top: '55%', left: '90%', mobileLeft: '15%', anim: 2, delay: '0s', major: true },
   { text: 'Gym', top: '42%', left: '50%', anim: 2, delay: '-6s', major: false },
 
   // Bottom Left Quadrant
-  { text: 'Physics', top: '75%', left: '10%', anim: 2, delay: '-2s', major: true },
+  { text: 'Physics', top: '75%', left: '10%', mobileLeft: '15%', anim: 2, delay: '-2s', major: true },
   { text: 'Biology', top: '85%', left: '25%', anim: 1, delay: '-5s', major: false },
   { text: 'Geography', top: '68%', left: '30%', anim: 3, delay: '-1s', major: true },
-  { text: 'Dance', top: '90%', left: '8%', anim: 3, delay: '-3s', major: true },
+  { text: 'Dance', top: '90%', left: '8%', mobileLeft: '20%', anim: 3, delay: '-3s', major: true },
   
   // Bottom Right Quadrant
-  { text: 'Football', top: '75%', left: '80%', anim: 1, delay: '-1s', major: true },
+  { text: 'Football', top: '75%', left: '80%', mobileLeft: '60%', anim: 1, delay: '-1s', major: true },
   { text: 'Cricket', top: '85%', left: '55%', anim: 1, delay: '-1s', major: false },
   { text: 'WBCS', top: '70%', left: '45%', anim: 1, delay: '-7s', major: false },
   { text: 'Music', top: '88%', left: '70%', anim: 3, delay: '-8s', major: false },
-  { text: 'Bengali', top: '82%', left: '92%', anim: 3, delay: '-4s', major: true },
+  { text: 'Bengali', top: '82%', left: '92%', mobileLeft: '70%', anim: 3, delay: '-4s', major: true },
   
   // Center-ish but safe
   { text: 'Badminton', top: '60%', left: '55%', anim: 1, delay: '-6s', major: false },
@@ -226,6 +226,15 @@ export default function HomePage() {
             @keyframes float-roam-1 { 0% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(20px, -30px) rotate(5deg); } 66% { transform: translate(-15px, 20px) rotate(-3deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
             @keyframes float-roam-2 { 0% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(-25px, 25px) rotate(-5deg); } 66% { transform: translate(20px, -15px) rotate(3deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
             @keyframes float-roam-3 { 0% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(30px, 15px) rotate(8deg); } 66% { transform: translate(-20px, -25px) rotate(-4deg); } 100% { transform: translate(0, 0) rotate(0deg); } }
+            .floating-tag-wrapper {
+              position: absolute;
+              left: var(--mobile-left);
+            }
+            @media (min-width: 768px) {
+              .floating-tag-wrapper {
+                left: var(--desktop-left);
+              }
+            }
             .floating-tag {
               padding: 0.5rem 1rem;
               background: var(--bg-card);
@@ -240,7 +249,7 @@ export default function HomePage() {
             }
           `}} />
           
-          {FLOATING_TAGS.map((tag, i) => {
+          {FLOATING_TAGS.map((tag: any, i) => {
             // Calculate parallax distance based on anim index to give depth (some move more than others)
             const parallaxX = mousePos.x * (tag.anim * -15);
             const parallaxY = mousePos.y * (tag.anim * -15);
@@ -248,12 +257,13 @@ export default function HomePage() {
             return (
               <div 
                 key={i} 
-                className={`absolute transition-transform duration-300 ease-out ${!tag.major ? 'hidden md:block' : ''}`}
+                className={`floating-tag-wrapper transition-transform duration-300 ease-out ${!tag.major ? 'hidden md:block' : ''}`}
                 style={{
                   top: tag.top,
-                  left: tag.left,
+                  '--desktop-left': tag.left,
+                  '--mobile-left': tag.mobileLeft || tag.left,
                   transform: `translate(${parallaxX}px, ${parallaxY}px)`
-                }}
+                } as any}
               >
                 <div 
                   className="floating-tag" 
