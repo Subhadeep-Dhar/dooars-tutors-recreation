@@ -62,6 +62,20 @@ export async function toggleUserStatus(req: Request, res: Response, next: NextFu
   } catch (err) { next(err); }
 }
 
+export async function createUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await AdminService.createUser(req.body);
+    res.status(201).json({ success: true, data: { user }, message: 'User created successfully' });
+  } catch (err) { next(err); }
+}
+
+export async function impersonateUser(req: Request, res: Response, next: NextFunction) {
+  try {
+    const data = await AdminService.impersonateUser(req.params.id);
+    res.json({ success: true, data, message: 'Impersonating user' });
+  } catch (err) { next(err); }
+}
+
 export async function updateUser(req: Request, res: Response, next: NextFunction) {
   try {
     const user = await AdminService.updateUser(req.params.id, req.body);

@@ -284,6 +284,56 @@ export async function toggleUserStatus(userId: string) {
   return user;
 }
 
+export async function createUser(data: any) {
+  if (!data.email) throw new AppError('Email is required', 400);
+  const email = data.email.toLowerCase().trim();
+  
+  const existing = await User.findOne({ email });
+  if (existing) throw new AppError('Email already in use', 409);
+  
+  const user = await User.create({
+    name: data.name,
+    email,
+    phone: data.phone,
+    role: data.role || 'student',
+    status: 'active',
+    isVerified: true,
+  });
+  return user;
+}
+
+import jwt from 'jsonwebtoken';
+import { env } from '../../config/env';
+
+export async function impersonateUser(userId: string) {
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('User not found', 404);
+  if (!user.isActive) throw new AppError('User is inactive or deleted', 403);
+  
+  const secret = process.env.SUPABASE_JWT_SECRET || env.JWT_ACCESS_SECRET;
+  
+  const payload = {
+    sub: user.supabaseId || user._id.toString(), // Use supabaseId if available
+    email: user.email,
+    user_role: user.role,
+    aud: 'authenticated',
+    role: 'authenticated'
+  };
+  
+  const token = jwt.sign(payload, secret, { expiresIn: '1h' });
+  
+  return {
+    user: {
+      userId: user._id.toString(),
+      supabaseId: user.supabaseId,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    },
+    token
+  };
+}
+
 export async function updateUser(userId: string, data: any) {
   const user = await User.findById(userId);
   if (!user) throw new AppError('User not found', 404);

@@ -11,8 +11,10 @@ import {
   getAllProfiles,
   getAllUsers,
   getAllReviews,
+  createUser,
   toggleUserStatus,
   updateUser,
+  impersonateUser,
   toggleProfileStatus,
   updateProfile,
   deleteUser,
@@ -36,8 +38,10 @@ router.get('/reviews', getAllReviews);
 router.get('/reports', getReports);
 
 // Action Routes
+router.post('/users', createUser);
 router.patch('/users/:id/status', toggleUserStatus);
 router.patch('/users/:id/update', updateUser);
+router.post('/users/:id/impersonate', impersonateUser);
 router.delete('/users/:id', deleteUser);
 
 router.patch('/profiles/:id/status', toggleProfileStatus);

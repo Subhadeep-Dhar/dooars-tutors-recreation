@@ -5,9 +5,15 @@ import { toast } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { UserPlus, LogIn } from 'lucide-react';
 import api from '@/lib/api';
+import { useAuthStore } from '@/store/authStore';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 export default function AdminUsersPage() {
+  const router = useRouter();
+  const { login } = useAuthStore();
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -20,6 +26,19 @@ export default function AdminUsersPage() {
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deletingUser, setDeletingUser] = useState(false);
+
+  // Add User State
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [addFormData, setAddFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'tutor'
+  });
+  const [addingUser, setAddingUser] = useState(false);
+
+  // Impersonate State
+  const [impersonatingUserId, setImpersonatingUserId] = useState<string | null>(null);
 
   // Edit State
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
@@ -90,6 +109,42 @@ export default function AdminUsersPage() {
     }
   }
 
+  async function handleAddUser(e: React.FormEvent) {
+    e.preventDefault();
+    setAddingUser(true);
+    try {
+      await api.post('/admin/users', addFormData);
+      toast.success('User created successfully');
+      setShowAddUser(false);
+      setAddFormData({ name: '', email: '', phone: '', role: 'tutor' });
+      load();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to create user');
+    } finally {
+      setAddingUser(false);
+    }
+  }
+
+  async function handleImpersonate(id: string) {
+    setImpersonatingUserId(id);
+    try {
+      const res = await api.post(`/admin/users/${id}/impersonate`);
+      const { user, token } = res.data.data;
+      
+      // Sign out of Supabase to clear local storage tokens so API interceptor uses our legacy JWT
+      await supabase.auth.signOut();
+      
+      // Login to our AuthStore with the legacy JWT
+      await login(user, token);
+      
+      toast.success(`Logged in as ${user.name || user.email}`);
+      router.push('/dashboard');
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || 'Failed to impersonate user');
+      setImpersonatingUserId(null);
+    }
+  }
+
   function handleEditClick(user: any) {
     setUserToDelete(null);
     setEditingUserId(user._id);
@@ -138,6 +193,14 @@ export default function AdminUsersPage() {
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Users ({total})</h1>
         
         <div className="flex gap-2 w-full sm:w-auto">
+          <Button
+            onClick={() => setShowAddUser(true)}
+            className="whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white border-none shadow-sm h-10 px-4"
+          >
+            <UserPlus className="mr-2" size={16} />
+            Add User
+          </Button>
+          
           <input
             type="text"
             placeholder="Search users..."
@@ -158,6 +221,49 @@ export default function AdminUsersPage() {
           </select>
         </div>
       </div>
+
+      {/* Add User Modal */}
+      {showAddUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-800">
+            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-semibold text-lg">Add New User</h3>
+              <button onClick={() => setShowAddUser(false)} className="text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
+                &times;
+              </button>
+            </div>
+            <form onSubmit={handleAddUser} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name</label>
+                <input required type="text" value={addFormData.name} onChange={e => setAddFormData({...addFormData, name: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-950 dark:border-slate-800" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <input required type="email" value={addFormData.email} onChange={e => setAddFormData({...addFormData, email: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-950 dark:border-slate-800" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone (Optional)</label>
+                <input type="text" value={addFormData.phone} onChange={e => setAddFormData({...addFormData, phone: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-950 dark:border-slate-800" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <select value={addFormData.role} onChange={e => setAddFormData({...addFormData, role: e.target.value})} className="w-full px-3 py-2 border rounded-lg bg-slate-50 dark:bg-slate-950 dark:border-slate-800">
+                  <option value="student">Student</option>
+                  <option value="tutor">Tutor</option>
+                  <option value="org">Organisation</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="pt-2 flex gap-3">
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={addingUser}>
+                  {addingUser ? 'Creating...' : 'Create User'}
+                </Button>
+                <Button type="button" variant="outline" className="w-full" onClick={() => setShowAddUser(false)}>Cancel</Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       
       {loading && users.length === 0 ? (
         <div style={{ color: 'var(--text-muted)' }}>Loading...</div>
@@ -188,15 +294,26 @@ export default function AdminUsersPage() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button
-                      size="sm" variant="outline"
-                      className="h-8 text-xs text-blue-500 border-blue-500/30 hover:bg-blue-500/10"
-                      onClick={() => handleEditClick(user)}
-                    >
-                      Edit
-                    </Button>
-                    
-                    {user.role !== 'admin' && (
+                      <Button
+                        size="sm" variant="outline"
+                        className="h-8 text-xs text-blue-500 border-blue-500/30 hover:bg-blue-500/10"
+                        onClick={() => handleEditClick(user)}
+                      >
+                        Edit
+                      </Button>
+                      
+                      {/* Impersonate Button */}
+                      <Button
+                        size="sm" variant="outline"
+                        className="h-8 text-xs text-purple-500 border-purple-500/30 hover:bg-purple-500/10 hidden sm:flex"
+                        disabled={impersonatingUserId === user._id || !user.isActive}
+                        onClick={() => handleImpersonate(user._id)}
+                      >
+                        <LogIn size={14} className="mr-1.5" />
+                        {impersonatingUserId === user._id ? 'Logging in...' : 'Login as User'}
+                      </Button>
+                      
+                      {user.role !== 'admin' && (
                       <>
                         <Button
                           size="sm" variant="outline"
