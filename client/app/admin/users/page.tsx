@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminUsersPage() {
   const router = useRouter();
-  const { login } = useAuthStore();
+  const { setAuth } = useAuthStore();
   const [users, setUsers] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -135,7 +135,7 @@ export default function AdminUsersPage() {
       await supabase.auth.signOut();
       
       // Login to our AuthStore with the legacy JWT
-      await login(user, token);
+      setAuth(user, token);
       
       toast.success(`Logged in as ${user.name || user.email}`);
       router.push('/dashboard');
