@@ -3,6 +3,7 @@ import { authLimiter } from '../../middleware/rateLimiter';
 import { verifyToken } from '../../middleware/auth';
 import {
   registerPending,
+  checkEmail,
   activate,
   logout,
   getMe,
@@ -14,6 +15,7 @@ const router = Router();
 
 // Used before OTP verify
 router.post('/register-pending', authLimiter, registerValidation, registerPending);
+router.post('/check-email', authLimiter, checkEmail);
 
 // Used after OTP verify to finalize session and link user
 router.post('/activate', verifyToken, activate);

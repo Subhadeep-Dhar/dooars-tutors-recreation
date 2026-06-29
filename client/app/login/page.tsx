@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import api from '@/lib/api';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -32,6 +33,18 @@ export default function LoginPage() {
     setError(null);
     setIsLoading(true);
     try {
+      // 0. Check if user exists in our DB before pinging Supabase
+      const checkRes = await api.post('/auth/check-email', { email: data.email });
+      if (!checkRes.data.data.exists) {
+        setError({
+          message: "This email is not registered yet.",
+          action: "Create an Account",
+          link: "/register"
+        });
+        setIsLoading(false);
+        return;
+      }
+
       // Supabase Passwordless Login (OTP)
       const { error: supabaseError } = await supabase.auth.signInWithOtp({
         email: data.email,

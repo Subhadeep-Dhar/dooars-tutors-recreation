@@ -61,6 +61,19 @@ export async function registerPending(req: Request, res: Response, next: NextFun
   }
 }
 
+export async function checkEmail(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      throw new AppError('Email is required', 400);
+    }
+    const user = await User.findOne({ email: email.toLowerCase() });
+    res.json({ success: true, data: { exists: !!user } });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function activate(req: Request, res: Response, next: NextFunction) {
   try {
     // The user's supabase token is verified by middleware `verifyToken`
