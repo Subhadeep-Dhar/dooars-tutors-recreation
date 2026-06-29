@@ -160,6 +160,7 @@ export default function ProfileEditorPage() {
                     <option key={value} value={value} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{label}</option>
                   ))}
                 </select>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Note: Select <strong>Arts & Culture</strong> if you teach Dance, Music, Singing, Painting, or Fine Arts.</p>
               </div>
               <div className="space-y-1.5">
                 <Label style={{ color: 'var(--text-primary)' }}>Display name</Label>
