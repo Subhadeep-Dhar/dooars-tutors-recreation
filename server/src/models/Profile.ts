@@ -141,7 +141,7 @@ const MediaSchema = new Schema({
 
 const ProfileSchema = new Schema<IProfileDocument>(
     {
-        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true, unique: true },
         type: {
             type: String,
             enum: ['tutor', 'coaching_center', 'sports_trainer', 'arts_trainer', 'gym_yoga'],

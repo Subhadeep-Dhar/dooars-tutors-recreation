@@ -61,6 +61,11 @@ export async function verifyToken(req: Request, _res: Response, next: NextFuncti
     if (user) {
       userId = user._id.toString();
       role = user.role as UserRole;
+    } else {
+      // Reject phantom sessions for deleted/unlinked accounts unless they are activating or logging out
+      if (!req.path.includes('/activate') && !req.path.includes('/logout')) {
+        throw new Error('Account deleted or not linked');
+      }
     }
 
     req.user = {
