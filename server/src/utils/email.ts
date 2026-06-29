@@ -1,4 +1,19 @@
 import { Resend } from 'resend';
+import { User } from '../models';
+
+async function getAdminEmails(): Promise<string[]> {
+  try {
+    const admins = await User.find({ role: 'admin', email: { $ne: 'importer@dooars-tutors.com' } }).select('email');
+    const emails = admins.map(a => a.email);
+    if (emails.length === 0) {
+      return [process.env.ADMIN_EMAIL || 'subhadeepdhar563@gmail.com'];
+    }
+    return emails;
+  } catch (error) {
+    console.error('Failed to fetch admin emails', error);
+    return [process.env.ADMIN_EMAIL || 'subhadeepdhar563@gmail.com'];
+  }
+}
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_test_key');
 
@@ -27,12 +42,12 @@ export async function sendAdminNotification(userEmail: string, role: string) {
     return;
   }
 
-  // Define admin email from env or default
-  const adminEmail = process.env.ADMIN_EMAIL || 'subhadeepdhar563@gmail.com';
+  // Fetch all admin emails
+  const adminEmails = await getAdminEmails();
   
   await resend.emails.send({
     from: 'Dooars Tutors <onboarding@resend.dev>', // Update with verified domain
-    to: adminEmail,
+    to: adminEmails,
     subject: 'New User Registration',
     html: `
       <h2>New User Alert</h2>
@@ -51,11 +66,11 @@ export async function sendProfileCreationAdminNotification(userEmail: string, pr
     return;
   }
 
-  const adminEmail = process.env.ADMIN_EMAIL || 'subhadeepdhar563@gmail.com';
+  const adminEmails = await getAdminEmails();
   
   await resend.emails.send({
     from: 'Dooars Tutors <onboarding@resend.dev>',
-    to: adminEmail,
+    to: adminEmails,
     subject: 'New Tutor Profile Created',
     html: `
       <h2>New Profile Alert</h2>
@@ -77,11 +92,11 @@ export async function sendReportAdminNotification(reporterEmail: string, reporte
     return;
   }
 
-  const adminEmail = 'subhadeepdhar563@gmail.com';
+  const adminEmails = await getAdminEmails();
   
   await resend.emails.send({
     from: 'Dooars Tutors <onboarding@resend.dev>',
-    to: adminEmail,
+    to: adminEmails,
     subject: '🚨 Profile Reported',
     html: `
       <h2>A profile has been reported</h2>
