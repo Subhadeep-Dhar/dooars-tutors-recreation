@@ -88,10 +88,10 @@ const FLOATING_TAGS = [
   
   // Bottom Right Quadrant
   { text: 'Football', top: '75%', left: '80%', anim: 1, delay: '-1s', major: true },
-  { text: 'Cricket', top: '85%', left: '60%', anim: 1, delay: '-1s', major: true },
+  { text: 'Cricket', top: '85%', left: '55%', anim: 1, delay: '-1s', major: false },
   { text: 'WBCS', top: '70%', left: '45%', anim: 1, delay: '-7s', major: false },
-  { text: 'Music', top: '88%', left: '75%', anim: 3, delay: '-8s', major: true },
-  { text: 'Bengali', top: '80%', left: '92%', anim: 3, delay: '-4s', major: true },
+  { text: 'Music', top: '88%', left: '70%', anim: 3, delay: '-8s', major: false },
+  { text: 'Bengali', top: '82%', left: '92%', anim: 3, delay: '-4s', major: true },
   
   // Center-ish but safe
   { text: 'Badminton', top: '60%', left: '55%', anim: 1, delay: '-6s', major: false },
