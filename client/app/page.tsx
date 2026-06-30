@@ -487,8 +487,8 @@ export default function HomePage() {
             </div>
             <div className="grid md:grid-cols-3 gap-8">
               {highlightedTutors.map(({ profile, badge, color, bg, border, laurelTitle, laurelDesc }) => (
-                <div key={profile._id} className="flex flex-col">
-                  <div className="card-base p-6 relative overflow-hidden" style={{ border: `1px solid ${border}` }}>
+                <div key={profile._id} className="flex flex-col h-full">
+                  <div className="card-base p-6 relative overflow-hidden flex flex-col flex-1" style={{ border: `1px solid ${border}` }}>
                     <div className="absolute top-0 right-0 left-0 h-1" style={{ backgroundColor: color }} />
                     
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-4 rounded-full text-xs font-bold" style={{ backgroundColor: bg, color: color }}>
@@ -525,7 +525,7 @@ export default function HomePage() {
                       </span>
                     ))}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-auto">
                     {profile.contact?.whatsapp && (
                       <a href={`https://wa.me/91${profile.contact.whatsapp}`} target="_blank" rel="noreferrer" className="flex-1">
                         <button className="btn-secondary w-full text-xs py-2 gap-1 flex items-center justify-center">
