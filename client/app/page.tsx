@@ -9,6 +9,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import FoundersSection from '@/components/FoundersSection';
 import QRCode from 'react-qr-code';
+import { LaurelBadge } from '@/components/LaurelWreath';
 
 const categories = [
   { label: 'Private Tutors', value: 'tutor', icon: BookOpen },
@@ -150,9 +151,18 @@ export default function HomePage() {
     let topRat = topRatedList.find(p => p._id !== tutorOfYear?._id && p._id !== mostRev?._id) || topRatedList[2];
 
     const result = [];
-    if (tutorOfYear) result.push({ profile: tutorOfYear, badge: 'Tutor of the Year', color: '#d97706', bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.2)' });
-    if (mostRev) result.push({ profile: mostRev, badge: 'Most Reviewed', color: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.2)' });
-    if (topRat) result.push({ profile: topRat, badge: 'Top Rated', color: '#059669', bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.2)' });
+    if (tutorOfYear) result.push({ 
+      profile: tutorOfYear, badge: 'Tutor of the Year', color: '#d97706', bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.2)',
+      laurelTitle: 'TUTOR OF THE YEAR', laurelDesc: 'For outstanding teaching and dedication to student success.' 
+    });
+    if (mostRev) result.push({ 
+      profile: mostRev, badge: 'Most Reviewed', color: '#2563eb', bg: 'rgba(59, 130, 246, 0.1)', border: 'rgba(59, 130, 246, 0.2)',
+      laurelTitle: 'MOST REVIEWED TUTOR', laurelDesc: 'For receiving the most reviews and building trust in the community.' 
+    });
+    if (topRat) result.push({ 
+      profile: topRat, badge: 'Top Rated', color: '#059669', bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.2)',
+      laurelTitle: 'TOP RATED TUTOR', laurelDesc: 'For achieving the highest ratings from students.' 
+    });
 
     return result.filter(r => r.profile);
   }, [allProfiles]);
@@ -475,14 +485,16 @@ export default function HomePage() {
                 </button>
               </Link>
             </div>
-            <div className="grid md:grid-cols-3 gap-5">
-              {highlightedTutors.map(({ profile, badge, color, bg, border }) => (
-                <div key={profile._id} className="card-base p-6 relative overflow-hidden" style={{ border: `1px solid ${border}` }}>
-                  <div className="absolute top-0 right-0 left-0 h-1" style={{ backgroundColor: color }} />
-                  
-                  <div className="inline-block px-3 py-1 mb-4 rounded-full text-xs font-bold" style={{ backgroundColor: bg, color: color }}>
-                    {badge}
-                  </div>
+            <div className="grid md:grid-cols-3 gap-8">
+              {highlightedTutors.map(({ profile, badge, color, bg, border, laurelTitle, laurelDesc }) => (
+                <div key={profile._id} className="flex flex-col">
+                  <div className="card-base p-6 relative overflow-hidden" style={{ border: `1px solid ${border}` }}>
+                    <div className="absolute top-0 right-0 left-0 h-1" style={{ backgroundColor: color }} />
+                    
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 mb-4 rounded-full text-xs font-bold" style={{ backgroundColor: bg, color: color }}>
+                      {badge === 'Tutor of the Year' ? <Trophy size={14}/> : badge === 'Most Reviewed' ? <MessageCircle size={14}/> : <Star size={14}/>}
+                      {badge}
+                    </div>
 
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shrink-0"
@@ -526,6 +538,9 @@ export default function HomePage() {
                     </Link>
                   </div>
                 </div>
+                
+                <LaurelBadge title={laurelTitle} description={laurelDesc} color={color} />
+              </div>
               ))}
             </div>
           </div>
