@@ -213,7 +213,7 @@ export default function Loader() {
           damping: 20, 
           mass: 1 
         }}
-        className="w-80 h-80 sm:w-96 sm:h-96 md:w-[32rem] md:h-[32rem] lg:w-[64rem] lg:h-[64rem]"
+        className="w-96 h-96 sm:w-[32rem] sm:h-[32rem] md:w-[48rem] md:h-[48rem] lg:w-[64rem] lg:h-[64rem]"
         style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.2s ease' }}
       >
         <svg 
