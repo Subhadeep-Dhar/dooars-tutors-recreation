@@ -216,13 +216,20 @@ export default function Loader() {
         className="relative w-96 h-96 sm:w-[32rem] sm:h-[32rem] md:w-[48rem] md:h-[48rem] lg:w-[64rem] lg:h-[64rem]"
         style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.2s ease' }}
       >
-        <img 
-          src="/images/loading_better.svg"
-          alt="Logo"
-          className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+        <div 
+          className="absolute inset-0 w-full h-full pointer-events-none"
           style={{
             opacity: phase === 'drawing' ? 0 : 1,
-            transition: 'opacity 0.5s ease'
+            transition: 'opacity 0.5s ease',
+            backgroundColor: 'var(--text-primary)',
+            WebkitMaskImage: 'url(/images/loading_better.svg)',
+            WebkitMaskSize: 'contain',
+            WebkitMaskRepeat: 'no-repeat',
+            WebkitMaskPosition: 'center',
+            maskImage: 'url(/images/loading_better.svg)',
+            maskSize: 'contain',
+            maskRepeat: 'no-repeat',
+            maskPosition: 'center',
           }}
         />
         <svg 
