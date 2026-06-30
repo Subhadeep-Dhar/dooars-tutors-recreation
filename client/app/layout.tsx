@@ -37,6 +37,7 @@ import Navbar from '@/components/layout/Navbar';
 import { Toaster } from '@/components/ui/sonner';
 import AuthProvider from '@/components/AuthProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import Loader from '@/components/Loader';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -64,8 +65,20 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('hasSeenLoader')) {
+                document.documentElement.style.setProperty('--loader-display', 'none');
+              }
+            `,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} antialiased`}>
         <ThemeProvider>
+          <Loader />
           <AuthProvider>
             <Navbar />
             {children}
