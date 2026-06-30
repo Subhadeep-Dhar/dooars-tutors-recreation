@@ -213,11 +213,25 @@ export default function Loader() {
           damping: 20, 
           mass: 1 
         }}
-        className="w-96 h-96 sm:w-[32rem] sm:h-[32rem] md:w-[48rem] md:h-[48rem] lg:w-[64rem] lg:h-[64rem]"
+        className="relative w-96 h-96 sm:w-[32rem] sm:h-[32rem] md:w-[48rem] md:h-[48rem] lg:w-[64rem] lg:h-[64rem]"
         style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.2s ease' }}
       >
+        <img 
+          src="/images/loading_better.svg"
+          alt="Logo"
+          className="absolute inset-0 w-full h-full object-contain pointer-events-none"
+          style={{
+            opacity: phase === 'drawing' ? 0 : 1,
+            transition: 'opacity 0.5s ease'
+          }}
+        />
         <svg 
           ref={svgRef}
+          className="absolute inset-0 w-full h-full"
+          style={{
+            opacity: phase === 'drawing' ? 1 : 0,
+            transition: 'opacity 0.5s ease'
+          }}
           viewBox="0 0 1563 1563" 
           width="100%" 
           height="100%" 
@@ -229,11 +243,10 @@ export default function Loader() {
               d={p.d} 
               transform={p.transform}
               style={{
-                // Start transparent, filled in when 'settling' or 'done'
-                fill: phase === 'drawing' ? 'transparent' : p.fill,
-                stroke: phase === 'drawing' ? 'var(--text-primary)' : 'transparent',
-                strokeWidth: phase === 'drawing' ? '2' : '0',
-                transition: 'fill 0.5s ease, stroke 0.5s ease'
+                fill: 'transparent',
+                stroke: 'var(--text-primary)',
+                strokeWidth: '2',
+                transition: 'stroke-dashoffset 0.1s ease'
               }}
             />
           ))}
