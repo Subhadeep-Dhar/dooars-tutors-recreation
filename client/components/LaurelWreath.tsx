@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const LaurelBranch = ({ color = "currentColor", size = 64, className = "" }) => (
+export const LaurelBranch = ({ color = "currentColor", size = 64, className = "" }: { color?: string; size?: number; className?: string }) => (
   <svg 
     width={size} 
     height={size * 1.5} 
@@ -24,7 +24,7 @@ export const LaurelBranch = ({ color = "currentColor", size = 64, className = ""
   </svg>
 );
 
-export const LaurelBadge = ({ title, description, color }) => {
+export const LaurelBadge = ({ title, description, color }: { title: string; description: string; color: string }) => {
   return (
     <div className="flex flex-col items-center justify-center text-center mt-6">
       <div className="flex items-center gap-2 mb-2">
