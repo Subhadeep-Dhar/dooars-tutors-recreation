@@ -53,6 +53,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       images: profile.avatar ? [profile.avatar] : [],
     },
+    alternates: {
+      canonical: `https://dooarstutors.in/profiles/${resolvedParams.slug}`,
+    },
   };
 }
 
