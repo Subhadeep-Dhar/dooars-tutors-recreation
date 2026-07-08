@@ -119,17 +119,22 @@ export async function getAllUsers(options: { page: number, limit: number, search
   }
 }
 
-export async function getAllReviews(options: { page: number, limit: number }) {
+export async function getAllReviews(options: { page: number, limit: number, sort?: string }) {
   try {
     const page = Math.max(1, options.page || 1);
     const limit = Math.max(1, Math.min(100, options.limit || 10));
     const skip = (page - 1) * limit;
 
+    let sortObj: any = { createdAt: -1 };
+    if (options.sort === 'oldest') sortObj = { createdAt: 1 };
+    else if (options.sort === 'best') sortObj = { rating: -1, createdAt: -1 };
+    else if (options.sort === 'worst') sortObj = { rating: 1, createdAt: -1 };
+
     const [reviews, total] = await Promise.all([
       Review.find({})
         .populate('reviewerId', 'name email')
         .populate('profileId', 'displayName slug')
-        .sort({ createdAt: -1 })
+        .sort(sortObj)
         .skip(skip)
         .limit(limit)
         .lean(),

@@ -43,10 +43,11 @@ export async function getAllUsers(req: Request, res: Response, next: NextFunctio
 
 export async function getAllReviews(req: Request, res: Response, next: NextFunction) {
   try {
-    const { page = '1', limit = '10' } = req.query;
+    const { page = '1', limit = '10', sort = 'latest' } = req.query;
     const result = await AdminService.getAllReviews({
       page: parseInt(page as string),
-      limit: parseInt(limit as string)
+      limit: parseInt(limit as string),
+      sort: sort as string
     });
     res.json({ success: true, data: result });
   } catch (err) {
