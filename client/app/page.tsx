@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail, AlertTriangle } from 'lucide-react';
-import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import { Map, MapMarker, MarkerContent, MapControls } from '@/components/ui/mapcn-layer-markers';
 import api from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -213,9 +213,8 @@ export default function HomePage() {
   }
 
   const validProfiles = allProfiles.filter(p => p.location?.coordinates?.length === 2);
-  const center = validProfiles.length > 0
-    ? { lat: validProfiles.reduce((s, p) => s + p.location.coordinates[1], 0) / validProfiles.length, lng: validProfiles.reduce((s, p) => s + p.location.coordinates[0], 0) / validProfiles.length }
-    : { lat: 26.55, lng: 89.5 };
+  // Using a fixed center to properly frame Alipurduar (top) and Cooch Behar (bottom)
+  const center = { lat: 26.43, lng: 89.49 };
 
   return (
     <main style={{ background: 'var(--bg-base)' }}>
@@ -617,18 +616,24 @@ export default function HomePage() {
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Tutors and trainers spread across the region</p>
           </div>
           <div style={{ height: '420px', border: '1px solid var(--border)', borderRadius: 'var(--radius-cards)', overflow: 'hidden' }}>
-            <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
-              <Map defaultCenter={center} defaultZoom={10} mapId="dooars-community-map"
-                style={{ width: '100%', height: '100%' }} gestureHandling="greedy" disableDefaultUI={true}>
-                {validProfiles.map(p => (
-                  <AdvancedMarker key={p._id}
-                    position={{ lat: p.location.coordinates[1], lng: p.location.coordinates[0] }}
-                    onClick={() => router.push(`/profiles/${p.slug}`)}>
-                    <Pin background={typeColors[p.type] ?? '#1a73e8'} borderColor="#fff" glyphColor="#fff" scale={0.85} />
-                  </AdvancedMarker>
-                ))}
-              </Map>
-            </APIProvider>
+            <Map viewport={{ center: [center.lng, center.lat], zoom: 10 }}>
+              {validProfiles.map(p => (
+                <MapMarker
+                  key={p._id}
+                  longitude={p.location.coordinates[0]}
+                  latitude={p.location.coordinates[1]}
+                  onClick={() => router.push(`/profiles/${p.slug}`)}
+                >
+                  <MarkerContent>
+                    <div 
+                      className="relative w-4 h-4 rounded-full border-2 border-white shadow-md transition-transform hover:scale-125"
+                      style={{ backgroundColor: typeColors[p.type] ?? '#1a73e8' }} 
+                    />
+                  </MarkerContent>
+                </MapMarker>
+              ))}
+              <MapControls position="bottom-right" showZoom />
+            </Map>
           </div>
           <div className="flex flex-wrap gap-4 justify-center mt-4">
             {Object.entries(typeColors).map(([type, color]) => (
