@@ -100,6 +100,10 @@ export default function Navbar() {
   const handleHashClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
     if (pathname === '/') {
       e.preventDefault();
+      if (hash === 'top') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       const el = document.getElementById(hash);
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
@@ -127,7 +131,7 @@ export default function Navbar() {
         <div 
           className="hidden md:flex flex-1 items-center justify-center gap-2 px-4 whitespace-nowrap h-full group"
         >
-          <DockLink href="/" title="Home" />
+          <DockLink href="/" title="Home" onClick={(e) => handleHashClick(e, 'top')} />
           <DockLink href="/search" title="Browse" />
           <DockLink href="/#categories" title="Categories" onClick={(e) => handleHashClick(e, 'categories')} />
           <DockLink href="/#highlights" title="Highlights" onClick={(e) => handleHashClick(e, 'highlights')} />
@@ -225,6 +229,7 @@ export default function Navbar() {
                   <nav className="space-y-1 flex-1">
                     <Link
                       href="/"
+                      onClick={(e) => handleHashClick(e, 'top')}
                       className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                       style={{ color: 'var(--text-primary)' }}
                     >

@@ -100,13 +100,46 @@ const FLOATING_TAGS = [
   { text: 'Martial Arts', top: '92%', left: '42%', anim: 3, delay: '-2s', major: false },
 ];
 
+const FUN_FACTS = [
+  <>Fun fact: Hover over <strong>Welcome</strong> to see other languages!</>,
+  <>Tip: You can change the language from the top right menu!</>,
+  <>Did you know? You can search for specific subjects like "Physics" or "Guitar"!</>,
+  <>Tip: Read reviews from past students to make a safe choice.</>,
+  <>Fun fact: We charge <strong>zero commission</strong>. All contact is completely direct!</>,
+  <>Tip: Found a great tutor? Don't forget to leave them a shining review.</>,
+  <>Did you know? This is not just an ordinary platform, it is introducing world class technologies into Dooars!</>,
+  <>Tip: You can contact tutors instantly via WhatsApp using the buttons on their profile.</>,
+  <>Fun fact: The floating tags in the background represent subjects taught by our community!</>,
+  <>Tip: Are you an educator? Click <strong>Join as Tutor</strong> to create your free profile.</>,
+  <>Fun fact: Dooars Tutors is built by locals, for locals!</>,
+  <>Tip: You can switch between Light and Dark mode from the top right menu.</>,
+  <>Did you know? Our platform is completely free for students to use.</>,
+  <>Tip: You can use the map view to find tutors nearest to your home!</>,
+  <>Fun fact: We verify all tutor profiles manually to ensure a safe learning environment.</>,
+  <>Tip: You can filter search results by location to find educators in your specific town.</>,
+  <>Fun fact: Dooars refers to the floodplains and foothills of the eastern Himalayas—a region rich in culture and education!</>,
+  <>Did you know? We support multiple categories including Academics, Sports, Arts, and Fitness!</>,
+  <>Tip: Check a tutor's profile to see if they offer home tuition or strictly center-based coaching.</>,
+  <>Fun fact: We don't hide phone numbers behind a paywall. Transparency is our core value.</>,
+  <>Tip: Found a bug or have a suggestion? Use the feedback links at the bottom to contact the founders directly.</>,
+  <>Did you know? The platform is optimized to work beautifully on both mobile phones and desktop computers.</>,
+  <>Tip: Look for the <strong>Tutor of the Year</strong> and <strong>Top Rated</strong> badges to find exceptional educators.</>,
+  <>Fun fact: The name "Dooars" comes from the word "doors", as the region is the historical gateway to Bhutan.</>,
+  <>Tip: Tutors can list their exact teaching slots, making it easy to see if their schedule matches yours.</>,
+  <>Did you know? You can easily share a tutor's profile with friends using the URL in your browser.</>,
+  <>Tip: Look for detailed bios on tutor profiles to understand their teaching philosophy.</>,
+  <>Fun fact: Our team is continuously adding new features based on community feedback.</>,
+  <>Tip: Looking for dance or music classes? Browse the <strong>Arts & Culture</strong> category!</>,
+  <>Did you know? By using this platform, you are supporting a 100% locally built tech initiative.</>,
+];
+
 export default function HomePage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
   const [isGreetingHovered, setIsGreetingHovered] = useState(false);
   const [greetingIdx, setGreetingIdx] = useState(0);
-  const [showHoverHint, setShowHoverHint] = useState(false);
+  const [activeFact, setActiveFact] = useState<React.ReactNode | null>(null);
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [liveVisits, setLiveVisits] = useState(0);
@@ -150,19 +183,35 @@ export default function HomePage() {
   }, [isGreetingHovered]);
 
   useEffect(() => {
-    // The logo SVG animation takes up to ~6.3 seconds total to draw and fade out.
-    // We want the popup to appear 3 seconds AFTER it finishes (6300 + 3000 = 9300).
-    // If they have already seen the loader, there's no animation, so just wait 3 seconds.
     const hasSeenLoader = typeof window !== 'undefined' && sessionStorage.getItem('hasSeenLoader');
-    const delay = hasSeenLoader ? 3000 : 9300;
+    let timeoutId: NodeJS.Timeout;
 
-    const timer = setTimeout(() => setShowHoverHint(true), delay);
-    // Hide it automatically 7 seconds after it appears
-    const hideTimer = setTimeout(() => setShowHoverHint(false), delay + 7000);
-    
+    const showRandomFact = () => {
+      const randomFact = FUN_FACTS[Math.floor(Math.random() * FUN_FACTS.length)];
+      setActiveFact(randomFact);
+
+      timeoutId = setTimeout(() => {
+        setActiveFact(null);
+        scheduleNextFact();
+      }, 7000);
+    };
+
+    const scheduleNextFact = (initialDelay = false) => {
+      // Show first fact faster (either 3s or 9.3s depending on loader)
+      // Subsequent facts appear randomly between 15s to 35s
+      const delay = initialDelay 
+        ? (hasSeenLoader ? 3000 : 9300) 
+        : Math.floor(Math.random() * 20000) + 15000;
+      
+      timeoutId = setTimeout(() => {
+        showRandomFact();
+      }, delay);
+    };
+
+    scheduleNextFact(true);
+
     return () => {
-      clearTimeout(timer);
-      clearTimeout(hideTimer);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
@@ -994,11 +1043,11 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ── Hover Hint Popup ── */}
-      {showHoverHint && (
+      {/* ── Hover Hint / Fun Facts Popup ── */}
+      {activeFact && (
         <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 sm:max-w-sm bg-zinc-900 border border-zinc-800 text-white px-4 py-3 rounded-xl shadow-2xl flex items-start sm:items-center justify-between gap-3 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <span className="text-sm leading-snug">Fun fact: Hover over <strong>Welcome</strong> to see other languages!</span>
-          <button onClick={() => setShowHoverHint(false)} className="text-zinc-400 hover:text-white transition-colors p-1 shrink-0 mt-0.5 sm:mt-0">
+          <span className="text-sm leading-snug">{activeFact}</span>
+          <button onClick={() => setActiveFact(null)} className="text-zinc-400 hover:text-white transition-colors p-1 shrink-0 mt-0.5 sm:mt-0">
             <X size={16} />
           </button>
         </div>
