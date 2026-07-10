@@ -10,6 +10,7 @@ import Image from 'next/image';
 import FoundersSection from '@/components/FoundersSection';
 import QRCode from 'react-qr-code';
 import { LaurelBadge } from '@/components/LaurelWreath';
+import { WordRotator } from '@/components/ui/word-rotator';
 
 const categories = [
   { label: 'Private Tutors', value: 'tutor', icon: BookOpen },
@@ -103,7 +104,9 @@ export default function HomePage() {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
+  const [isGreetingHovered, setIsGreetingHovered] = useState(false);
   const [greetingIdx, setGreetingIdx] = useState(0);
+  const [showHoverHint, setShowHoverHint] = useState(false);
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [liveVisits, setLiveVisits] = useState(0);
@@ -131,11 +134,32 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setGreetingIdx(p => (p + 1) % greetings.length);
-    }, 1500);
-    return () => clearInterval(interval);
+    let interval: any;
+    if (isGreetingHovered) {
+      // Fast shuffle on hover
+      interval = setInterval(() => {
+        setGreetingIdx(p => (p + 1) % greetings.length);
+      }, 500); 
+    } else {
+      // Reset to "Welcome" when not hovered
+      setGreetingIdx(0);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isGreetingHovered]);
+
+  useEffect(() => {
+    // Show hint after 3 seconds
+    const timer = setTimeout(() => setShowHoverHint(true), 3000);
+    // Hide it automatically after 10 seconds
+    const hideTimer = setTimeout(() => setShowHoverHint(false), 10000);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(hideTimer);
+    };
   }, []);
+
   const [allProfiles, setAllProfiles] = useState<any[]>([]);
 
   const highlightedTutors = useMemo(() => {
@@ -288,27 +312,38 @@ export default function HomePage() {
           })}
         </div>
 
-        <div className="max-w-3xl mx-auto px-4 text-center relative" style={{ zIndex: 10 }}>
-          <div className="mb-4 flex items-center justify-center">
+        <div className="max-w-5xl mx-auto px-4 text-center relative" style={{ zIndex: 10 }}>
+          <div 
+            className="mb-4 flex items-center justify-center"
+            onMouseEnter={() => setIsGreetingHovered(true)}
+            onMouseLeave={() => setIsGreetingHovered(false)}
+            style={{ cursor: 'default' }}
+          >
             <span style={{
               color: 'var(--text-primary)', fontWeight: 'normal',
               fontSize: 'clamp(1.1rem, 4vw, 1.4rem)',
               letterSpacing: '0.02em',
-              transition: 'opacity 0.3s ease'
+              transition: 'opacity 0.1s ease',
+              minWidth: '150px', // Prevents layout shifting during fast shuffle
+              display: 'inline-block'
             }}>
               {greetings[greetingIdx]}
             </span>
           </div>
 
           <h1 style={{
-            fontSize: 'clamp(2.2rem, 6vw, 4.5rem)',
+            fontSize: 'clamp(1.4rem, 5vw, 4.5rem)',
             fontWeight: 700,
             lineHeight: 1.05,
             letterSpacing: '-0.02em',
             color: 'var(--text-primary)',
             marginBottom: '1.25rem',
           }}>
-            Find the Best Tutors &amp; Trainers in Dooars
+            <span style={{ whiteSpace: 'nowrap' }}>
+              Find the Best <WordRotator words={['Tutors', 'Trainers', 'Coaches', 'Mentors', 'Centers']} className="text-[var(--color-brand)]" />
+            </span>
+            <br />
+            in Dooars
           </h1>
           <p style={{
             fontSize: '18px',
@@ -941,6 +976,16 @@ export default function HomePage() {
               </button>
             </a>
           </div>
+        </div>
+      )}
+
+      {/* ── Hover Hint Popup ── */}
+      {showHoverHint && (
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 sm:max-w-sm bg-zinc-900 border border-zinc-800 text-white px-4 py-3 rounded-xl shadow-2xl flex items-start sm:items-center justify-between gap-3 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
+          <span className="text-sm leading-snug">Fun fact: Hover over <strong>Welcome</strong> to see other languages!</span>
+          <button onClick={() => setShowHoverHint(false)} className="text-zinc-400 hover:text-white transition-colors p-1 shrink-0 mt-0.5 sm:mt-0">
+            <X size={16} />
+          </button>
         </div>
       )}
     </main>
