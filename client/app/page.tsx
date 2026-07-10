@@ -150,10 +150,16 @@ export default function HomePage() {
   }, [isGreetingHovered]);
 
   useEffect(() => {
-    // Show hint after 3 seconds
-    const timer = setTimeout(() => setShowHoverHint(true), 3000);
-    // Hide it automatically after 10 seconds
-    const hideTimer = setTimeout(() => setShowHoverHint(false), 10000);
+    // The logo SVG animation takes up to ~6.3 seconds total to draw and fade out.
+    // We want the popup to appear 3 seconds AFTER it finishes (6300 + 3000 = 9300).
+    // If they have already seen the loader, there's no animation, so just wait 3 seconds.
+    const hasSeenLoader = typeof window !== 'undefined' && sessionStorage.getItem('hasSeenLoader');
+    const delay = hasSeenLoader ? 3000 : 9300;
+
+    const timer = setTimeout(() => setShowHoverHint(true), delay);
+    // Hide it automatically 7 seconds after it appears
+    const hideTimer = setTimeout(() => setShowHoverHint(false), delay + 7000);
+    
     return () => {
       clearTimeout(timer);
       clearTimeout(hideTimer);
