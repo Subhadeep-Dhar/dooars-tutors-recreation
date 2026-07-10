@@ -293,6 +293,18 @@ function FilterPanel(p: FPProps) {
             </button>
           ))}
         </div>
+        <div style={{
+          background: 'rgba(236, 72, 153, 0.05)',
+          border: '1px solid rgba(236, 72, 153, 0.2)',
+          borderRadius: 'var(--radius-md)',
+          padding: '0.55rem',
+          marginTop: '0.6rem',
+          fontSize: '0.73rem',
+          color: 'var(--text-secondary)',
+          lineHeight: 1.4
+        }}>
+          <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Tip:</span> Dance, Music & Fine Arts tutors are listed under <span style={{ fontWeight: 600, color: '#ec4899' }}>Arts & Culture</span>.
+        </div>
       </div>
 
       {hr}
