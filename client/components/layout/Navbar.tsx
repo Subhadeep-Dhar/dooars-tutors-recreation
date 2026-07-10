@@ -8,9 +8,9 @@ import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { GraduationCap, Sun, Moon, Menu, LayoutDashboard, User, LogOut, Search, LogIn, UserPlus } from 'lucide-react';
+import { GraduationCap, Sun, Moon, Menu, LayoutDashboard, User, LogOut, Search, LogIn, UserPlus, Globe, Grid, Sparkles, Info, Home } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
@@ -22,6 +22,7 @@ export default function Navbar() {
   const { user, logout } = useAuthStore();
   const [mounted, setMounted] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -35,6 +36,14 @@ export default function Navbar() {
     router.push('/');
   }
 
+  const handleHashClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+    if (pathname === '/') {
+      e.preventDefault();
+      const el = document.getElementById(hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const initials = user?.name
   ? user.name
       .split(' ')
@@ -46,18 +55,26 @@ export default function Navbar() {
 
   return (
     <div className="sticky top-4 z-50 px-4 mb-4">
-      <nav className="max-w-[1200px] mx-auto h-16 flex items-center justify-between px-6" style={{ background: 'var(--bg-glass)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--border)', borderRadius: '99px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
-        <Link href="/" className="flex items-center gap-2.5 font-bold text-xl md:text-2xl" style={{ color: 'var(--text-primary)' }}>
+      <nav className="max-w-[1200px] mx-auto h-16 flex items-center justify-between px-4 sm:px-6 gap-2 sm:gap-4" style={{ background: 'var(--bg-glass)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--border)', borderRadius: '99px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2.5 font-bold text-xl md:text-2xl shrink-0" style={{ color: 'var(--text-primary)' }}>
           <Image src="/images/logo.jpg" alt="Logo" width={44} height={44} className="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover shrink-0" priority />
-          <span>Dooars Tutors</span>
+          <span className="whitespace-nowrap">Dooars Tutors</span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        {/* Center Navigation Links (Desktop) */}
+        <div className="hidden md:flex flex-1 items-center justify-center gap-6 px-4 whitespace-nowrap">
+          <Link href="/" className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>Home</Link>
+          <Link href="/search" className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>Browse</Link>
+          <Link href="/#categories" onClick={(e) => handleHashClick(e, 'categories')} className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>Categories</Link>
+          <Link href="/#highlights" onClick={(e) => handleHashClick(e, 'highlights')} className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>Highlights</Link>
+          <Link href="/#about" onClick={(e) => handleHashClick(e, 'about')} className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>About Us</Link>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-2 shrink-0">
           {/* Desktop Nav */}
-          <div className="hidden sm:flex items-center gap-2">
-            <Link href="/search">
-              <button className="btn-secondary text-sm px-4 py-2">Browse</button>
-            </Link>
+          <div className="hidden md:flex items-center gap-2">
 
             {mounted && (
               <button
@@ -72,6 +89,15 @@ export default function Navbar() {
                 }
               </button>
             )}
+
+            <button
+              onClick={() => setLanguageDialogOpen(true)}
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 hover:opacity-80"
+              style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
+              aria-label="Change language"
+            >
+              <Globe size={15} style={{ color: 'var(--text-primary)' }} />
+            </button>
 
             {user ? (
               <DropdownMenu>
@@ -111,7 +137,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Hamburger */}
-          <div className="sm:hidden flex items-center gap-2">
+          <div className="md:hidden flex items-center gap-2">
             <Sheet>
               <SheetTrigger asChild>
                 <button
@@ -124,15 +150,24 @@ export default function Navbar() {
               <SheetContent side="right" className="w-[280px] p-0 sheet-content" style={{ background: 'var(--bg-card)', borderLeft: '1px solid var(--border)' }}>
                 <SheetHeader className="p-6 border-b" style={{ borderColor: 'var(--border)' }}>
                   <SheetTitle className="flex items-center gap-2 text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: 'var(--color-brand)' }}>
-                      <GraduationCap size={22} className="text-white" />
-                    </div>
+                    <Image src="/images/logo.jpg" alt="Logo" width={40} height={40} className="w-10 h-10 rounded-full object-cover shrink-0" priority />
                     Dooars Tutors
                   </SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Mobile navigation menu
+                  </SheetDescription>
                 </SheetHeader>
                 
                 <div className="flex flex-col h-[calc(100vh-80px)] p-4">
                   <nav className="space-y-1 flex-1">
+                    <Link
+                      href="/"
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      <Home size={18} className="opacity-70" />
+                      Home
+                    </Link>
                     <Link
                       href="/search"
                       className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
@@ -140,6 +175,33 @@ export default function Navbar() {
                     >
                       <Search size={18} className="opacity-70" />
                       Browse Tutors
+                    </Link>
+                    <Link
+                      href="/#categories"
+                      onClick={(e) => handleHashClick(e, 'categories')}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      <Grid size={18} className="opacity-70" />
+                      Categories
+                    </Link>
+                    <Link
+                      href="/#highlights"
+                      onClick={(e) => handleHashClick(e, 'highlights')}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      <Sparkles size={18} className="opacity-70" />
+                      Highlights
+                    </Link>
+                    <Link
+                      href="/#about"
+                      onClick={(e) => handleHashClick(e, 'about')}
+                      className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      <Info size={18} className="opacity-70" />
+                      About Us
                     </Link>
                     
                     {user && (
@@ -170,6 +232,15 @@ export default function Navbar() {
                   </nav>
 
                   <div className="mt-auto space-y-3 pb-4">
+                    <button
+                      onClick={() => setLanguageDialogOpen(true)}
+                      className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      <Globe size={18} className="opacity-70" />
+                      Language (English)
+                    </button>
+
                     <button
                       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                       className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
@@ -254,6 +325,42 @@ export default function Navbar() {
               Logout
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Language Selection Dialog */}
+      <Dialog open={languageDialogOpen} onOpenChange={setLanguageDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: 'var(--color-brand-light)' }}>
+              <Globe className="text-primary" style={{ color: 'var(--color-brand)' }} size={24} />
+            </div>
+            <DialogTitle className="text-center text-xl">Select Language</DialogTitle>
+            <DialogDescription className="text-center pt-2">
+              Choose your preferred language for navigating the platform.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid grid-cols-2 gap-3 py-4">
+            {[
+              { id: 'en', name: 'English', native: 'English' },
+              { id: 'bn', name: 'Bengali', native: 'বাংলা' },
+              { id: 'hi', name: 'Hindi', native: 'हिंदी' },
+              { id: 'ne', name: 'Nepali', native: 'नेपाली' }
+            ].map((lang) => (
+              <button
+                key={lang.id}
+                onClick={() => setLanguageDialogOpen(false)}
+                className={`p-4 rounded-xl border text-center transition-all duration-200 ${lang.id === 'en' ? 'border-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5 border-transparent hover:border-border'}`}
+                style={{ 
+                  borderColor: lang.id === 'en' ? 'var(--color-brand)' : 'var(--border)',
+                  backgroundColor: lang.id === 'en' ? 'var(--color-brand-light)' : 'var(--bg-card)'
+                }}
+              >
+                <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>{lang.native}</div>
+                <div className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>{lang.name}</div>
+              </button>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

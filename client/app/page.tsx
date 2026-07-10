@@ -230,6 +230,14 @@ export default function HomePage() {
         setTotalTutors(p.length);
         const districts = new Set(p.map((item: any) => item.address?.district).filter(Boolean));
         setUniqueDistricts(districts.size);
+        
+        // Re-trigger scroll if there's a hash since dynamic content might have shifted the layout
+        setTimeout(() => {
+          if (window.location.hash) {
+            const el = document.getElementById(window.location.hash.slice(1));
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
       }
     }).catch(() => {});
   }, []);
@@ -411,7 +419,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Categories ── */}
-      <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
+      <section id="categories" style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
         <div className="max-w-[1200px] mx-auto">
           <p className="eyebrow text-center mb-2">CATEGORIES</p>
           <h2 style={{
@@ -511,6 +519,7 @@ export default function HomePage() {
 
       {/* ── Featured ── */}
       {/* ── Community Highlights ── */}
+      <div id="highlights" className="scroll-mt-24" />
       {highlightedTutors.length > 0 && (
         <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
           <div className="max-w-[1200px] mx-auto">
@@ -688,7 +697,7 @@ export default function HomePage() {
       </section>
 
       {/* ── About ── */}
-      <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
+      <section id="about" style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
         <div className="max-w-[1200px] mx-auto grid md:grid-cols-2 gap-16 items-center">
           <div>
             <p className="eyebrow mb-2">WHY US</p>
