@@ -470,11 +470,15 @@ function TutorCardGrid({ profile }: { profile: any }) {
         {/* Subjects Box */}
         {slots.length > 0 && (
           <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.8rem', padding: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1rem' }}>
-            {slots.slice(0, 2).map((slot: any, i: number) => (
-              <p key={i} style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {slot.subject || slot.activity} : <span style={{ fontWeight: 400 }}>{slot.classes ? slot.classes.join(', ') : (slot.ageGroups?.join(', ') || slot.level || '')}</span>
-              </p>
-            ))}
+            {slots.slice(0, 2).map((slot: any, i: number) => {
+              const extraStr = slot.classes?.length > 0 ? slot.classes.join(', ') : (slot.ageGroups?.length > 0 ? slot.ageGroups.join(', ') : (slot.level || ''));
+              const hideExtra = !extraStr || extraStr.trim().toLowerCase() === 'all';
+              return (
+                <p key={i} style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-primary)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {slot.subject || slot.activity}{hideExtra ? '' : <span style={{ fontWeight: 400 }}> : {extraStr}</span>}
+                </p>
+              );
+            })}
             {slots.length > 2 && (
               <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>+{slots.length - 2} more subjects</p>
             )}
@@ -586,7 +590,7 @@ function TutorCard({ profile, variant = 'list' }: { profile: any, variant?: 'lis
                 }}>
                   <BookOpen size={9} />
                   {slot.subject || slot.activity}
-                  {slot.classes?.length > 0 && <span style={{ opacity: 0.6 }}> · Cl. {slot.classes.slice(0, 2).join(', ')}</span>}
+                  {slot.classes?.length > 0 && slot.classes.join(', ').toLowerCase() !== 'all' && <span style={{ opacity: 0.6 }}> · {slot.classes.slice(0, 2).join(', ')}</span>}
                 </span>
               ))}
               {slots.length > 4 && (

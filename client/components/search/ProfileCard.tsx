@@ -77,7 +77,7 @@ export default function ProfileCard({ profile }: { profile: any }) {
                     <span className="text-xs text-slate-700 font-medium">
                       {slot.subject || slot.activity}
                     </span>
-                    {slot.classes?.length > 0 && (
+                    {slot.classes?.length > 0 && slot.classes.join(', ').toLowerCase() !== 'all' && (
                       <span className="text-xs text-slate-400">
                         · {slot.classes.slice(0, 2).join(', ')}
                       </span>
