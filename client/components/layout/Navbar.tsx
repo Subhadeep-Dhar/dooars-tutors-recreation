@@ -76,8 +76,15 @@ export default function Navbar() {
       document.cookie = `googtrans=/en/${langCode}; path=/; max-age=31536000; domain=${window.location.hostname}`;
     }
     
-    // Reload to apply translation immediately
-    window.location.reload();
+    // Find the Google Translate dropdown and trigger a change dynamically without reloading
+    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+    if (select) {
+      select.value = langCode;
+      select.dispatchEvent(new Event('change'));
+    } else {
+      // Fallback if the script hasn't injected the dropdown yet
+      window.location.reload();
+    }
   };
 
   if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin')) {
@@ -406,7 +413,7 @@ export default function Navbar() {
               <button
                 key={lang.id}
                 onClick={() => handleLanguageSelect(lang.id)}
-                className={`p-4 rounded-xl border text-center transition-all duration-200 ${currentLang === lang.id ? 'border-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5 border-transparent hover:border-border'}`}
+                className={`p-4 rounded-xl border text-center transition-all duration-300 hover:scale-105 active:scale-95 ${currentLang === lang.id ? 'border-primary bg-primary/5 shadow-sm' : 'hover:bg-black/5 dark:hover:bg-white/5 border-transparent hover:border-border hover:shadow-md'}`}
                 style={{ 
                   borderColor: currentLang === lang.id ? 'var(--color-brand)' : 'var(--border)',
                   backgroundColor: currentLang === lang.id ? 'var(--color-brand-light)' : 'var(--bg-card)'
