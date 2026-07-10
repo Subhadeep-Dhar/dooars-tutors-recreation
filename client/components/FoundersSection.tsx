@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { Globe, Mail } from 'lucide-react';
 import founder1Img from '@/public/images/founders/founder1.1.jpeg';
 import founder2Img from '@/public/images/founders/founder2.jpeg';
+import TypingAnimation from '@/components/ui/typing-animation';
 
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -50,13 +51,14 @@ export default function FoundersSection() {
             <h3 className="text-3xl md:text-4xl font-bold mb-2 uppercase">Subhadeep Dhar</h3>
             <p className="text-zinc-400 text-lg mb-6">Co-Founder & Developer</p>
             
-            <div className="text-zinc-300 space-y-4 mb-8 leading-relaxed max-w-lg mx-auto md:mx-0">
-              <p>
-                As a passionate software developer and tech enthusiast, Subhadeep envisioned Dooars Tutors to bridge the gap between quality education and local accessibility. 
-              </p>
-              <p>
-                With a deep understanding of modern web technologies, he architected the platform to provide a seamless, intuitive experience for both tutors and students across the Dooars region.
-              </p>
+            <div className="text-zinc-300 mb-8 leading-relaxed max-w-lg mx-auto md:mx-0 text-center md:text-left">
+              <TypingAnimation
+                text={[
+                  "As a passionate software developer and tech enthusiast, Subhadeep envisioned Dooars Tutors to bridge the gap between quality education and local accessibility.",
+                  "With a deep understanding of modern web technologies, he architected the platform to provide a seamless, intuitive experience for both tutors and students across the Dooars region."
+                ]}
+                delay={0.2}
+              />
             </div>
 
             <div className="flex items-center justify-center md:justify-start space-x-5">
@@ -83,13 +85,14 @@ export default function FoundersSection() {
             <h3 className="text-3xl md:text-4xl font-bold mb-2 uppercase">Gourav Deb</h3>
             <p className="text-zinc-400 text-lg mb-6">Co-Founder & Operations</p>
             
-            <div className="text-zinc-300 space-y-4 mb-8 leading-relaxed max-w-lg mx-auto md:mx-0">
-              <p>
-                Gourav brings a wealth of strategic insight and operational excellence to Dooars Tutors. Recognizing the untapped potential in the local education sector, he co-founded the platform to empower communities.
-              </p>
-              <p>
-                His dedication to student success and community growth ensures that every tutor on the platform is highly qualified, providing exceptional learning experiences.
-              </p>
+            <div className="text-zinc-300 mb-8 leading-relaxed max-w-lg mx-auto md:mx-0 text-center md:text-left">
+              <TypingAnimation
+                text={[
+                  "Gourav brings a wealth of strategic insight and operational excellence to Dooars Tutors. Recognizing the untapped potential in the local education sector, he co-founded the platform to empower communities.",
+                  "His dedication to student success and community growth ensures that every tutor on the platform is highly qualified, providing exceptional learning experiences."
+                ]}
+                delay={0.2}
+              />
             </div>
 
             <div className="flex items-center justify-center md:justify-start space-x-5">
