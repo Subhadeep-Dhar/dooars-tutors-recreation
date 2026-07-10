@@ -51,8 +51,34 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [languageDialogOpen, setLanguageDialogOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('en');
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    // Read Google Translate cookie to set active language
+    const match = document.cookie.match(/(?:^|;)\s*googtrans=([^;]*)/);
+    if (match && match[1]) {
+      const lang = match[1].split('/').pop();
+      if (lang) setCurrentLang(lang);
+    }
+  }, []);
+
+  const handleLanguageSelect = (langCode: string) => {
+    setLanguageDialogOpen(false);
+    setCurrentLang(langCode);
+    if (langCode === 'en') {
+      // If English, completely destroy the cookie to save resources and avoid the translation engine entirely
+      document.cookie = `googtrans=; path=/; max-age=0`;
+      document.cookie = `googtrans=; path=/; max-age=0; domain=${window.location.hostname}`;
+    } else {
+      // Google translate requires cookies for both path and domain sometimes to stick properly
+      document.cookie = `googtrans=/en/${langCode}; path=/; max-age=31536000`;
+      document.cookie = `googtrans=/en/${langCode}; path=/; max-age=31536000; domain=${window.location.hostname}`;
+    }
+    
+    // Reload to apply translation immediately
+    window.location.reload();
+  };
 
   if (pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin')) {
     return null;
@@ -379,11 +405,11 @@ export default function Navbar() {
             ].map((lang) => (
               <button
                 key={lang.id}
-                onClick={() => setLanguageDialogOpen(false)}
-                className={`p-4 rounded-xl border text-center transition-all duration-200 ${lang.id === 'en' ? 'border-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5 border-transparent hover:border-border'}`}
+                onClick={() => handleLanguageSelect(lang.id)}
+                className={`p-4 rounded-xl border text-center transition-all duration-200 ${currentLang === lang.id ? 'border-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5 border-transparent hover:border-border'}`}
                 style={{ 
-                  borderColor: lang.id === 'en' ? 'var(--color-brand)' : 'var(--border)',
-                  backgroundColor: lang.id === 'en' ? 'var(--color-brand-light)' : 'var(--bg-card)'
+                  borderColor: currentLang === lang.id ? 'var(--color-brand)' : 'var(--border)',
+                  backgroundColor: currentLang === lang.id ? 'var(--color-brand-light)' : 'var(--bg-card)'
                 }}
               >
                 <div className="font-semibold" style={{ color: 'var(--text-primary)' }}>{lang.native}</div>
