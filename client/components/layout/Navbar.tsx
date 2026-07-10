@@ -9,11 +9,39 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { GraduationCap, Sun, Moon, Menu, LayoutDashboard, User, LogOut, Search, LogIn, UserPlus, Globe, Grid, Sparkles, Info, Home } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose, SheetDescription } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
+
+function DockLink({ 
+  href, 
+  title, 
+  onClick
+}: { 
+  href: string; 
+  title: string; 
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void; 
+}) {
+  return (
+    <motion.div 
+      whileHover={{ scale: 1.2, y: -2 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      className="origin-bottom"
+    >
+      <Link 
+        href={href} 
+        onClick={onClick} 
+        className="text-sm font-medium transition-all duration-300 block px-3 py-1 opacity-100 md:group-hover:opacity-40 hover:!opacity-100" 
+        style={{ color: 'var(--text-primary)' }}
+      >
+        {title}
+      </Link>
+    </motion.div>
+  );
+}
 
 export default function Navbar() {
   const router = useRouter();
@@ -63,12 +91,14 @@ export default function Navbar() {
         </Link>
 
         {/* Center Navigation Links (Desktop) */}
-        <div className="hidden md:flex flex-1 items-center justify-center gap-6 px-4 whitespace-nowrap">
-          <Link href="/" className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>Home</Link>
-          <Link href="/search" className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>Browse</Link>
-          <Link href="/#categories" onClick={(e) => handleHashClick(e, 'categories')} className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>Categories</Link>
-          <Link href="/#highlights" onClick={(e) => handleHashClick(e, 'highlights')} className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>Highlights</Link>
-          <Link href="/#about" onClick={(e) => handleHashClick(e, 'about')} className="text-sm font-medium hover:opacity-70 transition-opacity" style={{ color: 'var(--text-primary)' }}>About Us</Link>
+        <div 
+          className="hidden md:flex flex-1 items-center justify-center gap-2 px-4 whitespace-nowrap h-full group"
+        >
+          <DockLink href="/" title="Home" />
+          <DockLink href="/search" title="Browse" />
+          <DockLink href="/#categories" title="Categories" onClick={(e) => handleHashClick(e, 'categories')} />
+          <DockLink href="/#highlights" title="Highlights" onClick={(e) => handleHashClick(e, 'highlights')} />
+          <DockLink href="/#about" title="About Us" onClick={(e) => handleHashClick(e, 'about')} />
         </div>
 
         {/* Right Actions */}
