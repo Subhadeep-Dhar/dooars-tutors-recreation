@@ -3,6 +3,7 @@ import { Globe, Mail } from 'lucide-react';
 import founder1Img from '@/public/images/founders/founder1.1.jpeg';
 import founder2Img from '@/public/images/founders/founder2.jpeg';
 import TypingAnimation from '@/components/ui/typing-animation';
+import { Backlight } from '@/components/magicui/backlight';
 
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -36,14 +37,16 @@ export default function FoundersSection() {
           <div className="w-full md:w-1/2 flex justify-center md:justify-end order-2 md:order-1">
             <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px]">
               {/* Fallback image path until rembg is finished, then we update it */}
-              <Image 
-                src={founder1Img}
-                alt="Subhadeep Dhar" 
-                fill 
-                className="object-contain drop-shadow-2xl"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                placeholder="blur"
-              />
+              <Backlight blur={40} className="w-full h-full">
+                <Image 
+                  src={founder1Img}
+                  alt="Subhadeep Dhar" 
+                  fill 
+                  className="object-contain drop-shadow-2xl"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  placeholder="blur"
+                />
+              </Backlight>
             </div>
           </div>
           {/* Content */}
@@ -113,14 +116,16 @@ export default function FoundersSection() {
           {/* Image */}
           <div className="w-full md:w-1/2 flex justify-center md:justify-start">
             <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px]">
-              <Image 
-                src={founder2Img}
-                alt="Gourav Deb" 
-                fill 
-                className="object-contain drop-shadow-2xl"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                placeholder="blur"
-              />
+              <Backlight blur={40} className="w-full h-full">
+                <Image 
+                  src={founder2Img}
+                  alt="Gourav Deb" 
+                  fill 
+                  className="object-contain drop-shadow-2xl"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  placeholder="blur"
+                />
+              </Backlight>
             </div>
           </div>
         </div>

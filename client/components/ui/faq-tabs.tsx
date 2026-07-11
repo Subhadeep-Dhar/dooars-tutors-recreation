@@ -53,7 +53,6 @@ const FAQHeader = ({ title, subtitle }: { title: string; subtitle: string }) => 
     <h2 className="mb-8" style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', letterSpacing: '-0.02em', fontWeight: 700, color: 'var(--text-primary)' }}>
       {title}
     </h2>
-    <span className="absolute -top-[350px] left-[50%] z-0 h-[500px] w-[600px] -translate-x-[50%] rounded-full bg-gradient-to-r from-amber-500/10 to-amber-500/5 blur-3xl pointer-events-none" />
   </div>
 );
 
