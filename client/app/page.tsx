@@ -810,7 +810,7 @@ export default function HomePage() {
               <Link href="/register"><button className="btn-ghost text-sm px-6 py-2.5">Join as Tutor</button></Link>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
               { icon: TrendingUp, title: 'Verified Profiles', desc: 'All tutors go through admin verification before appearing in search.' },
               { icon: MapPin, title: 'Hyper Local', desc: 'Focused exclusively on the Dooars region.' },
