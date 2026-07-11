@@ -11,6 +11,7 @@ import FoundersSection from '@/components/FoundersSection';
 import QRCode from 'react-qr-code';
 import { LaurelBadge } from '@/components/LaurelWreath';
 import { WordRotator } from '@/components/ui/word-rotator';
+import { FAQ } from '@/components/ui/faq-tabs';
 
 const categories = [
   { label: 'Private Tutors', value: 'tutor', icon: BookOpen },
@@ -637,7 +638,9 @@ export default function HomePage() {
                   </div>
                 </div>
                 
-                <LaurelBadge title={laurelTitle} description={laurelDesc} color={color} />
+                <div className="hidden md:block">
+                  <LaurelBadge title={laurelTitle} description={laurelDesc} color={color} />
+                </div>
               </div>
               ))}
             </div>
@@ -862,66 +865,106 @@ export default function HomePage() {
       </section>
 
       {/* ── Frequently Asked Questions ── */}
-      <section style={{ background: 'var(--bg-base)', padding: 'var(--section-gap) 1rem' }}>
-        <div className="max-w-[1000px] mx-auto">
-          <div className="text-center mb-12">
-            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', letterSpacing: '-0.02em', fontWeight: 700, color: 'var(--text-primary)' }}>
-              Frequently Asked Questions
-            </h2>
-            <p className="mt-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Everything you need to know about how Dooars Tutors works.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Q1 */}
-            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
-              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>Are you a tuition agency?</h3>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                No. We serve strictly as a free digital directory for the Dooars region. We do not employ tutors, arrange classes, or act as middlemen.
-              </p>
-            </div>
-            
-            {/* Q2 */}
-            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
-              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>Are there any hidden fees or commissions?</h3>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Our platform is 100% free. Parents can browse and contact educators at no cost, and we take zero commission from tutors. All financial arrangements are made directly between you and the educator.
-              </p>
-            </div>
-            
-            {/* Q3 */}
-            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
-              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>How are the listed profiles verified?</h3>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                While our team verifies basic identity to ensure platform integrity, we do not independently authenticate physical addresses, academic degrees, or professional credentials. We encourage parents to verify qualifications directly.
-              </p>
-            </div>
-            
-            {/* Q4 */}
-            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
-              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>Do I need an account to find a tutor?</h3>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                No registration is required for students or parents. You can freely browse profiles, search your area, and contact educators directly using the provided phone numbers.
-              </p>
-            </div>
-            
-            {/* Q5 */}
-            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
-              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>How do I list my teaching services?</h3>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Simply click "Register" at the top of the page. You can create a profile by providing your contact details, subjects taught, and location. Your listing will be visible to the community instantly.
-              </p>
-            </div>
-            
-            {/* Q6 */}
-            <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }} className="transition-all hover:-translate-y-1">
-              <h3 className="font-bold mb-3 text-base" style={{ color: 'var(--text-primary)' }}>What if a profile seems fake or unresponsive?</h3>
-              <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                We rely on community feedback to maintain a safe directory. If you encounter incorrect information or dead numbers, please use the "Report" button on the tutor's profile. Flagged profiles are reviewed and removed by our moderation system.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FAQ 
+        title="Frequently Asked Questions"
+        subtitle="Everything you need to know about how Dooars Tutors works."
+        categories={{
+          "general": "General",
+          "students": "For Students & Parents",
+          "tutors": "For Tutors",
+          "safety": "Trust & Safety"
+        }}
+        faqData={{
+          "general": [
+            {
+              question: "Are you a tuition agency?",
+              answer: "No. We serve strictly as a free digital directory for the Dooars region. We do not employ tutors, arrange classes, or act as middlemen."
+            },
+            {
+              question: "Are there any hidden fees or commissions?",
+              answer: "Our platform is 100% free. Parents can browse and contact educators at no cost, and we take zero commission from tutors. All financial arrangements are made directly between you and the educator."
+            },
+            {
+              question: "Which regions do you currently serve?",
+              answer: "Our directory is focused exclusively on the Dooars region and its surrounding foothills, including major hubs like Jalpaiguri, Alipurduar, Malbazar, and Siliguri."
+            },
+            {
+              question: "Is this platform available as a mobile app?",
+              answer: "Currently, Dooars Tutors is a progressive web app. You do not need to download anything from an app store. It is fully optimized to work seamlessly directly from your mobile browser."
+            },
+            {
+              question: "How does the platform make money if it is free?",
+              answer: "Dooars Tutors operates as a community-first initiative. We cover server costs through voluntary donations from users who wish to support local tech development. We do not place paywalls on educational access."
+            }
+          ],
+          "students": [
+            {
+              question: "Do I need an account to find a tutor?",
+              answer: "No registration is required for students or parents. You can freely browse profiles, search your area, and contact educators directly using the provided phone numbers."
+            },
+            {
+              question: "How do I contact an educator?",
+              answer: "Simply navigate to a tutor's profile and click the Phone or WhatsApp button to reach out to them directly. There are no chat portals or delayed messaging systems in the middle."
+            },
+            {
+              question: "Can I filter tutors by location and subject?",
+              answer: "Yes! Use the search bar or the advanced filters on the 'Browse' page to narrow down results by specific towns, subjects, or teaching modes."
+            },
+            {
+              question: "Do the tutors teach at home or at a coaching center?",
+              answer: "It depends on the educator. Check the tags on a tutor's profile to see if they offer Home Tuition (traveling to your house), Center Coaching, or Online Classes."
+            },
+            {
+              question: "How can I review a tutor I studied with?",
+              answer: "Visit their profile and click on 'Write a Review'. Leaving honest feedback helps other parents and students make informed, safe choices."
+            }
+          ],
+          "tutors": [
+            {
+              question: "How do I list my teaching services?",
+              answer: "Simply click \"Register\" at the top of the page. You can create a profile by providing your contact details, subjects taught, and location. Your listing will be visible to the community instantly."
+            },
+            {
+              question: "Do I need to pay to create a profile?",
+              answer: "Absolutely not. Creating a profile, listing your subjects, and receiving calls from students is completely free."
+            },
+            {
+              question: "How can I improve my ranking in the search results?",
+              answer: "Our search algorithm favors complete profiles with clear profile pictures, detailed bios, and positive reviews. Encourage your students to leave a 5-star review on your page to boost your visibility."
+            },
+            {
+              question: "Will my phone number be public?",
+              answer: "Yes. To facilitate direct, middleman-free communication, the phone number you provide during registration will be visible to anyone browsing your profile."
+            },
+            {
+              question: "Can I list multiple subjects and locations?",
+              answer: "Yes, you can tag multiple subjects (like Physics, Math, English) and write exactly which local areas you are willing to travel to in your bio description."
+            }
+          ],
+          "safety": [
+            {
+              question: "How are the listed profiles verified?",
+              answer: "While our team verifies basic identity to ensure platform integrity, we do not independently authenticate physical addresses, academic degrees, or professional credentials. We encourage parents to verify qualifications directly."
+            },
+            {
+              question: "What if a profile seems fake or unresponsive?",
+              answer: "We rely on community feedback to maintain a safe directory. If you encounter incorrect information or dead numbers, please use the \"Report\" button on the tutor's profile. Flagged profiles are reviewed and removed by our moderation system."
+            },
+            {
+              question: "Can a tutor delete negative reviews?",
+              answer: "No. To maintain complete transparency, tutors cannot delete reviews from their profiles. However, admins monitor reviews for spam and abusive language."
+            },
+            {
+              question: "How do you handle personal data?",
+              answer: "We only store the information you voluntarily provide for your public profile. We enforce strict security measures and do not sell your data to third parties."
+            },
+            {
+              question: "What should I do before hiring a tutor?",
+              answer: "We strongly advise parents to conduct their own due diligence. Always verify the tutor's government ID, ask to see their academic certificates, and request a trial class before finalizing any long-term payment."
+            }
+          ]
+        }}
+      />
 
       {/* ── Support Us ── */}
       <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem', borderTop: '1px solid var(--border)' }}>
