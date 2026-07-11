@@ -22,7 +22,7 @@ export function Backlight({ blur = 20, children, className }: BacklightProps) {
           <feColorMatrix
             type="saturate"
             in="blurred"
-            values="4"
+            values="0.2"
           ></feColorMatrix>
           <feComposite in="SourceGraphic" operator="over"></feComposite>
         </filter>

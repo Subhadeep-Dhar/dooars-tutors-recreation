@@ -37,7 +37,7 @@ export default function FoundersSection() {
           <div className="w-full md:w-1/2 flex justify-center md:justify-end order-2 md:order-1">
             <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px]">
               {/* Fallback image path until rembg is finished, then we update it */}
-              <Backlight blur={40} className="w-full h-full">
+              <Backlight blur={20} className="w-full h-full">
                 <Image 
                   src={founder1Img}
                   alt="Subhadeep Dhar" 
@@ -116,7 +116,7 @@ export default function FoundersSection() {
           {/* Image */}
           <div className="w-full md:w-1/2 flex justify-center md:justify-start">
             <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px]">
-              <Backlight blur={40} className="w-full h-full">
+              <Backlight blur={20} className="w-full h-full">
                 <Image 
                   src={founder2Img}
                   alt="Gourav Deb" 
