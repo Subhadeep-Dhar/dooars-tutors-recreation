@@ -15,6 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetClose,
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { AlertTriangle } from 'lucide-react';
+import { AnimatedThemeToggler } from '@/components/ui/animated-theme-toggler';
 
 function DockLink({ 
   href, 
@@ -144,17 +145,11 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-2">
 
             {mounted && (
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200"
+              <AnimatedThemeToggler
+                theme={theme as "light" | "dark"}
+                onThemeChange={(t) => setTheme(t)}
                 style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark'
-                  ? <Sun size={15} style={{ color: '#fbbf24' }} />
-                  : <Moon size={15} style={{ color: 'var(--text-secondary)' }} />
-                }
-              </button>
+              />
             )}
 
             <button
@@ -309,14 +304,16 @@ export default function Navbar() {
                       Language (English)
                     </button>
 
-                    <button
-                      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                      className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                    <AnimatedThemeToggler
+                      theme={theme as "light" | "dark"}
+                      onThemeChange={(t) => setTheme(t)}
+                      fromCenter
+                      className="flex h-auto w-full items-center justify-start gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors hover:bg-black/5 dark:hover:bg-white/5"
                       style={{ color: 'var(--text-primary)' }}
                     >
                       {theme === 'dark' ? <Sun size={18} className="text-yellow-500" /> : <Moon size={18} style={{ color: 'var(--text-muted)' }} />}
                       {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                    </button>
+                    </AnimatedThemeToggler>
 
                     <Separator className="my-2 opacity-50" />
 

@@ -681,3 +681,14 @@ iframe.skiptranslate {
   background-color: transparent !important;
   box-shadow: none !important;
 }
+
+/* ── Theme View Transitions ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-magicui-theme-vt="active"]::view-transition-group(root) {
+  animation-duration: var(--magicui-theme-toggle-vt-duration);
+}
