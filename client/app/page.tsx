@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, BookOpen, Music, Dumbbell, Trophy, Building2, Star, MessageCircle, GraduationCap, Users, Award, TrendingUp, Phone, ArrowRight, Heart, X, CheckCircle2, Shield, Eye, Smartphone, SearchCheck, Mail, AlertTriangle } from 'lucide-react';
 import { Map, MapMarker, MarkerContent, MapControls } from '@/components/ui/mapcn-layer-markers';
@@ -14,6 +14,7 @@ import { WordRotator } from '@/components/ui/word-rotator';
 import { FAQ } from '@/components/ui/faq-tabs';
 import { GlowEffect } from '@/components/motion-primitives/glow-effect';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 
 const categories = [
   { label: 'Private Tutors', value: 'tutor', icon: BookOpen },
@@ -138,6 +139,40 @@ const FUN_FACTS = [
 
 export default function HomePage() {
   const router = useRouter();
+  const confettiRef = useRef<any>(null);
+  
+  const fireSideCannons = () => {
+    const end = Date.now() + 3 * 1000; // 3 seconds
+    const colors = ["#a786ff", "#fd8bbc", "#eca184", "#f8deb1"];
+
+    const frame = () => {
+      if (Date.now() > end) return;
+
+      confetti({
+        particleCount: 2,
+        angle: 60,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 0, y: 0.5 },
+        colors: colors,
+        zIndex: 100,
+      });
+      confetti({
+        particleCount: 2,
+        angle: 120,
+        spread: 55,
+        startVelocity: 60,
+        origin: { x: 1, y: 0.5 },
+        colors: colors,
+        zIndex: 100,
+      });
+
+      requestAnimationFrame(frame);
+    };
+
+    frame();
+  };
+
   const [query, setQuery] = useState('');
   const [location, setLocation] = useState('');
   const [isGreetingHovered, setIsGreetingHovered] = useState(false);
@@ -573,8 +608,12 @@ export default function HomePage() {
       {/* ── Community Highlights ── */}
       <div id="highlights" className="scroll-mt-24" />
       {highlightedTutors.length > 0 && (
-        <section style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
-          <div className="max-w-[1200px] mx-auto">
+        <section 
+          className="relative overflow-hidden" 
+          style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}
+          onMouseEnter={fireSideCannons}
+        >
+          <div className="max-w-[1200px] mx-auto relative z-10">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <p className="eyebrow mb-1">PLATFORM HIGHLIGHTS</p>

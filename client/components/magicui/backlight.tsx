@@ -28,7 +28,7 @@ export function Backlight({ blur = 20, children, className }: BacklightProps) {
         </filter>
       </svg>
 
-      <div className="w-full h-full" style={{ filter: `url(#${id})` }}>{children}</div>
+      <div className="relative w-full h-full" style={{ filter: `url(#${id})` }}>{children}</div>
     </div>
   )
 }
