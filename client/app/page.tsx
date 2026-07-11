@@ -12,6 +12,8 @@ import QRCode from 'react-qr-code';
 import { LaurelBadge } from '@/components/LaurelWreath';
 import { WordRotator } from '@/components/ui/word-rotator';
 import { FAQ } from '@/components/ui/faq-tabs';
+import { GlowEffect } from '@/components/motion-primitives/glow-effect';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const categories = [
   { label: 'Private Tutors', value: 'tutor', icon: BookOpen },
@@ -194,7 +196,7 @@ export default function HomePage() {
       timeoutId = setTimeout(() => {
         setActiveFact(null);
         scheduleNextFact();
-      }, 7000);
+      }, 9000);
     };
 
     const scheduleNextFact = (initialDelay = false) => {
@@ -1087,14 +1089,34 @@ export default function HomePage() {
       )}
 
       {/* ── Hover Hint / Fun Facts Popup ── */}
-      {activeFact && (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 sm:max-w-sm bg-zinc-900 border border-zinc-800 text-white px-4 py-3 rounded-xl shadow-2xl flex items-start sm:items-center justify-between gap-3 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <span className="text-sm leading-snug">{activeFact}</span>
-          <button onClick={() => setActiveFact(null)} className="text-zinc-400 hover:text-white transition-colors p-1 shrink-0 mt-0.5 sm:mt-0">
-            <X size={16} />
-          </button>
-        </div>
+      <AnimatePresence>
+        {activeFact && (
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 50, scale: 0.95 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 sm:max-w-sm z-50"
+          >
+          <div className="relative">
+            <GlowEffect
+              colors={['#10b981', '#3b82f6', '#f59e0b', '#ec4899']}
+              mode='colorShift'
+              blur='soft'
+              duration={3}
+              scale={1.02}
+              className="rounded-xl"
+            />
+            <div className="relative bg-zinc-900 border border-zinc-800 text-white px-4 py-3 rounded-xl shadow-2xl flex items-start sm:items-center justify-between gap-3">
+              <span className="text-sm leading-snug">{activeFact}</span>
+              <button onClick={() => setActiveFact(null)} className="text-zinc-400 hover:text-white transition-colors p-1 shrink-0 mt-0.5 sm:mt-0">
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </main>
   );
 }
