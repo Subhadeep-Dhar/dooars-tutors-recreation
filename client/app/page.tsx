@@ -658,7 +658,7 @@ export default function HomePage() {
               <Shield size={40} className="mx-auto mb-4" style={{ color: 'var(--color-brand)' }} />
               <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Our Promise of Transparency</h2>
               <p className="text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                Dooars Tutors is a new technological initiative introduced specifically for Dooars region. We ask for everyone's open-minded support as we build this together—it is purely for the benefit of local students and dedicated educators. Nothing personal, just community growth.
+                Dooars Tutors is a new initiative built specifically for the Dooars region to support local students and dedicated educators.
               </p>
             </div>
 
