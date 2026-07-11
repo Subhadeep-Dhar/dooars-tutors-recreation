@@ -608,10 +608,12 @@ export default function HomePage() {
       {/* ── Community Highlights ── */}
       <div id="highlights" className="scroll-mt-24" />
       {highlightedTutors.length > 0 && (
-        <section 
+        <motion.section 
           className="relative overflow-hidden" 
           style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}
           onMouseEnter={fireSideCannons}
+          onViewportEnter={fireSideCannons}
+          viewport={{ once: true, amount: 0.3 }}
         >
           <div className="max-w-[1200px] mx-auto relative z-10">
             <div className="flex items-center justify-between mb-8">
@@ -686,7 +688,7 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-        </section>
+        </motion.section>
       )}
 
       {/* ── Transparency Manifesto ── */}
