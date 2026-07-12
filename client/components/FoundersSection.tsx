@@ -22,7 +22,7 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 
 export default function FoundersSection() {
   return (
-    <section className="bg-zinc-950 text-white py-24 md:py-32" style={{ background: '#09090b' }}>
+    <section className="bg-zinc-950 text-white py-24 md:py-32 overflow-hidden" style={{ background: '#09090b' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section */}
@@ -62,7 +62,7 @@ export default function FoundersSection() {
             </div>
               
             {/* Animated Signature Background */}
-            <div className="absolute -bottom-18 md:-bottom-24 -right-8 md:-right-20 w-72 md:w-[28rem] opacity-40 pointer-events-none rotate-[-5deg] z-0 text-white">
+            <div className="absolute -bottom-[4.5rem] md:-bottom-24 -right-8 md:-right-20 w-72 md:w-[28rem] opacity-40 pointer-events-none rotate-[-5deg] z-0 text-white">
               <Founder1Signature className="w-full h-full" />
             </div>
 
@@ -100,7 +100,7 @@ export default function FoundersSection() {
             </div>
 
             {/* Animated Signature Background */}
-            <div className="absolute -bottom-8 md:-bottom-35 left-35 md:-left60 w-72 md:w-[40rem] opacity-40 pointer-events-none rotate-[-5deg] z-0 text-white">
+            <div className="absolute -bottom-8 md:-bottom-[8.75rem] left-[8.75rem] md:-left-60 w-72 md:w-[40rem] opacity-40 pointer-events-none rotate-[-5deg] z-0 text-white">
               <Founder2Signature className="w-full h-full" />
             </div>
 
