@@ -124,11 +124,14 @@ export default function AdminOverviewPage() {
           Admin Overview
         </h1>
         <div className="flex gap-2">
-          <Link href="/admin/moderation" className="btn-primary text-sm px-4 py-2">
-            Review Pending ({overview.pending})
+          <Link href="/admin/moderation" className="btn-primary text-sm px-3 sm:px-4 py-2 flex items-center gap-2">
+            <Clock size={16} />
+            <span className="hidden sm:inline">Review Pending ({overview.pending})</span>
+            <span className="sm:hidden font-bold">{overview.pending}</span>
           </Link>
-          <Link href="/admin/profiles" className="btn-secondary text-sm px-4 py-2" style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}>
-            Manage Profiles
+          <Link href="/admin/profiles" className="btn-secondary text-sm px-3 sm:px-4 py-2 flex items-center gap-2" style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}>
+            <Users size={16} />
+            <span className="hidden sm:inline">Manage Profiles</span>
           </Link>
         </div>
       </div>

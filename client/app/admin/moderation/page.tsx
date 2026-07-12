@@ -13,7 +13,9 @@ import {
   Filter, 
   ExternalLink, 
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import api from '@/lib/api';
 import Link from 'next/link';
@@ -28,12 +30,16 @@ export default function ModerationPage() {
     missingPhone: false,
     enrichmentFailed: false
   });
+  
+  const [page, setPage] = useState(1);
+  const limit = 10;
 
   async function load() {
     try {
       setLoading(true);
       const query = new URLSearchParams({
-        limit: '20',
+        page: page.toString(),
+        limit: limit.toString(),
         status: filters.status,
         lowConfidence: filters.lowConfidence.toString(),
         missingPhone: filters.missingPhone.toString(),
@@ -49,7 +55,7 @@ export default function ModerationPage() {
     }
   }
 
-  useEffect(() => { load(); }, [filters]);
+  useEffect(() => { load(); }, [filters, page]);
 
   async function action(id: string, type: 'approve' | 'reject') {
     try {
@@ -84,7 +90,7 @@ export default function ModerationPage() {
               className="w-full h-9 bg-transparent rounded-lg border px-3 text-sm"
               style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
               value={filters.status}
-              onChange={(e) => setFilters(f => ({ ...f, status: e.target.value }))}
+              onChange={(e) => { setFilters(f => ({ ...f, status: e.target.value })); setPage(1); }}
             >
               <option value="pending" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Pending</option>
               <option value="verified" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Verified</option>
@@ -96,7 +102,7 @@ export default function ModerationPage() {
               <input 
                 type="checkbox" 
                 checked={filters.lowConfidence} 
-                onChange={(e) => setFilters(f => ({ ...f, lowConfidence: e.target.checked }))}
+                onChange={(e) => { setFilters(f => ({ ...f, lowConfidence: e.target.checked })); setPage(1); }}
                 className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Low Confidence</span>
@@ -105,7 +111,7 @@ export default function ModerationPage() {
               <input 
                 type="checkbox" 
                 checked={filters.enrichmentFailed} 
-                onChange={(e) => setFilters(f => ({ ...f, enrichmentFailed: e.target.checked }))}
+                onChange={(e) => { setFilters(f => ({ ...f, enrichmentFailed: e.target.checked })); setPage(1); }}
                 className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
               />
               <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Enrichment Failed</span>
@@ -204,6 +210,37 @@ export default function ModerationPage() {
           </Card>
         ))}
       </div>
+      
+      {Math.ceil(total / limit) > 1 && (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+          <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="btn-secondary"
+              disabled={page === 1}
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+            >
+              <ChevronLeft size={16} />
+            </Button>
+            <div className="text-sm font-medium px-2" style={{ color: 'var(--text-primary)' }}>
+              Page {page} of {Math.ceil(total / limit)}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="btn-secondary"
+              disabled={page === Math.ceil(total / limit)}
+              onClick={() => setPage(p => Math.min(Math.ceil(total / limit), p + 1))}
+            >
+              <ChevronRight size={16} />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

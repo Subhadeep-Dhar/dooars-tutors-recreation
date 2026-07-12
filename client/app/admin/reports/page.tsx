@@ -5,24 +5,29 @@ import api from '@/lib/api';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle, CheckCircle, Flag, XCircle } from 'lucide-react';
+import { Loader2, AlertCircle, CheckCircle, Flag, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 
 export default function AdminReportsPage() {
   const [reports, setReports] = useState<any[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  
+  const [page, setPage] = useState(1);
+  const limit = 10;
   
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [page]);
 
   async function fetchReports() {
     try {
       setLoading(true);
-      const res = await api.get('/admin/reports');
+      const res = await api.get(`/admin/reports?page=${page}&limit=${limit}`);
       setReports(res.data.data);
+      setTotal(res.data.pagination?.total || 0);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Failed to fetch reports');
     } finally {
@@ -137,6 +142,35 @@ export default function AdminReportsPage() {
               </tbody>
             </table>
           </div>
+          
+          {Math.ceil(total / limit) > 1 && (
+            <div className="flex items-center justify-between mt-6 pt-4 border-t dark:border-slate-800">
+              <div className="text-sm text-slate-500">
+                Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page === 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                >
+                  <ChevronLeft size={16} />
+                </Button>
+                <div className="text-sm font-medium px-2 text-slate-700 dark:text-slate-300">
+                  Page {page} of {Math.ceil(total / limit)}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={page === Math.ceil(total / limit)}
+                  onClick={() => setPage(p => Math.min(Math.ceil(total / limit), p + 1))}
+                >
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

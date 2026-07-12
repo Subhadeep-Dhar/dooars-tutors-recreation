@@ -16,7 +16,7 @@ export default function AdminProfilesPage() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const limit = 10;
 
   // Search & Filter State
   const [search, setSearch] = useState('');

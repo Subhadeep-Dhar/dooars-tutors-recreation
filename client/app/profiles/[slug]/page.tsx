@@ -456,7 +456,7 @@ export default function ProfilePage() {
   const [submitting, setSubmitting] = useState(false);
   
   const [reviewSort, setReviewSort] = useState<'best'|'worst'|'latest'|'oldest'>('best');
-  const [reviewLimit, setReviewLimit] = useState(5);
+  const [reviewPage, setReviewPage] = useState(1);
 
   // Delete profile
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -535,6 +535,7 @@ export default function ProfilePage() {
       setReviews(prev => [res.data?.data?.review ?? res.data, ...prev]);
       setComment('');
       setRating(5);
+      setReviewPage(1);
       toast.success('Review submitted successfully!');
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Failed to submit review');
@@ -613,7 +614,10 @@ export default function ProfilePage() {
     if (reviewSort === 'oldest') return timeA - timeB;
     return 0;
   });
-  const visibleReviews = sortedReviews.slice(0, reviewLimit);
+  
+  const reviewsPerPage = 5;
+  const totalPages = Math.ceil(sortedReviews.length / reviewsPerPage);
+  const visibleReviews = sortedReviews.slice((reviewPage - 1) * reviewsPerPage, reviewPage * reviewsPerPage);
 
   /* ── Render ── */
   return (
@@ -890,7 +894,10 @@ export default function ProfilePage() {
                 {reviews.length > 0 && (
                   <select
                     value={reviewSort}
-                    onChange={(e) => setReviewSort(e.target.value as any)}
+                    onChange={(e) => {
+                      setReviewSort(e.target.value as any);
+                      setReviewPage(1);
+                    }}
                     style={{
                       background: 'var(--bg-elevated)', color: 'var(--text-primary)',
                       border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)',
@@ -1013,20 +1020,40 @@ export default function ProfilePage() {
                     </div>
                   ))}
                   
-                  {reviewLimit < reviews.length && (
-                    <button 
-                      onClick={() => setReviewLimit(prev => prev + 5)}
-                      style={{
-                        padding: '0.6rem', background: 'var(--bg-elevated)', color: 'var(--text-primary)',
-                        border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
-                        fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer', marginTop: '0.5rem',
-                        transition: 'background 0.2s', width: '100%'
-                      }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)' }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)' }}
-                    >
-                      Load More Reviews
-                    </button>
+                  {totalPages > 1 && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
+                      <button 
+                        onClick={() => setReviewPage(p => Math.max(1, p - 1))}
+                        disabled={reviewPage === 1}
+                        style={{
+                          padding: '0.5rem 1rem', background: 'var(--bg-elevated)', color: 'var(--text-primary)',
+                          border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
+                          fontSize: '0.85rem', fontWeight: 600, cursor: reviewPage === 1 ? 'not-allowed' : 'pointer',
+                          opacity: reviewPage === 1 ? 0.5 : 1, transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={e => { if (reviewPage !== 1) (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)' }}
+                        onMouseLeave={e => { if (reviewPage !== 1) (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)' }}
+                      >
+                        Previous
+                      </button>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        Page {reviewPage} of {totalPages}
+                      </span>
+                      <button 
+                        onClick={() => setReviewPage(p => Math.min(totalPages, p + 1))}
+                        disabled={reviewPage === totalPages}
+                        style={{
+                          padding: '0.5rem 1rem', background: 'var(--bg-elevated)', color: 'var(--text-primary)',
+                          border: '1px solid var(--border)', borderRadius: 'var(--radius-md)',
+                          fontSize: '0.85rem', fontWeight: 600, cursor: reviewPage === totalPages ? 'not-allowed' : 'pointer',
+                          opacity: reviewPage === totalPages ? 0.5 : 1, transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={e => { if (reviewPage !== totalPages) (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)' }}
+                        onMouseLeave={e => { if (reviewPage !== totalPages) (e.currentTarget as HTMLElement).style.background = 'var(--bg-elevated)' }}
+                      >
+                        Next
+                      </button>
+                    </div>
                   )}
                 </div>
               )}

@@ -20,7 +20,7 @@ export default function AdminUsersPage() {
   
   // Pagination
   const [page, setPage] = useState(1);
-  const limit = 50;
+  const limit = 10;
 
   // Delete State
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
