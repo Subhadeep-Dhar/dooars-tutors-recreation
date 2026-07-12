@@ -140,9 +140,14 @@ const FUN_FACTS = [
 export default function HomePage() {
   const router = useRouter();
   const confettiRef = useRef<any>(null);
+  const lastConfettiFire = useRef<number>(0);
   
   const fireSideCannons = () => {
-    const end = Date.now() + 3 * 1000; // 3 seconds
+    const now = Date.now();
+    if (now - lastConfettiFire.current < 30000) return; // 30 seconds cooldown
+    lastConfettiFire.current = now;
+
+    const end = now + 3 * 1000; // 3 seconds
     const colors = ["#a786ff", "#fd8bbc", "#eca184", "#f8deb1"];
 
     const frame = () => {
