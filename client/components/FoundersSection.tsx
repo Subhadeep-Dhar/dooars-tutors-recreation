@@ -3,6 +3,7 @@ import { Globe, Mail } from 'lucide-react';
 import founder1Img from '@/public/images/founders/founder1.1.jpeg';
 import founder2Img from '@/public/images/founders/founder2.jpeg';
 import Founder1Signature from '@/components/svg/Founder1Signature';
+import Founder2Signature from '@/components/svg/Founder2Signature';
 
 
 const GithubIcon = ({ className }: { className?: string }) => (
@@ -85,17 +86,22 @@ export default function FoundersSection() {
         {/* Founder 2: Gourav Deb */}
         <div className="flex flex-col md:flex-row items-center gap-12 md:gap-20">
           {/* Content */}
-          <div className="w-full md:w-1/2 text-center md:text-left">
+          <div className="w-full md:w-1/2 text-center md:text-left relative">
             <h3 className="text-3xl md:text-4xl font-bold mb-2 uppercase">Gourav Deb</h3>
             <p className="text-zinc-400 text-lg mb-6">Co-Founder & Operations</p>
             
-            <div className="text-zinc-300 mb-8 leading-relaxed max-w-lg mx-auto md:mx-0 text-center md:text-left">
+            <div className="text-zinc-300 mb-8 leading-relaxed max-w-lg mx-auto md:mx-0 text-center md:text-left relative z-10">
               <p className="mb-4">
                 Gourav brings a wealth of strategic insight and operational excellence to Dooars Tutors. Recognizing the untapped potential in the local education sector, he co-founded the platform to empower communities.
               </p>
               <p>
                 His dedication to student success and community growth ensures that every tutor on the platform is highly qualified, providing exceptional learning experiences.
               </p>
+            </div>
+
+            {/* Animated Signature Background */}
+            <div className="absolute -bottom-8 md:-bottom-35 left-35 md:-left60 w-72 md:w-[40rem] opacity-40 pointer-events-none rotate-[-5deg] z-0 text-white">
+              <Founder2Signature className="w-full h-full" />
             </div>
 
             <div className="flex items-center justify-center md:justify-start space-x-5">
