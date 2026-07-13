@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'sonner';
-import { GraduationCap, Building2, Activity, Palette, Dumbbell, User, Users, Tag, FileText, Calendar, Languages, Briefcase, MapPin, Phone, Mail, MessageCircle, Info, Sparkles, BookOpen, UserRound, Bot } from 'lucide-react';
+import { GraduationCap, Building2, Activity, Palette, Dumbbell, User, Users, Tag, FileText, Calendar, Languages, Briefcase, MapPin, Phone, Mail, MessageCircle, Info, Sparkles, BookOpen, UserRound, Bot, Navigation } from 'lucide-react';
 import { FluidDropdown } from '@/components/ui/fluid-dropdown';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,7 +39,103 @@ const ORG_OPTIONS = [
 ];
 
 const DISTRICTS = ['Alipurduar', 'Cooch Behar', 'Darjeeling', 'Jalpaiguri', 'Kalimpong'].map(d => ({ id: d, label: d }));
-const TOWNS = ['Alipurduar', 'Banarhat', 'Binnaguri', 'Birpara', 'Cooch Behar', 'Darjeeling', 'Dhupguri', 'Falakata', 'Hasimara', 'Jaigaon', 'Jalpaiguri', 'Kalchini', 'Kalimpong', 'Kurseong', 'Madarihat', 'Mainaguri', 'Malbazar', 'Siliguri'].map(t => ({ id: t, label: t }));
+const TOWNS = ["Algarah","Alipurduar","Bagdogra","Banarhat","Barobisha","Bindu","Binnaguri","Birpara","Chalsa","Cooch Behar","Darjeeling","Dhupguri","Dinhata","Falakata","Gorubathan","Haldibari","Hasimara","Jaigaon","Jaldapara","Jaldhaka","Jalpaiguri","Kalchini","Kalimpong","Kamakhyaguri","Kharibari","Kranti","Kumargram","Kurseong","Lataguri","Lava","Madarihat","Mainaguri","Malbazar","Mathabhanga","Matiali","Matigara","Mekhliganj","Mirik","Nagrakata","Naxalbari","Oodlabari","Pedong","Phansidewa","Pundibari","Rajabhatkhawa","Rajganj","Rango","Siliguri","Sitai","Sitalkuchi","Sonada","Sonapur","Sukna","Takdah","Tapshikhata","Teesta Bazar","Tufanganj"].map(t => ({ id: t, label: t }));
+
+const TOWN_TO_DISTRICT: Record<string, string> = {
+  "Alipurduar": "Alipurduar",
+  "Barobisha": "Alipurduar",
+  "Birpara": "Alipurduar",
+  "Falakata": "Alipurduar",
+  "Hasimara": "Alipurduar",
+  "Jaigaon": "Alipurduar",
+  "Jaldapara": "Alipurduar",
+  "Kalchini": "Alipurduar",
+  "Kamakhyaguri": "Alipurduar",
+  "Kumargram": "Alipurduar",
+  "Madarihat": "Alipurduar",
+  "Rajabhatkhawa": "Alipurduar",
+  "Sonapur": "Alipurduar",
+  "Tapshikhata": "Alipurduar",
+  "Banarhat": "Jalpaiguri",
+  "Binnaguri": "Jalpaiguri",
+  "Chalsa": "Jalpaiguri",
+  "Dhupguri": "Jalpaiguri",
+  "Jalpaiguri": "Jalpaiguri",
+  "Kranti": "Jalpaiguri",
+  "Lataguri": "Jalpaiguri",
+  "Mainaguri": "Jalpaiguri",
+  "Malbazar": "Jalpaiguri",
+  "Matiali": "Jalpaiguri",
+  "Nagrakata": "Jalpaiguri",
+  "Oodlabari": "Jalpaiguri",
+  "Rajganj": "Jalpaiguri",
+  "Bagdogra": "Darjeeling",
+  "Darjeeling": "Darjeeling",
+  "Kharibari": "Darjeeling",
+  "Kurseong": "Darjeeling",
+  "Matigara": "Darjeeling",
+  "Mirik": "Darjeeling",
+  "Naxalbari": "Darjeeling",
+  "Phansidewa": "Darjeeling",
+  "Siliguri": "Darjeeling",
+  "Sonada": "Darjeeling",
+  "Sukna": "Darjeeling",
+  "Takdah": "Darjeeling",
+  "Cooch Behar": "Cooch Behar",
+  "Dinhata": "Cooch Behar",
+  "Haldibari": "Cooch Behar",
+  "Mathabhanga": "Cooch Behar",
+  "Mekhliganj": "Cooch Behar",
+  "Pundibari": "Cooch Behar",
+  "Sitai": "Cooch Behar",
+  "Sitalkuchi": "Cooch Behar",
+  "Tufanganj": "Cooch Behar",
+  "Algarah": "Kalimpong",
+  "Bindu": "Kalimpong",
+  "Gorubathan": "Kalimpong",
+  "Jaldhaka": "Kalimpong",
+  "Kalimpong": "Kalimpong",
+  "Lava": "Kalimpong",
+  "Pedong": "Kalimpong",
+  "Rango": "Kalimpong",
+  "Teesta Bazar": "Kalimpong"
+};
+
+const normalizeLanguages = (input: string) => {
+  if (!input) return '';
+  
+  const map: Record<string, string> = {
+    'bangla': 'Bengali',
+    'beng': 'Bengali',
+    'bengalee': 'Bengali',
+    'eng': 'English',
+    'englis': 'English',
+    'hind': 'Hindi',
+    'nepalese': 'Nepali',
+    'nepal': 'Nepali',
+    'santhali': 'Santali',
+    'sanatali': 'Santali',
+    'sadri': 'Sadri',
+    'kortha': 'Khortha',
+    'rajbanshi': 'Rajbanshi',
+    'kamtapuri': 'Kamtapuri',
+    'bhojpuri': 'Bhojpuri',
+    'bihari': 'Bhojpuri',
+    'marwari': 'Marwari',
+    'punjabi': 'Punjabi',
+    'panjabi': 'Punjabi'
+  };
+
+  return input
+    .split(',')
+    .map(l => l.trim().toLowerCase())
+    .filter(Boolean)
+    .map(l => {
+      if (map[l]) return map[l];
+      return l.charAt(0).toUpperCase() + l.slice(1);
+    })
+    .join(', ');
+};
 
 export default function ProfileEditorPage() {
   const router = useRouter();
@@ -56,7 +152,9 @@ export default function ProfileEditorPage() {
   const [deletingAccount, setDeletingAccount] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(1);
-  const { register, handleSubmit, reset, watch, control, trigger } = useForm();
+  const { register, handleSubmit, reset, watch, control, trigger, getFieldState, formState, setValue } = useForm({
+    shouldFocusError: false
+  });
 
   const handleNext = async () => {
     let fieldsToValidate: string[] = [];
@@ -72,6 +170,45 @@ export default function ProfileEditorPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       toast.error('Please fill all required fields');
+      setTimeout(() => {
+        const errorField = fieldsToValidate.find(f => getFieldState(f, formState).invalid);
+        if (errorField) {
+          const el = document.querySelector(`[name="${errorField}"]`) || document.getElementById(`field-${errorField}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+              (el as HTMLElement).focus({ preventScroll: true });
+            }
+          }
+        }
+      }, 50);
+    }
+  };
+
+  const onError = (errors: any) => {
+    toast.error('Please fill all required fields');
+    
+    // Helper to find the first deeply nested error key
+    const getFirstErrorKey = (obj: any, prefix = ''): string => {
+      const key = Object.keys(obj)[0];
+      if (!key) return '';
+      if (obj[key].message !== undefined || obj[key].type !== undefined) {
+        return prefix ? `${prefix}.${key}` : key;
+      }
+      return getFirstErrorKey(obj[key], prefix ? `${prefix}.${key}` : key);
+    };
+
+    const firstErrorKey = getFirstErrorKey(errors);
+    if (firstErrorKey) {
+      setTimeout(() => {
+        const el = document.querySelector(`[name="${firstErrorKey}"]`) || document.getElementById(`field-${firstErrorKey}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            (el as HTMLElement).focus({ preventScroll: true });
+          }
+        }
+      }, 50);
     }
   };
 
@@ -215,14 +352,14 @@ export default function ProfileEditorPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-8">
             {/* Step Indicator */}
             <div className="flex items-center justify-between relative mb-8">
               <div className="absolute left-0 right-0 top-4 -z-10 h-[2px] bg-[var(--border)] mx-8 hidden sm:block"></div>
               {[
                 { id: 1, label: 'Basic Info' },
                 { id: 2, label: 'Specialization' },
-                { id: 3, label: 'Contact & Map' }
+                { id: 3, label: 'Contact & Location' }
               ].map((step) => (
                 <div key={step.id} className="flex flex-col items-center gap-2 bg-[var(--bg-main)] px-2 sm:px-4 z-10">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${currentStep === step.id ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : currentStep > step.id ? 'bg-green-500 text-white' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border)]'}`}>
@@ -241,7 +378,7 @@ export default function ProfileEditorPage() {
                 <CardHeader><CardTitle className="text-lg font-semibold tracking-tight flex items-center gap-2"><User className="w-5 h-5 text-blue-500" /> Basic info</CardTitle></CardHeader>
                 <CardContent className="p-5 sm:p-6 space-y-5">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5" id="field-type">
                       <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-blue-500" /> Profile type <span className="text-red-500">*</span></Label>
                       <Controller
                         name="type"
@@ -364,12 +501,26 @@ export default function ProfileEditorPage() {
                       <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-blue-500" /> Experience</Label>
                       <input className="input-base w-full" type="number" placeholder="e.g. 5 (in years)" {...register('experience')} />
                     </div>
-                    {applicability?.showLanguages && (
-                      <div className="space-y-1.5">
-                        <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Languages className="w-4 h-4 text-blue-500" /> Languages</Label>
-                        <input className="input-base w-full" placeholder="e.g. English, Hindi, Bengali" {...register('languages')} />
-                      </div>
-                    )}
+                    {applicability?.showLanguages && (() => {
+                      const languageField = register('languages');
+                      return (
+                        <div className="space-y-1.5">
+                          <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Languages className="w-4 h-4 text-blue-500" /> Languages</Label>
+                          <input 
+                            className="input-base w-full" 
+                            placeholder="e.g. English, Hindi, Bengali" 
+                            {...languageField}
+                            onBlur={(e) => {
+                              languageField.onBlur(e);
+                              const normalized = normalizeLanguages(e.target.value);
+                              if (normalized !== e.target.value) {
+                                setValue('languages', normalized, { shouldValidate: true, shouldDirty: true });
+                              }
+                            }}
+                          />
+                        </div>
+                      );
+                    })()}
                   </div>
                 </CardContent>
               </Card>
@@ -457,7 +608,7 @@ export default function ProfileEditorPage() {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5" id="field-address.town">
                       <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Building2 className="w-4 h-4 text-blue-500" /> Town <span className="text-red-500">*</span></Label>
                       <Controller
                         name="address.town"
@@ -467,13 +618,18 @@ export default function ProfileEditorPage() {
                           <FluidDropdown
                             options={TOWNS}
                             value={field.value}
-                            onChange={field.onChange}
+                            onChange={(val) => {
+                              field.onChange(val);
+                              if (val && TOWN_TO_DISTRICT[val]) {
+                                setValue('address.district', TOWN_TO_DISTRICT[val], { shouldValidate: true });
+                              }
+                            }}
                             placeholder="Select Town"
                           />
                         )}
                       />
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5" id="field-address.district">
                       <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-500" /> District <span className="text-red-500">*</span></Label>
                       <Controller
                         name="address.district"
@@ -503,7 +659,39 @@ export default function ProfileEditorPage() {
 
                   {/* Map Location Picker */}
                   <div className="pt-4 mt-4 border-t" style={{ borderColor: 'var(--border)' }}>
-                    <Label className="mb-3 block" style={{ color: 'var(--text-primary)' }}>Precise Map Location</Label>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
+                      <Label className="block" style={{ color: 'var(--text-primary)' }}>Precise Map Location</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 h-8 text-xs font-medium"
+                        onClick={() => {
+                          if (navigator.geolocation) {
+                            toast.loading('Fetching your location...', { id: 'geo-toast' });
+                            navigator.geolocation.getCurrentPosition(
+                              (pos) => {
+                                setMapLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+                                toast.success('Location updated!', { id: 'geo-toast' });
+                                toast('Please manually verify the location on the map before submitting.', {
+                                  icon: '⚠️',
+                                  duration: 5000,
+                                });
+                              },
+                              (err) => {
+                                toast.error('Could not get your location. Please check browser permissions.', { id: 'geo-toast' });
+                              },
+                              { enableHighAccuracy: true, timeout: 10000 }
+                            );
+                          } else {
+                            toast.error('Geolocation is not supported by your browser');
+                          }
+                        }}
+                      >
+                        <Navigation className="w-3.5 h-3.5 text-blue-500" />
+                        Use Current Location
+                      </Button>
+                    </div>
 
                     <div className="mb-4 p-3 rounded-lg flex items-start gap-3 bg-red-500/10 border border-red-500/20 text-red-500">
                       <span className="text-xl">📍</span>

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, BookOpen } from 'lucide-react';
+import { Trash2, Plus, BookOpen, Users, GraduationCap, Globe, Activity, DollarSign, Sparkles } from 'lucide-react';
 import api from '@/lib/api';
 
 const CLASS_OPTIONS = ['Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10','Class 11','Class 12'];
@@ -97,21 +97,21 @@ export default function SlotsPage() {
   return (
     <div className="max-w-5xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Teaching Slots</h1>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Manage the subjects and activities you teach, along with your pricing.</p>
-        <div className="mt-4 p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
-          <h3 className="text-indigo-400 font-semibold mb-1 flex items-center gap-2">
-            <BookOpen size={16} /> What is a Teaching Slot?
+        <h1 className="text-3xl font-bold mb-2 tracking-tight" style={{ color: 'var(--text-primary)' }}>Teaching Slots</h1>
+        <p className="text-sm opacity-90" style={{ color: 'var(--text-secondary)' }}>Manage the subjects and activities you teach, along with your pricing.</p>
+        <div className="mt-5 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 transition-all hover:bg-blue-500/15">
+          <h3 className="text-blue-500 font-semibold mb-1.5 flex items-center gap-2">
+            <BookOpen size={18} /> What is a Teaching Slot?
           </h3>
-          <p className="text-sm text-indigo-400/80">
+          <p className="text-sm text-blue-500/80 leading-relaxed">
             A "Slot" represents a specific subject or activity you teach. If you teach Mathematics to Class 10 and Physics to Class 12, you should create two separate slots. This helps students find exactly what they are looking for when they search!
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Column: Existing Slots */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
           {profile.teachingSlots?.length > 0 ? (
             <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
               <CardHeader><CardTitle className="text-base">Current slots</CardTitle></CardHeader>
@@ -148,30 +148,34 @@ export default function SlotsPage() {
         </div>
 
         {/* Right Sidebar: Add Form & Tips */}
-        <div className="space-y-6">
-          <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <CardHeader><CardTitle className="text-base">Add new slot</CardTitle></CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-6 order-1 lg:order-2 lg:sticky lg:top-24">
+          <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }} className="shadow-sm">
+            <CardHeader className="pb-4 border-b mb-4" style={{ borderColor: 'var(--border)' }}>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2 tracking-tight">
+                <Plus className="w-5 h-5 text-blue-500" /> Add new slot
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-5">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {(profile.type === 'tutor' || profile.type === 'coaching_center') ? (
                   <>
                     <div className="space-y-1.5">
-                      <Label style={{ color: 'var(--text-primary)' }}>Subject</Label>
-                      <input className="input-base" placeholder="e.g. Mathematics" {...register('subject', { required: true })} />
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-blue-500" /> Subject <span className="text-red-500">*</span></Label>
+                      <input className="input-base w-full" placeholder="e.g. Mathematics" {...register('subject', { required: true })} />
                     </div>
 
                     <div className="space-y-2">
-                      <Label style={{ color: 'var(--text-primary)' }}>Classes</Label>
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Users className="w-4 h-4 text-blue-500" /> Classes <span className="text-red-500">*</span></Label>
                       <div className="grid grid-cols-4 gap-2">
                         {CLASS_OPTIONS.map((cls) => (
                           <button
                             key={cls} type="button"
                             onClick={() => toggleClass(cls)}
-                            className="px-2 py-1.5 rounded-lg text-xs transition-colors"
+                            className="px-2 py-2 rounded-lg text-xs font-medium transition-all hover:scale-[1.02] active:scale-[0.98]"
                             style={{
-                              background: selectedClasses.includes(cls) ? 'var(--gradient-to)' : 'transparent',
+                              background: selectedClasses.includes(cls) ? 'var(--color-brand)' : 'var(--bg-elevated)',
                               color: selectedClasses.includes(cls) ? '#fff' : 'var(--text-secondary)',
-                              border: `1px solid ${selectedClasses.includes(cls) ? 'var(--gradient-to)' : 'var(--border)'}`
+                              border: `1px solid ${selectedClasses.includes(cls) ? 'var(--color-brand)' : 'var(--border)'}`
                             }}
                           >
                             {cls.replace('Class ', '')}
@@ -182,7 +186,7 @@ export default function SlotsPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <Label style={{ color: 'var(--text-primary)' }}>Board</Label>
+                        <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><GraduationCap className="w-4 h-4 text-blue-500" /> Board</Label>
                         <Controller
                           name="board"
                           control={control}
@@ -197,7 +201,7 @@ export default function SlotsPage() {
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <Label style={{ color: 'var(--text-primary)' }}>Medium</Label>
+                        <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Globe className="w-4 h-4 text-blue-500" /> Medium</Label>
                         <Controller
                           name="medium"
                           control={control}
@@ -216,7 +220,7 @@ export default function SlotsPage() {
                 ) : (
                   <>
                     <div className="space-y-1.5">
-                    <Label style={{ color: 'var(--text-primary)' }}>Activity</Label>
+                    <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Activity className="w-4 h-4 text-blue-500" /> Activity <span className="text-red-500">*</span></Label>
                     <Controller
                       name="activity"
                       control={control}
@@ -245,32 +249,23 @@ export default function SlotsPage() {
                   </div>
                   {watch('activity') === 'Other' && (
                     <div className="space-y-1.5 mt-4">
-                      <Label style={{ color: 'var(--text-primary)' }}>Specify your activity</Label>
-                      <input className="input-base" placeholder="e.g. Karate, Flute, etc." {...register('customActivity', { required: true })} />
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Activity className="w-4 h-4 text-blue-500" /> Specify your activity <span className="text-red-500">*</span></Label>
+                      <input className="input-base w-full" placeholder="e.g. Karate, Flute, etc." {...register('customActivity', { required: true })} />
                     </div>
                   )}
                 </>
               )}
 
               <div className="space-y-1.5">
-                  <Label style={{ color: 'var(--text-primary)' }}>Fee per month (₹)</Label>
-                  <input className="input-base" type="number" placeholder="e.g. 1000" {...register('feePerMonth')} />
+                  <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><DollarSign className="w-4 h-4 text-blue-500" /> Fee per month (₹)</Label>
+                  <input className="input-base w-full" type="number" placeholder="e.g. 1000" {...register('feePerMonth')} />
                 </div>
 
-                <button type="submit" disabled={saving} className="btn-primary w-full py-2.5 flex items-center justify-center gap-2">
-                  <Plus size={16} />
+                <button type="submit" disabled={saving} className="btn-primary w-full py-3 mt-2 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                  <Plus size={18} />
                   {saving ? 'Adding...' : 'Add Slot'}
                 </button>
               </form>
-            </CardContent>
-          </Card>
-
-          <Card style={{ background: 'var(--bg-elevated)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
-            <CardContent className="p-5">
-              <h3 className="font-medium text-amber-500 mb-2">Pricing Tip</h3>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Consider offering competitive rates for your initial slots to build your reputation and gather positive reviews quickly.
-              </p>
             </CardContent>
           </Card>
         </div>
