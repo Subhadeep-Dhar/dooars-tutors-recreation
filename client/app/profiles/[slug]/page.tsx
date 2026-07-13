@@ -336,6 +336,9 @@ import { APIProvider, Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
+import { SERVICE_MODE_LABELS, STYLE_LABELS, getLearnerLevelLabels } from '@/lib/profileFieldConfig';
+import { resolveProfileKind } from '@dooars/shared';
+
 
 /* ── Helpers ───────────────────────────────────────────────────────────────── */
 const typeBadgeStyles: Record<string, { bg: string; color: string }> = {
@@ -810,10 +813,62 @@ export default function ProfilePage() {
           <div style={{ flex: '1 1 0', minWidth: '280px', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
             {/* About */}
-            {profile.about && (
+            {profile.bio && (
               <SCard>
                 <STitle>About</STitle>
-                <p style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text-secondary)', margin: 0 }}>{profile.about}</p>
+                <p style={{ fontSize: '0.9rem', lineHeight: 1.7, color: 'var(--text-secondary)', margin: 0, whiteSpace: 'pre-wrap' }}>{profile.bio}</p>
+              </SCard>
+            )}
+
+            {/* Specialization */}
+            {(profile.serviceModes?.length > 0 || profile.teachingStyles?.length > 0 || profile.learnerLevels?.length > 0) && (
+              <SCard>
+                <STitle>Specialization & Approach</STitle>
+                <div style={{ display: 'grid', gap: '1.25rem', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                  {profile.serviceModes?.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '0.5rem', marginTop: 0 }}>Service Modes</h3>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {profile.serviceModes.map((m: any) => (
+                          <span key={m} style={{ fontSize: '0.85rem', padding: '0.2rem 0.6rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
+                            {SERVICE_MODE_LABELS[m as keyof typeof SERVICE_MODE_LABELS] || m}
+                          </span>
+                        ))}
+                      </div>
+                      {profile.serviceRadiusKm && profile.serviceModes.includes('student_home') && (
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.4rem', marginBottom: 0 }}>
+                          Willing to travel up to {profile.serviceRadiusKm}km
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {profile.learnerLevels?.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '0.5rem', marginTop: 0 }}>Target Audience</h3>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {profile.learnerLevels.map((l: any) => (
+                          <span key={l} style={{ fontSize: '0.85rem', padding: '0.2rem 0.6rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
+                            {getLearnerLevelLabels(profile.type)[l as keyof ReturnType<typeof getLearnerLevelLabels>] || l}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {profile.teachingStyles?.length > 0 && (
+                    <div>
+                      <h3 style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-muted)', marginBottom: '0.5rem', marginTop: 0 }}>Teaching Style</h3>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {profile.teachingStyles.map((s: any) => (
+                          <span key={s} style={{ fontSize: '0.85rem', padding: '0.2rem 0.6rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
+                            {STYLE_LABELS[s as keyof typeof STYLE_LABELS] || s}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </SCard>
             )}
 
@@ -1162,6 +1217,28 @@ export default function ProfilePage() {
             <SCard>
               <STitle>Quick Info</STitle>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                {profile.calculatedAge && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                    <div style={{ width: '30px', height: '30px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-elevated)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ fontSize: '13px' }}>🎂</span>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.71rem', color: 'var(--text-muted)', margin: '0 0 1px' }}>Age</p>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', margin: 0 }}>{profile.calculatedAge} years</p>
+                    </div>
+                  </div>
+                )}
+                {profile.gender && profile.gender !== 'alien' && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                    <div style={{ width: '30px', height: '30px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-elevated)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ fontSize: '13px' }}>👤</span>
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '0.71rem', color: 'var(--text-muted)', margin: '0 0 1px' }}>Gender</p>
+                      <p style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--text-primary)', margin: 0, textTransform: 'capitalize' }}>{profile.gender}</p>
+                    </div>
+                  </div>
+                )}
                 {profile.experience > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
                     <div style={{ width: '30px', height: '30px', borderRadius: 'var(--radius-sm)', background: 'var(--bg-elevated)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

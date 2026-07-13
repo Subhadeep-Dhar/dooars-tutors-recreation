@@ -233,6 +233,9 @@ interface FPProps {
   minRating: string; setMinRating: (v: string) => void;
   maxFee: string; setMaxFee: (v: string) => void;
   place: string; setPlace: (v: string) => void;
+  gender: string; setGender: (v: string) => void;
+  selLanguages: string[]; toggleLanguage: (l: string) => void;
+  selServiceModes: string[]; toggleServiceMode: (m: string) => void;
   clearAll: () => void;
   onApply?: () => void;
 }
@@ -356,6 +359,47 @@ function FilterPanel(p: FPProps) {
           onBlur={e  => { e.target.style.borderColor = 'var(--border)';       e.target.style.boxShadow = 'none'; }}
         />
         <p style={{ fontSize: '0.71rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Town, area, or district</p>
+      </div>
+
+      {hr}
+
+      {/* Gender */}
+      <div>
+        <p style={secLabel}>Gender</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+          {['male', 'female'].map(g => (
+            <button key={g} style={chip(p.gender === g)} onClick={() => p.setGender(p.gender === g ? '' : g)}>{g.charAt(0).toUpperCase() + g.slice(1)}</button>
+          ))}
+        </div>
+      </div>
+
+      {hr}
+
+      {/* Service Modes */}
+      <div>
+        <p style={secLabel}>Service Modes</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+          {[
+            { value: 'online', label: 'Online' },
+            { value: 'offline', label: 'At Provider Location' },
+            { value: 'student_home', label: 'At Student Location' },
+            { value: 'provider_home', label: 'At Provider Home' }
+          ].map(m => (
+            <button key={m.value} style={catItem(p.selServiceModes.includes(m.value))} onClick={() => p.toggleServiceMode(m.value)}>{m.label}</button>
+          ))}
+        </div>
+      </div>
+
+      {hr}
+
+      {/* Languages */}
+      <div>
+        <p style={secLabel}>Languages</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
+          {['English', 'Hindi', 'Bengali', 'Nepali'].map(l => (
+            <button key={l} style={chip(p.selLanguages.includes(l))} onClick={() => p.toggleLanguage(l)}>{l}</button>
+          ))}
+        </div>
       </div>
 
       {hr}
@@ -713,6 +757,9 @@ function SearchPageInner() {
   const [maxFee,     setMaxFee]     = useState('');
   const [place,      setPlace]      = useState('');
   const [sortBy,     setSortBy]     = useState('highest rated');
+  const [gender,     setGender]     = useState('');
+  const [selLanguages, setSelLanguages] = useState<string[]>([]);
+  const [selServiceModes, setSelServiceModes] = useState<string[]>([]);
 
   // Debounce free-text inputs so API isn't called on every keystroke
   const dQuery    = useDebounce(query,    500);
@@ -739,11 +786,15 @@ function SearchPageInner() {
     if (minRating)   p.set('minRating', minRating);
     if (maxFee)      p.set('maxFee',    maxFee);
     if (dPlace)      p.set('place',     dPlace);
+    if (gender)      p.set('gender',    gender);
+    if (selLanguages.length) p.set('languages', selLanguages.join(','));
+    if (selServiceModes.length) p.set('serviceModes', selServiceModes.join(','));
+
     p.set('sort',  sortBy === 'highest rated' ? 'rating' : 'newest');
     p.set('page',  String(page));
     p.set('limit', '12');
     return p.toString();
-  }, [type, dQuery, dSubjects, selClasses, selBoards, minRating, maxFee, dPlace, sortBy]);
+  }, [type, dQuery, dSubjects, selClasses, selBoards, minRating, maxFee, dPlace, sortBy, gender, selLanguages, selServiceModes]);
 
   // Fetch page 1 on every filter change
   useEffect(() => {
@@ -784,10 +835,14 @@ function SearchPageInner() {
 
   function toggleClass(c: string) { setSelClasses(p => p.includes(c) ? p.filter(x => x !== c) : [...p, c]); }
   function toggleBoard(b: string) { setSelBoards(p =>  p.includes(b) ? p.filter(x => x !== b) : [...p, b]); }
+  function toggleLanguage(l: string) { setSelLanguages(p => p.includes(l) ? p.filter(x => x !== l) : [...p, l]); }
+  function toggleServiceMode(m: string) { setSelServiceModes(p => p.includes(m) ? p.filter(x => x !== m) : [...p, m]); }
+
   function clearAll() {
     setType(''); setQuery(''); setSubjects('');
     setSelClasses([]); setSelBoards([]); setMinRating(''); setMaxFee('');
     setPlace(''); setSortBy('highest rated');
+    setGender(''); setSelLanguages([]); setSelServiceModes([]);
   }
 
   const hasMore = profiles.length < total;
@@ -797,11 +852,12 @@ function SearchPageInner() {
         lng: validGeo.reduce((s, p) => s + p.location.coordinates[0], 0) / validGeo.length }
     : { lat: 26.55, lng: 89.5 };
 
-  const activeCount = [type, subjects, minRating, maxFee, place, ...selClasses, ...selBoards].filter(Boolean).length;
+  const activeCount = [type, subjects, minRating, maxFee, place, gender, ...selClasses, ...selBoards, ...selLanguages, ...selServiceModes].filter(Boolean).length;
 
   const fp = { type, setType, subjects, setSubjects, selClasses, toggleClass,
     selBoards, toggleBoard, sortBy, setSortBy, minRating, setMinRating,
-    maxFee, setMaxFee, place, setPlace, clearAll };
+    maxFee, setMaxFee, place, setPlace, gender, setGender, selLanguages, toggleLanguage,
+    selServiceModes, toggleServiceMode, clearAll };
 
   return (
     <div style={{ display: 'flex', minHeight: 'calc(100vh - 4rem)', background: 'var(--bg-base)' }}>

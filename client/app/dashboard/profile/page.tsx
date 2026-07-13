@@ -12,6 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
+import { resolveProfileKind, getProfileFieldApplicability, TeachingStyleType } from '@dooars/shared';
+import { SERVICE_MODE_LABELS, STYLE_LABELS, getLearnerLevelLabels, getApplicableStyles } from '@/lib/profileFieldConfig';
+
 
 const PROFILE_TYPES = [
   { value: 'tutor', label: 'Private Tutor' },
@@ -38,7 +41,16 @@ export default function ProfileEditorPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deletingAccount, setDeletingAccount] = useState(false);
 
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, watch } = useForm();
+  
+  const typeWatch = watch('type');
+  const isOrganisationWatch = watch('isOrganisation');
+  const serviceModesWatch = watch('serviceModes') || [];
+  
+  const profileKind = typeWatch ? resolveProfileKind(typeWatch, isOrganisationWatch === 'true' || isOrganisationWatch === true ? true : isOrganisationWatch === 'false' || isOrganisationWatch === false ? false : undefined) : 'unknown';
+  const applicability = typeWatch ? getProfileFieldApplicability(typeWatch, profileKind) : null;
+  const learnerLevelLabels = typeWatch ? getLearnerLevelLabels(typeWatch) : {};
+  const applicableStyles = typeWatch ? getApplicableStyles(typeWatch) : [];
 
   useEffect(() => {
     api.get('/profiles/me')
@@ -51,6 +63,14 @@ export default function ProfileEditorPage() {
           tagline: p.tagline,
           bio: p.bio,
           experience: p.experience,
+          isOrganisation: p.isOrganisation === true ? 'true' : p.isOrganisation === false ? 'false' : '',
+          gender: p.gender || '',
+          dateOfBirth: p.dateOfBirth ? p.dateOfBirth.split('T')[0] : '',
+          languages: p.languages?.join(', ') || '',
+          serviceModes: p.serviceModes || [],
+          serviceRadiusKm: p.serviceRadiusKm || '',
+          learnerLevels: p.learnerLevels || [],
+          teachingStyles: p.teachingStyles || [],
           'address.line1': p.address?.line1,
           'address.area': p.address?.area,
           'address.town': p.address?.town,
@@ -84,6 +104,14 @@ export default function ProfileEditorPage() {
         tagline: data.tagline,
         bio: data.bio,
         experience: data.experience ? Number(data.experience) : undefined,
+        isOrganisation: data.isOrganisation === 'true' ? true : data.isOrganisation === 'false' ? false : undefined,
+        gender: data.gender || undefined,
+        dateOfBirth: data.dateOfBirth || undefined,
+        languages: typeof data.languages === 'string' ? data.languages.split(',').map((l: string) => l.trim()).filter(Boolean) : data.languages,
+        serviceModes: data.serviceModes || [],
+        serviceRadiusKm: data.serviceRadiusKm ? Number(data.serviceRadiusKm) : undefined,
+        learnerLevels: data.learnerLevels || [],
+        teachingStyles: data.teachingStyles || [],
         address: {
           line1: data?.address?.line1 || data['address.line1'],
           area: data?.address?.area || data['address.area'],
@@ -181,15 +209,121 @@ export default function ProfileEditorPage() {
                   className="input-base resize-none"
                 />
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Write 3-4 sentences. Mention your degrees, past successes, and what makes your teaching unique.</p>
+                {profile?.bioSource && profile.bioSource !== 'user' && profile.bioSource !== 'admin' && (
+                  <div className="mt-2 text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-blue-50 text-blue-700 border border-blue-100 w-max">
+                    <span>✨</span>
+                    <span>
+                      {profile.bioSource === 'ai_generated' && 'This bio was automatically enhanced by AI.'}
+                      {profile.bioSource === 'deterministic' && 'This bio was automatically generated.'}
+                      {profile.bioSource === 'imported' && 'This bio was imported from Google Maps.'}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Years of experience</Label>
-                <input className="input-base" type="number" placeholder="e.g. 5" {...register('experience')} />
+              
+              {typeWatch === 'gym_yoga' && (
+                <div className="space-y-1.5 p-4 rounded-lg border border-orange-200 bg-orange-50">
+                  <Label className="text-orange-900 font-semibold">Are you an individual instructor or an organisation?</Label>
+                  <p className="text-xs text-orange-700 mb-2">Please clarify to help us show the right profile fields.</p>
+                  <select {...register('isOrganisation')} className="input-base border-orange-200 bg-white text-orange-900">
+                    <option value="">-- Please specify --</option>
+                    <option value="false">Individual Instructor</option>
+                    <option value="true">Organisation / Centre</option>
+                  </select>
+                </div>
+              )}
+
+              {applicability?.showGenderDob && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label style={{ color: 'var(--text-primary)' }}>Gender</Label>
+                    <select {...register('gender')} className="input-base">
+                      <option value="" disabled>Select Gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="alien">Other</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label style={{ color: 'var(--text-primary)' }}>Date of Birth</Label>
+                    <input type="date" {...register('dateOfBirth')} className="input-base" />
+                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Never shown publicly. Used to calculate age.</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label style={{ color: 'var(--text-primary)' }}>Years of experience</Label>
+                  <input className="input-base" type="number" placeholder="e.g. 5" {...register('experience')} />
+                </div>
+                {applicability?.showLanguages && (
+                  <div className="space-y-1.5">
+                    <Label style={{ color: 'var(--text-primary)' }}>Languages</Label>
+                    <input className="input-base" placeholder="e.g. English, Hindi, Bengali" {...register('languages')} />
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
           <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <CardHeader><CardTitle className="text-base">Specialization & Approach</CardTitle></CardHeader>
+            <CardContent className="space-y-6">
+              {applicability?.showServiceModes && (
+                <div className="space-y-2">
+                  <Label style={{ color: 'var(--text-primary)' }}>Service Modes (Where do you teach?)</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {Object.entries(SERVICE_MODE_LABELS).map(([val, label]) => (
+                      <label key={val} className="flex items-center gap-2 text-sm p-2 rounded border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" value={val} {...register('serviceModes')} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {applicability?.showServiceRadius && serviceModesWatch.includes('student_home') && (
+                <div className="space-y-1.5">
+                  <Label style={{ color: 'var(--text-primary)' }}>Service Radius (Km)</Label>
+                  <input className="input-base" type="number" min="0" max="200" placeholder="e.g. 10" {...register('serviceRadiusKm')} />
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>How far are you willing to travel to a student's location?</p>
+                </div>
+              )}
+
+              {applicability?.showLearnerLevels && (
+                <div className="space-y-2">
+                  <Label style={{ color: 'var(--text-primary)' }}>Target Learner Levels</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {Object.entries(learnerLevelLabels).map(([val, label]) => (
+                      <label key={val} className="flex items-center gap-2 text-sm p-2 rounded border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" value={val} {...register('learnerLevels')} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                        <span style={{ color: 'var(--text-secondary)' }}>{label as string}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {applicability?.showStyles && applicableStyles.length > 0 && (
+                <div className="space-y-2">
+                  <Label style={{ color: 'var(--text-primary)' }}>Teaching / Training Styles</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {applicableStyles.map((styleKey) => (
+                      <label key={styleKey} className="flex items-center gap-2 text-sm p-2 rounded border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" value={styleKey} {...register('teachingStyles')} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                        <span style={{ color: 'var(--text-secondary)' }}>{STYLE_LABELS[styleKey as TeachingStyleType]}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+
             <CardHeader><CardTitle className="text-base">Address</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
