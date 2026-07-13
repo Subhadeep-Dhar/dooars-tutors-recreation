@@ -176,3 +176,15 @@ export async function getModerationAnalytics(req: Request, res: Response, next: 
     res.json({ success: true, data: result });
   } catch (err) { next(err); }
 }
+
+/**
+ * POST /admin/profiles/:id/generate-bio
+ * Triggers bio generation for a specific profile.
+ * Returns 202 Accepted immediately -- generation is asynchronous.
+ */
+export async function generateBio(req: Request, res: Response, next: NextFunction) {
+  try {
+    const result = await AdminService.triggerBioGeneration(req.params.id);
+    res.status(202).json({ success: true, data: result });
+  } catch (err) { next(err); }
+}

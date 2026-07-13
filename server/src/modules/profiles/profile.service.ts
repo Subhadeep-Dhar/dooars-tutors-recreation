@@ -2,8 +2,10 @@ import slugify from 'slugify';
 import mongoose from 'mongoose';
 import { Profile } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
-import { ProfileType, BoardType, MediumType } from '@dooars/shared';
+import { ProfileType, BoardType, MediumType, ServiceModeType, LearnerLevelType, TeachingStyleType, GenderType, IAvailabilityDay, calculateAge } from '@dooars/shared';
 import { cacheDel } from '../../config/redis';
+import { generateBioIfMissing } from './bioGenerator.service';
+
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -68,6 +70,9 @@ export async function createProfile(userId: string, data: {
   displayName: string;
   tagline?: string;
   bio?: string;
+  isOrganisation?: boolean;
+  gender?: GenderType;
+  dateOfBirth?: string; // ISO date string from request; stored as Date
   address?: {
     line1?: string;
     area?: string;
@@ -85,13 +90,17 @@ export async function createProfile(userId: string, data: {
   experience?: number;
   languages?: string[];
   location?: [number, number];
+  serviceModes?: ServiceModeType[];
+  serviceRadiusKm?: number;
+  learnerLevels?: LearnerLevelType[];
+  teachingStyles?: TeachingStyleType[];
+  availability?: IAvailabilityDay[];
 }) {
   const existing = await Profile.findOne({ userId });
   if (existing) throw new AppError('Profile already exists for this account', 409);
 
   const slug = await generateUniqueSlug(data.displayName);
   
-  // Determine coordinates: use provided location, or geocode address if provided, or use default
   let coordinates: [number, number] = [89.527100, 26.491890]; // default Alipurduar
   
   if (data.location) {
@@ -100,7 +109,6 @@ export async function createProfile(userId: string, data: {
     coordinates = await geocodeAddress(data.address as any);
   }
 
-  // Ensure address object exists with all fields
   const address = data.address || {
     line1: '',
     town: '',
@@ -109,16 +117,31 @@ export async function createProfile(userId: string, data: {
     pincode: '',
   };
 
+  // bioSource is 'user' when user provides a non-empty bio at creation time.
+  // bioSource is left unset (will be filled by generator) when bio is empty.
+  const userProvidedBio = (data.bio ?? '').trim();
+  const bioSource = userProvidedBio ? 'user' : undefined;
+
   const profile = await Profile.create({
     userId,
     type: data.type,
     displayName: data.displayName,
     tagline: data.tagline,
-    bio: data.bio,
+    bio: userProvidedBio || undefined,
+    bioSource,
+    // isOrganisation: no default set -- undefined = unknown for gym_yoga
+    ...(typeof data.isOrganisation === 'boolean' ? { isOrganisation: data.isOrganisation } : {}),
+    gender: data.gender,
+    dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : undefined,
     address,
     contact: data.contact,
     experience: data.experience,
     languages: data.languages,
+    serviceModes: data.serviceModes,
+    serviceRadiusKm: data.serviceRadiusKm,
+    learnerLevels: data.learnerLevels,
+    teachingStyles: data.teachingStyles,
+    availability: data.availability,
     slug,
     location: { type: 'Point', coordinates },
     teachingSlots: [],
@@ -129,6 +152,11 @@ export async function createProfile(userId: string, data: {
     isActive: true,
   });
 
+  // Fire-and-forget bio generation -- does NOT block the response
+  generateBioIfMissing(profile).catch(err =>
+    console.warn('[BioGen] Unhandled fire-and-forget error:', err.message)
+  );
+
   return profile;
 }
 
@@ -136,11 +164,20 @@ export async function updateProfile(profileId: string, userId: string, data: Par
   displayName: string;
   tagline: string;
   bio: string;
+  isOrganisation: boolean;
+  gender: GenderType;
+  dateOfBirth: string; // ISO date string from request
   address: any;
   contact: any;
   experience: number;
   languages: string[];
   location: [number, number];
+  serviceModes: ServiceModeType[];
+  serviceRadiusKm: number;
+  learnerLevels: LearnerLevelType[];
+  teachingStyles: TeachingStyleType[];
+  availability: IAvailabilityDay[];
+  // bioSource is intentionally EXCLUDED -- it is server-controlled, never accepted from clients
 }>) {
   const profile = await Profile.findOne({ _id: profileId, userId });
   if (!profile) throw new AppError('Profile not found', 404);
@@ -154,13 +191,37 @@ export async function updateProfile(profileId: string, userId: string, data: Par
   if (data.location) {
     (data as any).location = { type: 'Point', coordinates: data.location };
   } else if (data.address?.town) {
-    // Only geocode if address has a town field
     const coordinates = await geocodeAddress(data.address);
     (data as any).location = { type: 'Point', coordinates };
   }
 
+  // bio provenance: set bioSource='user' and add 'bio' to manuallyEditedFields
+  const incomingBio = (data.bio ?? '').trim();
+  if (incomingBio) {
+    (data as any).bioSource = 'user';
+    if (!profile.manuallyEditedFields) (profile as any).manuallyEditedFields = [];
+    if (!profile.manuallyEditedFields.includes('bio')) {
+      profile.manuallyEditedFields.push('bio');
+    }
+  }
+
+  // dateOfBirth: convert ISO string to Date
+  if (data.dateOfBirth) {
+    (data as any).dateOfBirth = new Date(data.dateOfBirth);
+  }
+
+  // isOrganisation: only apply if explicitly provided (never default)
+  if (typeof data.isOrganisation !== 'boolean') {
+    delete (data as any).isOrganisation;
+  }
+
   Object.assign(profile, data);
   await profile.save();
+
+  // Fire-and-forget bio generation -- does NOT block the response
+  generateBioIfMissing(profile).catch(err =>
+    console.warn('[BioGen] Unhandled fire-and-forget error:', err.message)
+  );
 
   // Invalidate search cache for this profile
   await cacheDel(`search:*`);
@@ -171,7 +232,7 @@ export async function updateProfile(profileId: string, userId: string, data: Par
 export async function getProfileBySlug(slug: string) {
   const profile = await Profile.findOne({ slug, isActive: true }).lean();
   if (!profile) throw new AppError('Profile not found', 404);
-  return profile;
+  return buildPublicProfile(profile);
 }
 
 /**
@@ -187,8 +248,22 @@ export async function getProfileByIdentifier(identifier: string) {
     profile = await Profile.findOne({ slug: identifier, isActive: true }).lean();
   }
   if (!profile) throw new AppError('Profile not found', 404);
-  return profile;
+  return buildPublicProfile(profile);
 }
+
+/**
+ * Builds a public-safe profile object.
+ * - Excludes dateOfBirth (never exposed in public API responses)
+ * - Computes calculatedAge server-side when DOB is available
+ */
+function buildPublicProfile(raw: any): any {
+  const { dateOfBirth, ...publicProfile } = raw;
+  if (dateOfBirth) {
+    publicProfile.calculatedAge = calculateAge(new Date(dateOfBirth));
+  }
+  return publicProfile;
+}
+
 
 /**
  * Resolve profileId param — if it's a slug, look up the real _id.

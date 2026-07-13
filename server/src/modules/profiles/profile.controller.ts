@@ -16,6 +16,50 @@ export const createProfileValidation = [
   body('address.district').optional({ checkFalsy: true }).trim(),
   body('address.state').optional({ checkFalsy: true }).trim(),
   body('address.pincode').optional({ checkFalsy: true }).trim(),
+  // ── New optional fields ──────────────────────────────────────────────────
+  body('gender')
+    .optional()
+    .isIn(['male', 'female', 'alien'])
+    .withMessage('Invalid gender value'),
+  body('isOrganisation')
+    .optional()
+    .isBoolean({ strict: false })
+    .withMessage('isOrganisation must be a boolean'),
+  body('dateOfBirth')
+    .optional({ checkFalsy: true })
+    .isISO8601()
+    .withMessage('dateOfBirth must be an ISO 8601 date'),
+  body('serviceModes')
+    .optional()
+    .isArray()
+    .withMessage('serviceModes must be an array'),
+  body('serviceModes.*')
+    .optional()
+    .isIn(['online', 'offline', 'student_home', 'provider_home'])
+    .withMessage('Invalid service mode'),
+  body('serviceRadiusKm')
+    .optional()
+    .isFloat({ min: 0, max: 200 })
+    .withMessage('serviceRadiusKm must be between 0 and 200'),
+  body('learnerLevels')
+    .optional()
+    .isArray()
+    .withMessage('learnerLevels must be an array'),
+  body('learnerLevels.*')
+    .optional()
+    .isIn(['foundation', 'intermediate', 'advanced', 'all'])
+    .withMessage('Invalid learner level'),
+  body('teachingStyles')
+    .optional()
+    .isArray()
+    .withMessage('teachingStyles must be an array'),
+  body('teachingStyles.*')
+    .optional()
+    .isIn(['patient','concept_focused','exam_oriented','interactive','practice_intensive','visual_learning','step_by_step','fast_paced','gentle'])
+    .withMessage('Invalid teaching style'),
+  // bioSource and bioGeneratedAt are server-controlled -- rejected if sent by client
+  body('bioSource').not().exists().withMessage('bioSource is server-controlled and cannot be set by clients'),
+  body('bioGeneratedAt').not().exists().withMessage('bioGeneratedAt is server-controlled and cannot be set by clients'),
 ];
 
 export const slotValidation = [
@@ -43,7 +87,10 @@ export async function createProfile(req: Request, res: Response, next: NextFunct
       throw new AppError('Validation failed', 400, fieldErrors);
     }
 
-    const profile = await ProfileService.createProfile(req.user!.userId, req.body);
+    // Strip server-controlled provenance fields from client payload
+    const { bioSource, bioGeneratedAt, ...safeBody } = req.body;
+
+    const profile = await ProfileService.createProfile(req.user!.userId, safeBody);
     
     if (req.user?.email) {
       sendProfileCreationAdminNotification(req.user.email, profile.displayName, profile.type).catch(console.error);
@@ -55,7 +102,9 @@ export async function createProfile(req: Request, res: Response, next: NextFunct
 
 export async function updateProfile(req: Request, res: Response, next: NextFunction) {
   try {
-    const profile = await ProfileService.updateProfile(req.params.id, req.user!.userId, req.body);
+    // Strip server-controlled provenance fields from client payload
+    const { bioSource, bioGeneratedAt, ...safeBody } = req.body;
+    const profile = await ProfileService.updateProfile(req.params.id, req.user!.userId, safeBody);
     res.json({ success: true, data: { profile } });
   } catch (err) { next(err); }
 }

@@ -6,6 +6,12 @@ import { expandQuery, normalizeClass, parseQuery } from './synonyms';
 
 const CACHE_TTL = 300;
 
+/** Escapes special regex characters in user-supplied strings */
+function escapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+
 function buildCacheKey(params: SearchParams): string {
   return `search:${crypto.createHash('md5').update(JSON.stringify(params)).digest('hex')}`;
 }
@@ -99,6 +105,30 @@ export async function searchProfiles(params: SearchParams) {
       { 'address.area': placeRe },
       { 'address.district': placeRe },
     ];
+  }
+
+  // ── NEW: gender filter (exact match) ──────────────────────────────────
+  const genderParam = (params as any).gender;
+  if (genderParam) {
+    base.gender = genderParam;
+  }
+
+  // ── NEW: languages filter (match ANY provided value, case-insensitive) ─
+  const langsParam: string | undefined = (params as any).languages;
+  if (langsParam) {
+    const langs = langsParam.split(',').map((l: string) => l.trim()).filter(Boolean);
+    if (langs.length > 0) {
+      base.languages = { $in: langs.map((l: string) => new RegExp(`^${escapeRegex(l)}$`, 'i')) };
+    }
+  }
+
+  // ── NEW: serviceModes filter (match ANY provided value) ───────────────
+  const serviceModesParam: string | undefined = (params as any).serviceModes;
+  if (serviceModesParam) {
+    const modes = serviceModesParam.split(',').map((m: string) => m.trim()).filter(Boolean);
+    if (modes.length > 0) {
+      base.serviceModes = { $in: modes };
+    }
   }
 
   // Fetch profiles

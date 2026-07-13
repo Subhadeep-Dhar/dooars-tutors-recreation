@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { ProfileType, BoardType, MediumType, MediaCategory } from '@dooars/shared';
+import { ProfileType, BoardType, MediumType, MediaCategory, GenderType, ServiceModeType, LearnerLevelType, TeachingStyleType, BioSourceType, IAvailabilityDay } from '@dooars/shared';
 
 // ── Subdocument interfaces ───────────────────────────────────────────────────
 
@@ -98,6 +98,28 @@ export interface IProfileDocument extends Document {
     lastEnrichedAt?: Date;
     enrichmentVersion: number;
     manuallyEditedFields: string[];
+
+    // ── New optional fields (Phases 2–11) ───────────────────────────────────
+    /** Disambiguates gym_yoga profiles. Intentionally has no DB default — undefined = unknown. */
+    isOrganisation?: boolean;
+    gender?: GenderType;
+    /**
+     * Date of birth. Stored in DB but NEVER returned in public API responses.
+     * Age is computed server-side using calculateAge() and exposed as calculatedAge.
+     */
+    dateOfBirth?: Date;
+    serviceModes?: ServiceModeType[];
+    learnerLevels?: LearnerLevelType[];
+    teachingStyles?: TeachingStyleType[];
+    availability?: IAvailabilityDay[];
+    /** Service radius in km — applicable only when student_home is a selected mode. */
+    serviceRadiusKm?: number;
+    /**
+     * Provenance of the bio field. Server-controlled — never accepted from client payloads.
+     * Set automatically by: profile.service.ts, admin.service.ts, BioGeneratorService, mapper.service.ts.
+     */
+    bioSource?: BioSourceType;
+    bioGeneratedAt?: Date;
 
     createdAt: Date;
     updatedAt: Date;
@@ -231,6 +253,24 @@ const ProfileSchema = new Schema<IProfileDocument>(
         lastEnrichedAt: { type: Date },
         enrichmentVersion: { type: Number, default: 0 },
         manuallyEditedFields: [{ type: String, default: [] }],
+
+        // ── New optional fields (no defaults to preserve legacy document state) ──
+        isOrganisation: { type: Boolean }, // No default — undefined = unknown for gym_yoga
+        gender: { type: String, enum: ['male', 'female', 'alien'] },
+        dateOfBirth: { type: Date }, // Never returned in public API responses
+        serviceModes: [{ type: String, enum: ['online', 'offline', 'student_home', 'provider_home'] }],
+        learnerLevels: [{ type: String, enum: ['foundation', 'intermediate', 'advanced', 'all'] }],
+        teachingStyles: [{ type: String, enum: ['patient','concept_focused','exam_oriented','interactive','practice_intensive','visual_learning','step_by_step','fast_paced','gentle'] }],
+        availability: [{
+            day: { type: String, enum: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] },
+            slots: [{
+                startTime: { type: String }, // HH:mm, 24h, Asia/Kolkata implied
+                endTime:   { type: String },
+            }],
+        }],
+        serviceRadiusKm: { type: Number, min: 0, max: 200 },
+        bioSource: { type: String, enum: ['user','admin','ai_generated','deterministic','imported'] },
+        bioGeneratedAt: { type: Date },
     },
     { timestamps: true }
 );
@@ -242,5 +282,9 @@ ProfileSchema.index({ type: 1, _subjectIndex: 1, _classIndex: 1 });
 ProfileSchema.index({ verificationStatus: 1, isActive: 1, _subjectIndex: 1, _classIndex: 1, 'rating.score': -1 });
 ProfileSchema.index({ slug: 1 }, { unique: true });
 ProfileSchema.index({ isFeatured: 1, verificationStatus: 1, isActive: 1 });
+// Sparse indexes for new filterable fields — do not force presence on all documents
+ProfileSchema.index({ gender: 1 }, { sparse: true });
+ProfileSchema.index({ languages: 1 }, { sparse: true });
+ProfileSchema.index({ serviceModes: 1 }, { sparse: true });
 
 export const Profile = mongoose.model<IProfileDocument>('Profile', ProfileSchema);

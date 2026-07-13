@@ -19,7 +19,8 @@ import {
   updateProfile,
   deleteUser,
   toggleReviewVisibility,
-  toggleProfileFeatured
+  toggleProfileFeatured,
+  generateBio
 } from './admin.controller';
 import { getReports, updateReportStatus } from '../reports/report.controller';
 
@@ -56,6 +57,7 @@ router.get('/moderation/:id', getProfileForModeration);
 router.post('/profiles/:id/approve', approveProfile);
 router.post('/profiles/:id/reject', rejectProfile);
 router.post('/profiles/:id/merge', mergeProfiles);
+router.post('/profiles/:id/generate-bio', generateBio);
 router.get('/analytics', getModerationAnalytics);
 
 export default router;

@@ -1,6 +1,7 @@
 import { Profile, EnrichmentJob, SearchMetric, IProfileDocument, User, Review } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
 import mongoose from 'mongoose';
+import { generateBioIfMissing } from '../profiles/bioGenerator.service';
 
 export interface ModerationQueueResult {
   profiles: any[];
@@ -366,44 +367,77 @@ export async function toggleProfileStatus(profileId: string) {
 export async function updateProfile(profileId: string, data: any) {
   const profile = await Profile.findById(profileId);
   if (!profile) throw new AppError('Profile not found', 404);
-  
-  if (data.displayName !== undefined) profile.displayName = data.displayName;
-  if (data.slug !== undefined) profile.slug = data.slug;
-  if (data.type !== undefined) profile.type = data.type;
-  if (data.bio !== undefined) profile.bio = data.bio;
-  // Removed invalid properties: about, isVerified, isVisible
+
+  // Strip server-controlled provenance fields -- never accept from any caller
+  const { bioSource: _bs, bioGeneratedAt: _bga, ...safeData } = data;
+
+  if (safeData.displayName !== undefined) profile.displayName = safeData.displayName;
+  if (safeData.slug !== undefined) profile.slug = safeData.slug;
+  if (safeData.type !== undefined) profile.type = safeData.type;
+
+  // bio: set bioSource='admin' and add 'bio' to manuallyEditedFields
+  if (safeData.bio !== undefined) {
+    profile.bio = safeData.bio;
+    if (safeData.bio.trim()) {
+      (profile as any).bioSource = 'admin';
+      if (!profile.manuallyEditedFields) (profile as any).manuallyEditedFields = [];
+      if (!profile.manuallyEditedFields.includes('bio')) {
+        profile.manuallyEditedFields.push('bio');
+      }
+    }
+  }
 
   // Contact
-  if (data.phone !== undefined || data.email !== undefined || data.whatsapp !== undefined) {
+  if (safeData.phone !== undefined || safeData.email !== undefined || safeData.whatsapp !== undefined) {
     if (!profile.contact) profile.contact = {};
-    if (data.phone !== undefined) profile.contact.phone = data.phone;
-    if (data.email !== undefined) profile.contact.email = data.email;
-    if (data.whatsapp !== undefined) profile.contact.whatsapp = data.whatsapp;
+    if (safeData.phone !== undefined) profile.contact.phone = safeData.phone;
+    if (safeData.email !== undefined) profile.contact.email = safeData.email;
+    if (safeData.whatsapp !== undefined) profile.contact.whatsapp = safeData.whatsapp;
   }
 
   // Address
-  if (data.address !== undefined) {
-    profile.address = { ...profile.address, ...data.address };
+  if (safeData.address !== undefined) {
+    profile.address = { ...profile.address, ...safeData.address };
   }
 
   // Location Coordinates
-  if (data.location?.coordinates !== undefined) {
+  if (safeData.location?.coordinates !== undefined) {
     if (!profile.location) profile.location = { type: 'Point', coordinates: [0,0] };
-    profile.location.coordinates = data.location.coordinates;
+    profile.location.coordinates = safeData.location.coordinates;
   }
 
   // Teaching Slots
-  if (data.teachingSlots !== undefined) {
-    profile.teachingSlots = data.teachingSlots;
+  if (safeData.teachingSlots !== undefined) {
+    profile.teachingSlots = safeData.teachingSlots;
   }
 
   // Media
-  if (data.media !== undefined) {
-    profile.media = data.media;
+  if (safeData.media !== undefined) {
+    profile.media = safeData.media;
   }
 
   await profile.save();
   return profile;
+}
+
+/**
+ * Triggers bio generation for a specific profile.
+ * Used by admin route POST /profiles/:id/generate-bio.
+ * Fire-and-forget -- does not wait for Gemini to respond.
+ */
+export async function triggerBioGeneration(profileId: string): Promise<{ queued: boolean; message: string }> {
+  const profile = await Profile.findById(profileId);
+  if (!profile) throw new AppError('Profile not found', 404);
+
+  // Force bio to empty so generateBioIfMissing runs (admin explicitly requested it)
+  const tempProfile = { ...profile.toObject(), bio: '' } as any;
+
+  // Fire-and-forget
+  generateBioIfMissing(tempProfile as any).catch(err =>
+    console.warn(`[AdminBioGen] Failed for profile ${profileId}:`, err.message)
+  );
+
+  return { queued: true, message: 'Bio generation queued. Result will be saved asynchronously.' };
 }
 
 export async function deleteUser(userId: string) {

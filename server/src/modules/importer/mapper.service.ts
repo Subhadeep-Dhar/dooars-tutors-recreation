@@ -10,6 +10,7 @@ export async function mapToProfile(data: NormalizedData): Promise<any> {
     displayName: data.name,
     slug: `${data.slug}-${data.googlePlaceId.substring(0, 8)}`, // Ensure uniqueness
     bio: `Imported from Google Maps.`,
+    bioSource: 'imported', // Server-controlled provenance — never accepted from clients
     location: {
       type: 'Point',
       coordinates: [data.longitude, data.latitude]
