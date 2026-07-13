@@ -119,6 +119,7 @@ function VerifyOtpContent() {
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} // only digits
               className="input-base text-center text-2xl tracking-[0.5em] font-mono h-14" 
+              autoFocus
             />
           </div>
 

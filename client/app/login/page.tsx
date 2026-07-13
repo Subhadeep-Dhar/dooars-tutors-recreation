@@ -99,6 +99,7 @@ export default function LoginPage() {
               placeholder="you@example.com" 
               {...register('email')} 
               className="input-base"
+              autoFocus
             />
             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
           </div>

@@ -118,7 +118,7 @@ export default function RegisterPage() {
 
           <div className="space-y-1.5">
             <Label htmlFor="name" style={{ color: 'var(--text-primary)' }}>Full name</Label>
-            <input id="name" placeholder="Your full name" {...register('name')} className="input-base" />
+            <input id="name" placeholder="Your full name" {...register('name')} className="input-base" autoFocus />
             {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
           </div>
 
