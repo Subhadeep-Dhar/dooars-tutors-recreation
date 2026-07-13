@@ -91,6 +91,7 @@ export default function ProfileEditorPage() {
       .catch(() => {
         setIsNew(true);
         setMapLocation({ lat: 26.491890, lng: 89.527100 });
+        reset({ type: 'tutor' });
       })
       .finally(() => setLoading(false));
   }, []);
