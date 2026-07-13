@@ -297,7 +297,7 @@ export default function ProfileEditorPage() {
         },
         contact: {
           phone: data?.contact?.phone || data['contact.phone'],
-          whatsapp: data?.contact?.whatsapp || data['contact.whatsapp'],
+          whatsapp: (data?.contact?.whatsapp || data['contact.whatsapp']) || (data?.contact?.phone || data['contact.phone']),
           email: data?.contact?.email || data['contact.email'],
         },
         location: mapLocation ? [mapLocation.lng, mapLocation.lat] : undefined,

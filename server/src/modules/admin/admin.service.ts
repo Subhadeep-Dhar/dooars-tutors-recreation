@@ -68,17 +68,29 @@ export async function getModerationQueue(filters: any, options: { page: number, 
 
 // ── NEW: General Admin Lists (Restoring Visibility) ──────────────────────────
 
-export async function getAllProfiles(options: { page: number, limit: number, search?: string, type?: string }) {
+export async function getAllProfiles(options: { page: number, limit: number, search?: string, type?: string, filter?: string }) {
   try {
     const page = Math.max(1, options.page || 1);
     const limit = Math.max(1, Math.min(100, options.limit || 10));
     const skip = (page - 1) * limit;
 
     const query: any = {};
-    if (options.search) {
-      const regex = new RegExp(options.search, 'i');
-      query.$or = [{ displayName: regex }, { slug: regex }, { 'contact.email': regex }, { 'contact.phone': regex }];
+    if (options.search || options.filter) {
+      query.$and = [];
+      if (options.search) {
+        const regex = new RegExp(options.search, 'i');
+        query.$and.push({ $or: [{ displayName: regex }, { slug: regex }, { 'contact.email': regex }, { 'contact.phone': regex }] });
+      }
+      if (options.filter) {
+        if (options.filter === 'missingPhone') query.$and.push({ $or: [{ 'contact.phone': { $exists: false } }, { 'contact.phone': '' }] });
+        else if (options.filter === 'missingImage') query.$and.push({ $or: [{ images: { $exists: false } }, { images: { $size: 0 } }] });
+        else if (options.filter === 'missingBio') query.$and.push({ $or: [{ bio: { $exists: false } }, { bio: '' }] });
+        else if (options.filter === 'missingLocation') query.$and.push({ $or: [{ 'location.coordinates': { $exists: false } }, { 'location.coordinates': { $size: 0 } }] });
+        else if (options.filter === 'missingEmail') query.$and.push({ $or: [{ 'contact.email': { $exists: false } }, { 'contact.email': '' }] });
+        else if (options.filter === 'missingSlots') query.$and.push({ $or: [{ teachingSlots: { $exists: false } }, { teachingSlots: { $size: 0 } }] });
+      }
     }
+    
     if (options.type && options.type !== 'all') {
       query.type = options.type;
     }
@@ -167,7 +179,9 @@ export async function getAdminStats(timeframe: string = '30d') {
     const [
       users, profiles, reviews, pending,
       recentUsers, recentProfiles, recentReviews,
-      profilesWithoutPhone, profilesWithoutImage
+      profilesWithoutPhone, profilesWithoutImage,
+      profilesWithoutBio, profilesWithoutLocation,
+      profilesWithoutEmail, profilesWithoutSlots
     ] = await Promise.all([
       User.countDocuments({}),
       Profile.countDocuments({}),
@@ -176,12 +190,16 @@ export async function getAdminStats(timeframe: string = '30d') {
       User.find({}).sort({ createdAt: -1 }).limit(5).select('name email role createdAt').lean(),
       Profile.find({}).sort({ createdAt: -1 }).limit(5).select('displayName type verificationStatus createdAt').lean(),
       Review.find({}).sort({ createdAt: -1 }).limit(5).select('rating comment createdAt').lean(),
-      Profile.countDocuments({ 'contact.phone': { $exists: false } }),
-      Profile.countDocuments({ $or: [{ images: { $exists: false } }, { images: { $size: 0 } }] })
+      Profile.countDocuments({ $or: [{ 'contact.phone': { $exists: false } }, { 'contact.phone': '' }] }),
+      Profile.countDocuments({ $or: [{ images: { $exists: false } }, { images: { $size: 0 } }] }),
+      Profile.countDocuments({ $or: [{ bio: { $exists: false } }, { bio: '' }] }),
+      Profile.countDocuments({ $or: [{ 'location.coordinates': { $exists: false } }, { 'location.coordinates': { $size: 0 } }] }),
+      Profile.countDocuments({ $or: [{ 'contact.email': { $exists: false } }, { 'contact.email': '' }] }),
+      Profile.countDocuments({ $or: [{ teachingSlots: { $exists: false } }, { teachingSlots: { $size: 0 } }] })
     ]);
 
     // Aggregations for charts - with defensive matches
-    const [profilesByType, profilesByDistrict, profilesBySubject, ratingDistribution, usersOverTime, profilesOverTime, profilesForMap] = await Promise.all([
+    const [profilesByType, profilesByDistrict, profilesBySubject, ratingDistribution, usersOverTime, profilesOverTime, visitsOverTime, profilesForMap] = await Promise.all([
       Profile.aggregate([
         { $match: { type: { $exists: true, $ne: null } } },
         { $group: { _id: '$type', value: { $sum: 1 } } }
@@ -210,6 +228,12 @@ export async function getAdminStats(timeframe: string = '30d') {
         { $group: { _id: { $dateToString: { format: dateFormat, date: "$createdAt" } }, value: { $sum: 1 } } },
         { $sort: { _id: 1 } }
       ]),
+      // We will use SearchMetric to approximate "visits/activity" over time
+      mongoose.models.SearchMetric?.aggregate([
+        { $match: { createdAt: { $gte: startDate } } },
+        { $group: { _id: { $dateToString: { format: dateFormat, date: "$createdAt" } }, value: { $sum: 1 } } },
+        { $sort: { _id: 1 } }
+      ]) || Promise.resolve([]),
       // Map data & scatter plot data (extended for performers score)
       Profile.find({})
         .select('location type rating displayName slug address.town contact media bio verificationStatus')
@@ -225,7 +249,11 @@ export async function getAdminStats(timeframe: string = '30d') {
       },
       health: {
         missingPhone: profilesWithoutPhone,
-        missingImage: profilesWithoutImage
+        missingImage: profilesWithoutImage,
+        missingBio: profilesWithoutBio,
+        missingLocation: profilesWithoutLocation,
+        missingEmail: profilesWithoutEmail,
+        missingSlots: profilesWithoutSlots
       },
       profilesByType: (profilesByType || []).map(i => ({ name: i._id || 'Unknown', value: i.value })),
       profilesByDistrict: (profilesByDistrict || []).map(i => ({ name: i._id || 'Unknown', value: i.value })),
@@ -233,7 +261,8 @@ export async function getAdminStats(timeframe: string = '30d') {
       ratingDistribution: (ratingDistribution || []).map(i => ({ name: `${i._id} Stars`, value: i.value })),
       growth: {
         users: usersOverTime.map(i => ({ date: i._id, count: i.value })),
-        profiles: profilesOverTime.map(i => ({ date: i._id, count: i.value }))
+        profiles: profilesOverTime.map(i => ({ date: i._id, count: i.value })),
+        visits: visitsOverTime.map(i => ({ date: i._id, count: i.value }))
       },
       mapData: profilesForMap,
       performers: (() => {

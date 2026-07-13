@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
-import { Users, BookOpen, Clock, Star, Loader2, ArrowRight, Activity, ShieldAlert, PhoneOff, ImageOff, MapPin, Award, MessageSquare } from 'lucide-react';
+import { Users, BookOpen, Clock, Star, Loader2, ArrowRight, Activity, ShieldAlert, PhoneOff, ImageOff, MapPin, MapPinOff, Award, MessageSquare, Mail, FileText, CalendarX } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
@@ -47,6 +47,15 @@ export default function AdminOverviewPage() {
     userSum += u.count;
     compoundGrowthUsers.push({ date: u.date, count: userSum });
   });
+
+  const compoundGrowthVisits: any[] = [];
+  let visitsSum = 0;
+  if (growth.visits) {
+    growth.visits.forEach((u: any) => {
+      visitsSum += u.count;
+      compoundGrowthVisits.push({ date: u.date, count: visitsSum });
+    });
+  }
 
   // Calculate Scatter Data (Rating vs Reviews) - Includes profiles with 0 reviews
   const scatterData = (mapData || []).map((p: any) => ({
@@ -175,8 +184,10 @@ export default function AdminOverviewPage() {
                 className="text-xs bg-transparent border-none outline-none font-semibold cursor-pointer"
                 style={{ color: 'var(--color-brand)' }}
               >
-                <option value="daily">New vs Time</option>
-                <option value="compound">Cumulative</option>
+                <option value="daily">New Users</option>
+                <option value="compound">Cumulative Users</option>
+                <option value="visits">Daily Visits</option>
+                <option value="compound-visits">Cumulative Visits</option>
               </select>
             </div>
             
@@ -189,17 +200,17 @@ export default function AdminOverviewPage() {
           
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartType === 'daily' ? growth.users : compoundGrowthUsers} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+              <AreaChart data={chartType === 'daily' ? growth.users : chartType === 'compound' ? compoundGrowthUsers : chartType === 'visits' ? growth.visits : compoundGrowthVisits} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1a73e8" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#1a73e8" stopOpacity={0}/>
+                    <stop offset="5%" stopColor={chartType.includes('visits') ? '#10b981' : '#1a73e8'} stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor={chartType.includes('visits') ? '#10b981' : '#1a73e8'} stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="var(--text-muted)" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', borderRadius: '8px' }} />
-                <Area type="monotone" dataKey="count" stroke="#1a73e8" fillOpacity={1} fill="url(#colorUsers)" />
+                <Area type="monotone" dataKey="count" stroke={chartType.includes('visits') ? '#10b981' : '#1a73e8'} fillOpacity={1} fill="url(#colorUsers)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -212,26 +223,66 @@ export default function AdminOverviewPage() {
             <ShieldAlert size={16} className="text-amber-500" />
           </div>
           
-          <div className="space-y-6 flex-1 flex flex-col justify-center">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-500/10">
-                <PhoneOff size={20} className="text-amber-500" />
+          <div className="space-y-3 flex-1 flex flex-col justify-center mt-2 overflow-y-auto pr-2 custom-scrollbar" style={{ maxHeight: '240px' }}>
+            <Link href="/admin/profiles?filter=missingPhone" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer block border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-amber-500/10">
+                <PhoneOff size={18} className="text-amber-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{health.missingPhone}</p>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Missing Phone No.</p>
+                <p className="text-lg font-bold leading-none" style={{ color: 'var(--text-primary)' }}>{health.missingPhone}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Missing Phone No.</p>
               </div>
-            </div>
+            </Link>
             
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-rose-500/10">
-                <ImageOff size={20} className="text-rose-500" />
+            <Link href="/admin/profiles?filter=missingImage" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer block border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-rose-500/10">
+                <ImageOff size={18} className="text-rose-500" />
               </div>
               <div>
-                <p className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{health.missingImage}</p>
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Missing Profile Pic</p>
+                <p className="text-lg font-bold leading-none" style={{ color: 'var(--text-primary)' }}>{health.missingImage}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Missing Profile Pic</p>
               </div>
-            </div>
+            </Link>
+
+            <Link href="/admin/profiles?filter=missingBio" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer block border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-blue-500/10">
+                <FileText size={18} className="text-blue-500" />
+              </div>
+              <div>
+                <p className="text-lg font-bold leading-none" style={{ color: 'var(--text-primary)' }}>{health.missingBio || 0}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Missing Bio</p>
+              </div>
+            </Link>
+
+            <Link href="/admin/profiles?filter=missingLocation" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer block border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-purple-500/10">
+                <MapPinOff size={18} className="text-purple-500" />
+              </div>
+              <div>
+                <p className="text-lg font-bold leading-none" style={{ color: 'var(--text-primary)' }}>{health.missingLocation || 0}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Missing Location</p>
+              </div>
+            </Link>
+
+            <Link href="/admin/profiles?filter=missingEmail" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer block border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-emerald-500/10">
+                <Mail size={18} className="text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-lg font-bold leading-none" style={{ color: 'var(--text-primary)' }}>{health.missingEmail || 0}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Missing Email</p>
+              </div>
+            </Link>
+
+            <Link href="/admin/profiles?filter=missingSlots" className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer block border border-transparent hover:border-slate-200 dark:hover:border-slate-700">
+              <div className="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center bg-orange-500/10">
+                <CalendarX size={18} className="text-orange-500" />
+              </div>
+              <div>
+                <p className="text-lg font-bold leading-none" style={{ color: 'var(--text-primary)' }}>{health.missingSlots || 0}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Missing Teaching Slots</p>
+              </div>
+            </Link>
           </div>
         </div>
       </div>

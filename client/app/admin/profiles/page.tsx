@@ -21,6 +21,15 @@ export default function AdminProfilesPage() {
   // Search & Filter State
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [activeFilterParam, setActiveFilterParam] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const filterParam = params.get('filter');
+    if (filterParam) {
+      setActiveFilterParam(filterParam);
+    }
+  }, []);
 
   // Edit State
   const [editingProfileId, setEditingProfileId] = useState<string | null>(null);
@@ -28,10 +37,12 @@ export default function AdminProfilesPage() {
   const [editFormData, setEditFormData] = useState<any>({});
   const [savingProfile, setSavingProfile] = useState(false);
 
-  async function load(currentPage = page, currentSearch = search, currentType = typeFilter) {
+  async function load(currentPage = page, currentSearch = search, currentType = typeFilter, currentFilter = activeFilterParam) {
     try {
       setLoading(true);
-      const res = await api.get(`/admin/profiles?page=${currentPage}&limit=${limit}&search=${encodeURIComponent(currentSearch)}&type=${currentType}`);
+      let url = `/admin/profiles?page=${currentPage}&limit=${limit}&search=${encodeURIComponent(currentSearch)}&type=${currentType}`;
+      if (currentFilter) url += `&filter=${currentFilter}`;
+      const res = await api.get(url);
       setProfiles(res.data.data?.profiles || []);
       setTotal(res.data.data?.total || 0);
     } catch (err) {
@@ -41,13 +52,13 @@ export default function AdminProfilesPage() {
     }
   }
 
-  useEffect(() => { load(page, search, typeFilter); }, [page]);
+  useEffect(() => { load(page, search, typeFilter, activeFilterParam); }, [page, activeFilterParam]);
 
   // Debounced Search Effect
   useEffect(() => {
     const handler = setTimeout(() => {
       setPage(1);
-      load(1, search, typeFilter);
+      load(1, search, typeFilter, activeFilterParam);
     }, 400);
     return () => clearTimeout(handler);
   }, [search, typeFilter]);
@@ -136,25 +147,41 @@ export default function AdminProfilesPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Profiles ({total})</h1>
         
-        <div className="flex gap-2 w-full sm:w-auto">
-          <input
-            type="text"
-            placeholder="Search profiles..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full sm:w-64 px-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-          />
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-          >
-            <option value="all">All Types</option>
-            <option value="tutor">Tutor</option>
-            <option value="coaching_center">Coaching Center</option>
-            <option value="sports_trainer">Sports Trainer</option>
-          </select>
-        </div>
+        <div className="flex flex-col sm:flex-row gap-4 mb-6 items-start sm:items-center justify-between">
+            <div className="flex gap-4 w-full sm:w-auto">
+              <input
+                placeholder="Search profiles..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full sm:w-64 px-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              />
+              <select
+                value={typeFilter}
+                onChange={e => setTypeFilter(e.target.value)}
+                className="px-3 py-2 text-sm border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              >
+                <option value="all">All Types</option>
+                <option value="tutor">Tutors</option>
+                <option value="institute">Institutes</option>
+                <option value="sports_trainer">Sports Trainer</option>
+              </select>
+            </div>
+            
+            {activeFilterParam && (
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20 px-3 py-1 text-sm flex items-center gap-2">
+                  <span>Filtered: {activeFilterParam.replace('missing', 'Missing ')}</span>
+                  <XCircle size={14} className="cursor-pointer hover:text-amber-800 dark:hover:text-amber-400" onClick={() => {
+                    setActiveFilterParam(null);
+                    // Remove param from URL
+                    const newUrl = new URL(window.location.href);
+                    newUrl.searchParams.delete('filter');
+                    window.history.pushState({}, '', newUrl);
+                  }} />
+                </Badge>
+              </div>
+            )}
+          </div>
       </div>
 
       {loading && profiles.length === 0 ? (
