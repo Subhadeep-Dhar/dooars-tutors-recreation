@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'sonner';
+import { FluidDropdown } from '@/components/ui/fluid-dropdown';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +25,7 @@ export default function SlotsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
-  const { register, handleSubmit, reset, watch } = useForm({
+  const { register, handleSubmit, reset, watch, control } = useForm({
     defaultValues: { subject: '', activity: '', customActivity: '', board: 'CBSE', medium: 'Bengali', feePerMonth: '' },
   });
 
@@ -182,15 +183,33 @@ export default function SlotsPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label style={{ color: 'var(--text-primary)' }}>Board</Label>
-                        <select {...register('board')} className="input-base">
-                          {BOARD_OPTIONS.map((b) => <option key={b} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{b}</option>)}
-                        </select>
+                        <Controller
+                          name="board"
+                          control={control}
+                          render={({ field }) => (
+                            <FluidDropdown
+                              options={BOARD_OPTIONS.map(b => ({ id: b, label: b }))}
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select Board"
+                            />
+                          )}
+                        />
                       </div>
                       <div className="space-y-1.5">
                         <Label style={{ color: 'var(--text-primary)' }}>Medium</Label>
-                        <select {...register('medium')} className="input-base">
-                          {MEDIUM_OPTIONS.map((m) => <option key={m} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{m}</option>)}
-                        </select>
+                        <Controller
+                          name="medium"
+                          control={control}
+                          render={({ field }) => (
+                            <FluidDropdown
+                              options={MEDIUM_OPTIONS.map(m => ({ id: m, label: m }))}
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select Medium"
+                            />
+                          )}
+                        />
                       </div>
                     </div>
                   </>
@@ -198,13 +217,31 @@ export default function SlotsPage() {
                   <>
                     <div className="space-y-1.5">
                     <Label style={{ color: 'var(--text-primary)' }}>Activity</Label>
-                    <select {...register('activity', { required: true })} className="input-base">
-                      <option value="" disabled style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Select Activity</option>
-                      {profile.type === 'sports_trainer' && SPORTS_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
-                      {profile.type === 'arts_trainer' && ARTS_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
-                      {profile.type === 'gym_yoga' && GYM_OPTIONS.map((o) => <option key={o} value={o} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{o}</option>)}
-                      <option value="Other" style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Other (Type your own)</option>
-                    </select>
+                    <Controller
+                      name="activity"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => {
+                        let opts: string[] = [];
+                        if (profile.type === 'sports_trainer') opts = SPORTS_OPTIONS;
+                        else if (profile.type === 'arts_trainer') opts = ARTS_OPTIONS;
+                        else if (profile.type === 'gym_yoga') opts = GYM_OPTIONS;
+                        
+                        const dropOptions = [
+                          ...opts.map(o => ({ id: o, label: o })),
+                          { id: 'Other', label: 'Other (Type your own)' }
+                        ];
+
+                        return (
+                          <FluidDropdown
+                            options={dropOptions}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select Activity"
+                          />
+                        );
+                      }}
+                    />
                   </div>
                   {watch('activity') === 'Other' && (
                     <div className="space-y-1.5 mt-4">

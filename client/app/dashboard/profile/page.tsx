@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'sonner';
+import { GraduationCap, Building2, Activity, Palette, Dumbbell, User, Users, Tag, FileText, Calendar, Languages, Briefcase, MapPin, Phone, Mail, MessageCircle, Info, Sparkles, BookOpen, UserRound, Bot } from 'lucide-react';
+import { FluidDropdown } from '@/components/ui/fluid-dropdown';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,15 +20,26 @@ import { SERVICE_MODE_LABELS, STYLE_LABELS, getLearnerLevelLabels, getApplicable
 
 
 const PROFILE_TYPES = [
-  { value: 'tutor', label: 'Private Tutor' },
-  { value: 'coaching_center', label: 'Coaching Center' },
-  { value: 'sports_trainer', label: 'Sports' },
-  { value: 'arts_trainer', label: 'Arts & Culture' },
-  { value: 'gym_yoga', label: 'Gym & Yoga' },
+  { id: 'tutor', label: 'Private Tutor', icon: GraduationCap, color: '#3b82f6' },
+  { id: 'coaching_center', label: 'Coaching Center', icon: Building2, color: '#8b5cf6' },
+  { id: 'sports_trainer', label: 'Sports', icon: Activity, color: '#f59e0b' },
+  { id: 'arts_trainer', label: 'Arts & Culture', icon: Palette, color: '#ec4899' },
+  { id: 'gym_yoga', label: 'Gym & Yoga', icon: Dumbbell, color: '#10b981' },
 ];
 
-const DISTRICTS = ['Alipurduar', 'Cooch Behar', 'Darjeeling', 'Jalpaiguri', 'Kalimpong'];
-const TOWNS = ['Alipurduar', 'Banarhat', 'Binnaguri', 'Birpara', 'Cooch Behar', 'Darjeeling', 'Dhupguri', 'Falakata', 'Hasimara', 'Jaigaon', 'Jalpaiguri', 'Kalchini', 'Kalimpong', 'Kurseong', 'Madarihat', 'Mainaguri', 'Malbazar', 'Siliguri'];
+const GENDER_OPTIONS = [
+  { id: 'male', label: 'Male', icon: User },
+  { id: 'female', label: 'Female', icon: UserRound },
+  { id: 'alien', label: 'Alien', icon: Bot },
+];
+
+const ORG_OPTIONS = [
+  { id: 'false', label: 'Individual Instructor', icon: User, color: '#3b82f6' },
+  { id: 'true', label: 'Organisation / Centre', icon: Users, color: '#8b5cf6' },
+];
+
+const DISTRICTS = ['Alipurduar', 'Cooch Behar', 'Darjeeling', 'Jalpaiguri', 'Kalimpong'].map(d => ({ id: d, label: d }));
+const TOWNS = ['Alipurduar', 'Banarhat', 'Binnaguri', 'Birpara', 'Cooch Behar', 'Darjeeling', 'Dhupguri', 'Falakata', 'Hasimara', 'Jaigaon', 'Jalpaiguri', 'Kalchini', 'Kalimpong', 'Kurseong', 'Madarihat', 'Mainaguri', 'Malbazar', 'Siliguri'].map(t => ({ id: t, label: t }));
 
 export default function ProfileEditorPage() {
   const router = useRouter();
@@ -34,19 +48,42 @@ export default function ProfileEditorPage() {
   const [saving, setSaving] = useState(false);
   const [isNew, setIsNew] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [mapLocation, setMapLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [mapLocation, setMapLocation] = useState<{ lat: number, lng: number } | null>(null);
 
   // Delete profile
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deletingAccount, setDeletingAccount] = useState(false);
 
-  const { register, handleSubmit, reset, watch } = useForm();
-  
+  const [currentStep, setCurrentStep] = useState(1);
+  const { register, handleSubmit, reset, watch, control, trigger } = useForm();
+
+  const handleNext = async () => {
+    let fieldsToValidate: string[] = [];
+    if (currentStep === 1) {
+      fieldsToValidate = ['type', 'displayName'];
+    } else if (currentStep === 2) {
+      fieldsToValidate = []; // Add specialization requirements if needed
+    }
+
+    const isValid = await trigger(fieldsToValidate);
+    if (isValid) {
+      setCurrentStep(s => s + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      toast.error('Please fill all required fields');
+    }
+  };
+
+  const handlePrev = () => {
+    setCurrentStep(s => s - 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const typeWatch = watch('type');
   const isOrganisationWatch = watch('isOrganisation');
   const serviceModesWatch = watch('serviceModes') || [];
-  
+
   const profileKind = typeWatch ? resolveProfileKind(typeWatch, isOrganisationWatch === 'true' || isOrganisationWatch === true ? true : isOrganisationWatch === 'false' || isOrganisationWatch === false ? false : undefined) : 'unknown';
   const applicability = typeWatch ? getProfileFieldApplicability(typeWatch, profileKind) : null;
   const learnerLevelLabels = typeWatch ? getLearnerLevelLabels(typeWatch) : {};
@@ -166,279 +203,415 @@ export default function ProfileEditorPage() {
   if (loading) return <div style={{ color: 'var(--text-muted)' }}>Loading...</div>;
 
   return (
-    <div className="max-w-5xl">
+    <div className="max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+        <h1 className="text-2xl font-bold tracking-tight mb-2" style={{ color: 'var(--text-primary)' }}>
           {isNew ? 'Create Profile' : 'Edit Profile'}
         </h1>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           Update your public profile information to attract more students.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content: Basic Info & Address */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <CardHeader><CardTitle className="text-base">Basic info</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Profile type</Label>
-                <select {...register('type')} className="input-base">
-                  {PROFILE_TYPES.map(({ value, label }) => (
-                    <option key={value} value={value} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{label}</option>
-                  ))}
-                </select>
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Note: Select <strong>Arts & Culture</strong> if you teach Dance, Music, Singing, Painting, or Fine Arts.</p>
-              </div>
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Display name</Label>
-                <input className="input-base" placeholder="Your name or organization name" {...register('displayName', { required: true })} />
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>This is the main name students will see. Use your real full name or official coaching center name.</p>
-              </div>
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Tagline (Optional)</Label>
-                <input className="input-base" placeholder="e.g. Expert Math Tutor for CBSE & ICSE" {...register('tagline')} />
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>A short, catchy headline that appears right below your name in search results.</p>
-              </div>
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Bio / About You</Label>
-                <textarea
-                  {...register('bio')}
-                  rows={4}
-                  placeholder="Tell students about your qualifications, teaching methodology, and why they should choose you..."
-                  className="input-base resize-none"
-                />
-                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Write 3-4 sentences. Mention your degrees, past successes, and what makes your teaching unique.</p>
-                {profile?.bioSource && profile.bioSource !== 'user' && profile.bioSource !== 'admin' && (
-                  <div className="mt-2 text-xs flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-blue-50 text-blue-700 border border-blue-100 w-max">
-                    <span>✨</span>
-                    <span>
-                      {profile.bioSource === 'ai_generated' && 'This bio was automatically enhanced by AI.'}
-                      {profile.bioSource === 'deterministic' && 'This bio was automatically generated.'}
-                      {profile.bioSource === 'imported' && 'This bio was imported from Google Maps.'}
-                    </span>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Step Indicator */}
+            <div className="flex items-center justify-between relative mb-8">
+              <div className="absolute left-0 right-0 top-4 -z-10 h-[2px] bg-[var(--border)] mx-8 hidden sm:block"></div>
+              {[
+                { id: 1, label: 'Basic Info' },
+                { id: 2, label: 'Specialization' },
+                { id: 3, label: 'Contact & Map' }
+              ].map((step) => (
+                <div key={step.id} className="flex flex-col items-center gap-2 bg-[var(--bg-main)] px-2 sm:px-4 z-10">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${currentStep === step.id ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : currentStep > step.id ? 'bg-green-500 text-white' : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] border border-[var(--border)]'}`}>
+                    {step.id}
                   </div>
-                )}
-              </div>
-              
-              {typeWatch === 'gym_yoga' && (
-                <div className="space-y-1.5 p-4 rounded-lg border border-orange-200 bg-orange-50">
-                  <Label className="text-orange-900 font-semibold">Are you an individual instructor or an organisation?</Label>
-                  <p className="text-xs text-orange-700 mb-2">Please clarify to help us show the right profile fields.</p>
-                  <select {...register('isOrganisation')} className="input-base border-orange-200 bg-white text-orange-900">
-                    <option value="">-- Please specify --</option>
-                    <option value="false">Individual Instructor</option>
-                    <option value="true">Organisation / Centre</option>
-                  </select>
+                  <span className="text-xs font-medium" style={{ color: currentStep >= step.id ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                    {step.label}
+                  </span>
                 </div>
-              )}
+              ))}
+            </div>
 
-              {applicability?.showGenderDob && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label style={{ color: 'var(--text-primary)' }}>Gender</Label>
-                    <select {...register('gender')} className="input-base">
-                      <option value="" disabled>Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="alien">Other</option>
-                    </select>
+            {/* STEP 1: BASIC INFO */}
+            <div style={{ display: currentStep === 1 ? 'block' : 'none' }} className="space-y-6">
+              <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <CardHeader><CardTitle className="text-lg font-semibold tracking-tight flex items-center gap-2"><User className="w-5 h-5 text-blue-500" /> Basic info</CardTitle></CardHeader>
+                <CardContent className="p-5 sm:p-6 space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-blue-500" /> Profile type <span className="text-red-500">*</span></Label>
+                      <Controller
+                        name="type"
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                          <FluidDropdown
+                            options={PROFILE_TYPES}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select profile type"
+                          />
+                        )}
+                      />
+                      <div className="flex items-start gap-2 mt-2 p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/10">
+                        <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                        <p className="text-[12px] leading-relaxed text-blue-700 dark:text-blue-300 opacity-90">Select <strong>Arts & Culture</strong> for Dance, Music, Fine Arts, etc.</p>
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><User className="w-4 h-4 text-blue-500" /> Display name <span className="text-red-500">*</span></Label>
+                      <input className="input-base w-full" placeholder="Your name or organization name" {...register('displayName', { required: true })} />
+                      <p className="text-[12px] mt-1.5 leading-relaxed opacity-90 flex items-start gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                        <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                        Main name shown to students.
+                      </p>
+                    </div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label style={{ color: 'var(--text-primary)' }}>Date of Birth</Label>
-                    <input type="date" {...register('dateOfBirth')} className="input-base" />
-                    <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>Never shown publicly. Used to calculate age.</p>
+                    <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Tag className="w-4 h-4 text-blue-500" /> Tagline</Label>
+                    <input className="input-base w-full" placeholder="e.g. Expert Math Tutor for CBSE & ICSE" {...register('tagline')} />
+                    <p className="text-[13px] mt-1.5 leading-relaxed opacity-90 flex items-start gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                      <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                      A short, catchy headline that appears right below your name in search results.
+                    </p>
                   </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label style={{ color: 'var(--text-primary)' }}>Years of experience</Label>
-                  <input className="input-base" type="number" placeholder="e.g. 5" {...register('experience')} />
-                </div>
-                {applicability?.showLanguages && (
                   <div className="space-y-1.5">
-                    <Label style={{ color: 'var(--text-primary)' }}>Languages</Label>
-                    <input className="input-base" placeholder="e.g. English, Hindi, Bengali" {...register('languages')} />
+                    <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><FileText className="w-4 h-4 text-blue-500" /> Bio / About You</Label>
+                    <textarea
+                      {...register('bio')}
+                      rows={4}
+                      placeholder="Tell students about your qualifications, teaching methodology, and why they should choose you..."
+                      className="input-base w-full resize-none"
+                    />
+                    <p className="text-[13px] mt-1.5 leading-relaxed opacity-90 flex items-start gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                      <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                      Write 3-4 sentences. Mention your degrees, past successes, and what makes your teaching unique.
+                    </p>
+                    {profile?.bioSource && profile.bioSource !== 'user' && profile.bioSource !== 'admin' && (
+                      <div className="mt-2 text-xs flex items-center gap-1.5 px-3 py-2 rounded-md w-max" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
+                        <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                        <span>
+                          {profile.bioSource === 'ai_generated' && 'This bio was automatically enhanced by AI.'}
+                          {profile.bioSource === 'deterministic' && 'This bio was automatically generated.'}
+                          {profile.bioSource === 'imported' && 'This bio was imported from Google Maps.'}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <CardHeader><CardTitle className="text-base">Specialization & Approach</CardTitle></CardHeader>
-            <CardContent className="space-y-6">
-              {applicability?.showServiceModes && (
-                <div className="space-y-2">
-                  <Label style={{ color: 'var(--text-primary)' }}>Service Modes (Where do you teach?)</Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {Object.entries(SERVICE_MODE_LABELS).map(([val, label]) => (
-                      <label key={val} className="flex items-center gap-2 text-sm p-2 rounded border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors">
-                        <input type="checkbox" value={val} {...register('serviceModes')} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                        <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {applicability?.showServiceRadius && serviceModesWatch.includes('student_home') && (
-                <div className="space-y-1.5">
-                  <Label style={{ color: 'var(--text-primary)' }}>Service Radius (Km)</Label>
-                  <input className="input-base" type="number" min="0" max="200" placeholder="e.g. 10" {...register('serviceRadiusKm')} />
-                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>How far are you willing to travel to a student's location?</p>
-                </div>
-              )}
-
-              {applicability?.showLearnerLevels && (
-                <div className="space-y-2">
-                  <Label style={{ color: 'var(--text-primary)' }}>Target Learner Levels</Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {Object.entries(learnerLevelLabels).map(([val, label]) => (
-                      <label key={val} className="flex items-center gap-2 text-sm p-2 rounded border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors">
-                        <input type="checkbox" value={val} {...register('learnerLevels')} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                        <span style={{ color: 'var(--text-secondary)' }}>{label as string}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {applicability?.showStyles && applicableStyles.length > 0 && (
-                <div className="space-y-2">
-                  <Label style={{ color: 'var(--text-primary)' }}>Teaching / Training Styles</Label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {applicableStyles.map((styleKey) => (
-                      <label key={styleKey} className="flex items-center gap-2 text-sm p-2 rounded border border-slate-200 cursor-pointer hover:bg-slate-50 transition-colors">
-                        <input type="checkbox" value={styleKey} {...register('teachingStyles')} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                        <span style={{ color: 'var(--text-secondary)' }}>{STYLE_LABELS[styleKey as TeachingStyleType]}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-
-            <CardHeader><CardTitle className="text-base">Address</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Address line 1</Label>
-                <input className="input-base" placeholder="House/flat number, street" {...register('address.line1', { required: true })} />
-              </div>
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Area / Locality</Label>
-                <input className="input-base" placeholder="Area or locality" {...register('address.area')} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label style={{ color: 'var(--text-primary)' }}>Town</Label>
-                  <select className="input-base" {...register('address.town', { required: true })}>
-                    <option value="" disabled style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Select Town</option>
-                    {TOWNS.map(t => <option key={t} value={t} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{t}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label style={{ color: 'var(--text-primary)' }}>District</Label>
-                  <select className="input-base" {...register('address.district', { required: true })}>
-                    <option value="" disabled style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Select District</option>
-                    {DISTRICTS.map(d => <option key={d} value={d} style={{ color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{d}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label style={{ color: 'var(--text-primary)' }}>State</Label>
-                  <input className="input-base" placeholder="e.g. West Bengal" {...register('address.state', { required: true })} />
-                </div>
-                <div className="space-y-1.5">
-                  <Label style={{ color: 'var(--text-primary)' }}>Pincode</Label>
-                  <input className="input-base" placeholder="e.g. 735101" {...register('address.pincode', { required: true })} />
-                </div>
-              </div>
-
-              {/* Map Location Picker */}
-              <div className="pt-4 mt-4 border-t" style={{ borderColor: 'var(--border)' }}>
-                <Label className="mb-3 block" style={{ color: 'var(--text-primary)' }}>Precise Map Location</Label>
-                
-                <div className="mb-4 p-3 rounded-lg flex items-start gap-3 bg-red-500/10 border border-red-500/20 text-red-500">
-                  <span className="text-xl">📍</span>
-                  <div>
-                    <h4 className="font-semibold text-sm">IMPORTANT: Accurate location required</h4>
-                    <p className="text-xs mt-0.5 opacity-90">Please drag the map marker to your <strong>exact location</strong>. Students use the map to find tutors nearby, so placing it accurately helps you get more students!</p>
-                  </div>
-                </div>
-
-                <div className="h-64 rounded-xl overflow-hidden border-2 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
-                  {mapLocation && (
-                    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
-                      <Map
-                        defaultZoom={13}
-                        defaultCenter={mapLocation}
-                        gestureHandling={'greedy'}
-                        disableDefaultUI={true}
-                        mapId="DEMO_MAP_ID"
-                        onClick={(e) => {
-                          if (e.detail.latLng) {
-                            setMapLocation({ lat: e.detail.latLng.lat, lng: e.detail.latLng.lng });
-                          }
-                        }}
-                      >
-                        <AdvancedMarker
-                          position={mapLocation}
-                          draggable={true}
-                          onDragEnd={(e) => {
-                            if (e.latLng) {
-                              setMapLocation({ lat: e.latLng.lat(), lng: e.latLng.lng() });
-                            }
-                          }}
-                        />
-                      </Map>
-                    </APIProvider>
+                  {typeWatch === 'gym_yoga' && (
+                    <div className="space-y-1.5 p-4 rounded-lg border" style={{ borderColor: 'var(--gradient-to)', background: 'var(--bg-elevated)' }}>
+                      <Label className="font-semibold" style={{ color: 'var(--gradient-to)' }}>Are you an individual instructor or an organisation?</Label>
+                      <p className="text-[13px] mt-1.5 leading-relaxed opacity-90 mb-2" style={{ color: 'var(--text-secondary)' }}>Please clarify to help us show the right profile fields.</p>
+                      <Controller
+                        name="isOrganisation"
+                        control={control}
+                        render={({ field }) => (
+                          <FluidDropdown
+                            options={ORG_OPTIONS}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="-- Please specify --"
+                          />
+                        )}
+                      />
+                    </div>
                   )}
-                </div>
-                <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>Drag the pin or click on the map to set your exact location.</p>
-              </div>
-            </CardContent>
-          </Card>
+
+                  {applicability?.showGenderDob && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><User className="w-4 h-4 text-blue-500" /> Gender</Label>
+                        <Controller
+                          name="gender"
+                          control={control}
+                          render={({ field }) => (
+                            <FluidDropdown
+                              options={GENDER_OPTIONS}
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select Gender"
+                            />
+                          )}
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-blue-500" /> Date of Birth</Label>
+                        <Controller
+                          name="dateOfBirth"
+                          control={control}
+                          render={({ field }) => (
+                            <DatePicker
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Select Date"
+                            />
+                          )}
+                        />
+                        <p className="text-[12px] mt-1.5 leading-relaxed opacity-90 flex items-start gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                          <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                          Never shown publicly. Used to calculate age.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-blue-500" /> Experience</Label>
+                      <input className="input-base w-full" type="number" placeholder="e.g. 5 (in years)" {...register('experience')} />
+                    </div>
+                    {applicability?.showLanguages && (
+                      <div className="space-y-1.5">
+                        <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Languages className="w-4 h-4 text-blue-500" /> Languages</Label>
+                        <input className="input-base w-full" placeholder="e.g. English, Hindi, Bengali" {...register('languages')} />
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* STEP 2: SPECIALIZATION */}
+            <div style={{ display: currentStep === 2 ? 'block' : 'none' }} className="space-y-6">
+              <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <CardHeader><CardTitle className="text-lg font-semibold tracking-tight flex items-center gap-2"><GraduationCap className="w-5 h-5 text-blue-500" /> Specialization & Approach</CardTitle></CardHeader>
+                <CardContent className="p-5 sm:p-6 space-y-5">
+                  {applicability?.showServiceModes && (
+                    <div className="space-y-2">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-500" /> Service Modes (Where do you teach?)</Label>
+                      <p className="text-[13px] mb-3 leading-relaxed opacity-90 flex items-start gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                        <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                        Select all that apply. This helps students find you based on their preference.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {Object.entries(SERVICE_MODE_LABELS).map(([val, label]) => (
+                          <label key={val} className="flex items-center gap-2 text-sm p-2 rounded border cursor-pointer transition-colors" style={{ borderColor: 'var(--border)' }}>
+                            <input type="checkbox" value={val} {...register('serviceModes')} className="rounded focus:ring-blue-500" style={{ borderColor: 'var(--border)', background: 'var(--bg-card)' }} />
+                            <span style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {applicability?.showServiceRadius && serviceModesWatch.includes('student_home') && (
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-500" /> Service Radius (Km)</Label>
+                      <input className="input-base w-full" type="number" min="0" max="200" placeholder="e.g. 10" {...register('serviceRadiusKm')} />
+                      <p className="text-[13px] mt-1.5 leading-relaxed opacity-90 flex items-start gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                        <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                        How far are you willing to travel to a student's location?
+                      </p>
+                    </div>
+                  )}
+
+                  {applicability?.showLearnerLevels && (
+                    <div className="space-y-2">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Users className="w-4 h-4 text-blue-500" /> Target Learner Levels</Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {Object.entries(learnerLevelLabels).map(([val, label]) => (
+                          <label key={val} className="flex items-center gap-2 text-sm p-2 rounded border cursor-pointer transition-colors" style={{ borderColor: 'var(--border)' }}>
+                            <input type="checkbox" value={val} {...register('learnerLevels')} className="rounded focus:ring-blue-500" style={{ borderColor: 'var(--border)', background: 'var(--bg-card)' }} />
+                            <span style={{ color: 'var(--text-secondary)' }}>{label as string}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {applicability?.showStyles && applicableStyles.length > 0 && (
+                    <div className="space-y-2">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-blue-500" /> Teaching / Training Styles</Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {applicableStyles.map((styleKey) => (
+                          <label key={styleKey} className="flex items-center gap-2 text-sm p-2 rounded border cursor-pointer transition-colors" style={{ borderColor: 'var(--border)' }}>
+                            <input type="checkbox" value={styleKey} {...register('teachingStyles')} className="rounded focus:ring-blue-500" style={{ borderColor: 'var(--border)', background: 'var(--bg-card)' }} />
+                            <span style={{ color: 'var(--text-secondary)' }}>{STYLE_LABELS[styleKey as TeachingStyleType]}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* STEP 3: ADDRESS & CONTACT */}
+            <div style={{ display: currentStep === 3 ? 'block' : 'none' }} className="space-y-6">
+              <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+
+                <CardHeader><CardTitle className="text-lg font-semibold tracking-tight flex items-center gap-2"><MapPin className="w-5 h-5 text-blue-500" /> Address & Contact</CardTitle></CardHeader>
+                <CardContent className="p-5 sm:p-6 space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-500" /> Address line 1 <span className="text-red-500">*</span></Label>
+                      <input className="input-base w-full" placeholder="House/flat number, street" {...register('address.line1', { required: true })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-500" /> Area / Locality</Label>
+                      <input className="input-base w-full" placeholder="Area or locality" {...register('address.area')} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Building2 className="w-4 h-4 text-blue-500" /> Town <span className="text-red-500">*</span></Label>
+                      <Controller
+                        name="address.town"
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                          <FluidDropdown
+                            options={TOWNS}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select Town"
+                          />
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-500" /> District <span className="text-red-500">*</span></Label>
+                      <Controller
+                        name="address.district"
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                          <FluidDropdown
+                            options={DISTRICTS}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select District"
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-500" /> State <span className="text-red-500">*</span></Label>
+                      <input className="input-base w-full" placeholder="e.g. West Bengal" {...register('address.state', { required: true })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-500" /> Pincode <span className="text-red-500">*</span></Label>
+                      <input className="input-base w-full" placeholder="e.g. 735101" {...register('address.pincode', { required: true })} />
+                    </div>
+                  </div>
+
+                  {/* Map Location Picker */}
+                  <div className="pt-4 mt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+                    <Label className="mb-3 block" style={{ color: 'var(--text-primary)' }}>Precise Map Location</Label>
+
+                    <div className="mb-4 p-3 rounded-lg flex items-start gap-3 bg-red-500/10 border border-red-500/20 text-red-500">
+                      <span className="text-xl">📍</span>
+                      <div>
+                        <h4 className="font-semibold text-sm">IMPORTANT: Accurate location required</h4>
+                        <p className="text-xs mt-0.5 opacity-90">Please drag the map marker to your <strong>exact location</strong>. Students use the map to find tutors nearby, so placing it accurately helps you get more students!</p>
+                      </div>
+                    </div>
+
+                    <div className="h-64 rounded-xl overflow-hidden border-2 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]">
+                      {mapLocation && (
+                        <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''}>
+                          <Map
+                            defaultZoom={13}
+                            defaultCenter={mapLocation}
+                            gestureHandling={'greedy'}
+                            disableDefaultUI={true}
+                            mapId="DEMO_MAP_ID"
+                            onClick={(e) => {
+                              if (e.detail.latLng) {
+                                setMapLocation({ lat: e.detail.latLng.lat, lng: e.detail.latLng.lng });
+                              }
+                            }}
+                          >
+                            <AdvancedMarker
+                              position={mapLocation}
+                              draggable={true}
+                              onDragEnd={(e) => {
+                                if (e.latLng) {
+                                  setMapLocation({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+                                }
+                              }}
+                            />
+                          </Map>
+                        </APIProvider>
+                      )}
+                    </div>
+                    <p className="text-[13px] mt-2 leading-relaxed opacity-90" style={{ color: 'var(--text-muted)' }}>Drag the pin or click on the map to set your exact location.</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Contact Card moved here */}
+              <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <CardHeader><CardTitle className="text-lg font-semibold tracking-tight flex items-center gap-2"><Phone className="w-5 h-5 text-blue-500" /> Contact</CardTitle></CardHeader>
+                <CardContent className="p-5 sm:p-6 space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Phone className="w-4 h-4 text-blue-500" /> Phone number <span className="text-red-500">*</span></Label>
+                      <input className="input-base w-full" placeholder="10-digit mobile number" {...register('contact.phone', { required: true })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><MessageCircle className="w-4 h-4 text-green-500" /> WhatsApp number</Label>
+                      <input className="input-base w-full" placeholder="WhatsApp number (if different)" {...register('contact.whatsapp')} />
+                      <p className="text-[12px] mt-1.5 leading-relaxed opacity-90 flex items-start gap-1.5" style={{ color: 'var(--text-muted)' }}>
+                        <Info className="w-3.5 h-3.5 mt-0.5 shrink-0 opacity-70" />
+                        Students prefer WhatsApp.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Mail className="w-4 h-4 text-blue-500" /> Contact email</Label>
+                    <input className="input-base w-full" type="email" placeholder="Public contact email" {...register('contact.email')} />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Step Navigation & Submission */}
+            <div className="flex items-center justify-between pt-6 border-t border-[var(--border)] mt-8">
+              {currentStep > 1 ? (
+                <button type="button" onClick={handlePrev} className="px-6 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-primary)] font-medium hover:bg-[var(--bg-elevated)] transition-colors">
+                  Previous
+                </button>
+              ) : <div></div>}
+
+              {currentStep < 3 ? (
+                <button type="button" onClick={handleNext} className="px-6 py-2 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition-colors shadow-md shadow-blue-500/20">
+                  Next Step
+                </button>
+              ) : (
+                <button type="submit" disabled={saving} className="px-6 py-2 rounded-lg bg-green-500 text-white font-medium hover:bg-green-600 transition-colors shadow-md shadow-green-500/20">
+                  {saving ? 'Saving...' : isNew ? 'Create Profile' : 'Save Profile'}
+                </button>
+              )}
+            </div>
+          </form>
         </div>
 
-        {/* Sidebar: Contact & Actions */}
-        <div className="space-y-6">
-          <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <CardHeader><CardTitle className="text-base">Contact</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Phone number</Label>
-                <input className="input-base" placeholder="10-digit mobile number" {...register('contact.phone')} />
+        {/* Sidebar: Info Cards & Danger Zone */}
+        <div className="lg:col-span-4 space-y-6 lg:mt-[104px]">
+          <Card className="relative overflow-hidden border-none shadow-lg">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-sky-500/10 to-emerald-500/10 dark:from-blue-500/20 dark:via-sky-500/20 dark:to-emerald-500/20 pointer-events-none"></div>
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 to-emerald-500"></div>
+            <CardContent className="p-5 sm:p-6 relative">
+              <div className="flex items-center gap-2.5 mb-3">
+                <Sparkles className="w-5 h-5 text-blue-500 drop-shadow-sm" />
+                <h3 className="font-bold text-lg text-blue-800 dark:text-blue-300 tracking-tight">Unlock More Students</h3>
               </div>
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>WhatsApp number</Label>
-                <input className="input-base" placeholder="WhatsApp number (if different)" {...register('contact.whatsapp')} />
-                <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>Students prefer WhatsApp. We highly recommend providing this!</p>
-              </div>
-              <div className="space-y-1.5">
-                <Label style={{ color: 'var(--text-primary)' }}>Contact email</Label>
-                <input className="input-base" type="email" placeholder="Public contact email" {...register('contact.email')} />
-              </div>
-            </CardContent>
-          </Card>
-
-          <button type="submit" disabled={saving} className="btn-primary w-full py-3 shadow-token-md">
-            {saving ? 'Saving...' : isNew ? 'Create Profile' : 'Save Changes'}
-          </button>
-
-          <Card style={{ background: 'var(--bg-elevated)', border: '1px solid var(--gradient-to)' }}>
-            <CardContent className="p-5">
-              <h3 className="font-medium mb-2" style={{ color: 'var(--gradient-to)' }}>Pro Tip</h3>
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                Profiles with detailed bios and accurate addresses receive 3x more student inquiries. Make sure to highlight your unique teaching style!
+              <p className="text-[13.5px] leading-relaxed text-slate-700 dark:text-slate-300">
+                We deeply appreciate your contribution to education. To help us connect you with the best students, please provide as much detail as possible!
               </p>
+              <div className="mt-3 p-3 bg-white/60 dark:bg-black/20 rounded-lg border border-blue-100 dark:border-blue-900/50">
+                <p className="text-[13px] font-medium text-blue-900 dark:text-blue-200">
+                  <span className="text-emerald-500 font-bold mr-1">Fact:</span>
+                  Profiles that complete every field receive <strong className="text-blue-600 dark:text-blue-400">3x more student inquiries.</strong>
+                </p>
+              </div>
             </CardContent>
           </Card>
 
@@ -465,7 +638,7 @@ export default function ProfileEditorPage() {
           {!isNew && (
             <Card style={{ borderColor: 'rgba(239, 68, 68, 0.3)', background: 'rgba(239, 68, 68, 0.02)' }}>
               <CardHeader>
-                <CardTitle className="text-base" style={{ color: '#ef4444' }}>Danger Zone</CardTitle>
+                <CardTitle className="text-lg font-semibold tracking-tight" style={{ color: '#ef4444' }}>Danger Zone</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
@@ -517,7 +690,7 @@ export default function ProfileEditorPage() {
             </Card>
           )}
         </div>
-      </form>
+      </div>
 
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
         <DialogContent className="sm:max-w-md" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
