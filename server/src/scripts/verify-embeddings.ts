@@ -18,6 +18,7 @@ async function verify() {
   let hashInconsistencies = 0; // if empty
   const profileIds = new Set();
   let duplicates = 0;
+  let hasActivities = 0;
 
   for (const doc of embeddings) {
     if (profileIds.has(doc.profileId.toString())) {
@@ -40,6 +41,7 @@ async function verify() {
     if (doc.dimensions !== ragConfig.embedding.dimensions) invalidDimensions++; // Metadata mismatch
     if (doc.schemaVersion !== ragConfig.embedding.schemaVersion) schemaMismatches++;
     if (!doc.contentHash) hashInconsistencies++;
+    if (doc.activities && doc.activities.length > 0) hasActivities++;
   }
 
   console.log('\n--- Integrity Report ---');
@@ -50,6 +52,7 @@ async function verify() {
   console.log(`Model Mismatches: ${modelMismatches}`);
   console.log(`Schema Mismatches: ${schemaMismatches}`);
   console.log(`Hash Inconsistencies: ${hashInconsistencies}`);
+  console.log(`Documents with non-empty activities array: ${hasActivities}`);
 
   await mongoose.disconnect();
 }

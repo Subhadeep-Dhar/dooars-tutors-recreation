@@ -61,6 +61,21 @@ export class EmbeddingBuilder {
     const kind = resolveProfileKind(profile.type);
     const { minFee, maxFee } = this.extractFees(profile);
     
+    const activities = new Set<string>();
+    if (Array.isArray(profile.teachingSlots)) {
+      for (const slot of profile.teachingSlots) {
+        if (!('subject' in slot) && 'activity' in slot) {
+          const nonAcSlot = slot as INonAcademicSlotDocument;
+          if (nonAcSlot.activity && typeof nonAcSlot.activity === 'string') {
+            const act = nonAcSlot.activity.trim();
+            if (act.length > 0) {
+              activities.add(act);
+            }
+          }
+        }
+      }
+    }
+    
     return {
       type: profile.type as ProfileType,
       providerKind: kind,
@@ -68,6 +83,7 @@ export class EmbeddingBuilder {
       verificationStatus: profile.verificationStatus,
       gender: profile.gender,
       subjects: Array.isArray(profile.subjects) ? [...profile.subjects].sort() : undefined,
+      activities: activities.size > 0 ? Array.from(activities).sort() : undefined,
       classes: Array.isArray(profile.classes) ? [...profile.classes].sort() : undefined,
       boards: Array.isArray(profile.boards) ? [...profile.boards].sort() as BoardType[] : undefined,
       languages: Array.isArray(profile.languages) ? [...profile.languages].sort() : undefined,

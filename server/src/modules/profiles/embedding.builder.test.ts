@@ -91,6 +91,34 @@ describe('EmbeddingBuilder', () => {
     });
   });
 
+  describe('buildFilterSnapshot', () => {
+    it('should not extract activities for academic slots', () => {
+      const profile = { 
+        ...baseProfile,
+        teachingSlots: [
+          { subject: 'Math', classes: ['Class 10'] } as unknown as IAcademicSlotDocument
+        ] 
+      } as IProfileDocument;
+      const snapshot = EmbeddingBuilder.buildFilterSnapshot(profile);
+      assert.strictEqual(snapshot.activities, undefined);
+    });
+
+    it('should extract and deduplicate activities for non-academic slots', () => {
+      const profile = { 
+        ...baseProfile,
+        type: 'sports_trainer',
+        teachingSlots: [
+          { activity: 'Football ' } as unknown as INonAcademicSlotDocument,
+          { activity: ' Yoga' } as unknown as INonAcademicSlotDocument,
+          { activity: 'Football' } as unknown as INonAcademicSlotDocument,
+          { activity: '' } as unknown as INonAcademicSlotDocument,
+        ] 
+      } as IProfileDocument;
+      const snapshot = EmbeddingBuilder.buildFilterSnapshot(profile);
+      assert.deepStrictEqual(snapshot.activities, ['Football', 'Yoga']);
+    });
+  });
+
   describe('buildCanonicalText', () => {
     it('should generate academic canonical text correctly', () => {
       const profile = { 

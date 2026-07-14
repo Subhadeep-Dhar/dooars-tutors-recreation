@@ -17,6 +17,7 @@ export interface IProfileEmbeddingDocument {
   verificationStatus: string;
   gender?: GenderType;
   subjects?: string[];
+  activities?: string[];
   classes?: string[];
   boards?: BoardType[];
   languages?: string[];
@@ -41,6 +42,7 @@ const ProfileEmbeddingSchema = new Schema<IProfileEmbeddingDocument>({
   verificationStatus: { type: String, required: true },
   gender: { type: String },
   subjects: { type: [String], default: undefined },
+  activities: { type: [String], default: undefined },
   classes: { type: [String], default: undefined },
   boards: { type: [String], default: undefined },
   languages: { type: [String], default: undefined },
