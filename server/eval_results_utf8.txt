@@ -1,0 +1,557 @@
+﻿--- Semantic Search Evaluation ---
+Query: "patient maths tutor for a weak student"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1376ms
+
+1. Subhasish Saha
+   Profile ID: 6a41f68fc3852cae40a09f12
+   Type: tutor
+   Score: 0.8658
+   Bio Snippet: I am a dedicated private tutor specializing in Mathematics and Science for Classes 6ΓÇô10, along with ...
+
+2. RAHUL SAH
+   Profile ID: 6a3ba268936477876923e82f
+   Type: tutor
+   Score: 0.8643
+   Bio Snippet: School Teacher  Qualifications: M.Sc(Mathematics), B.Ed, BLIS
+
+3. Sushen Ghosh
+   Profile ID: 6a3ba269936477876923e843
+   Type: tutor
+   Score: 0.8611
+   Bio Snippet: I am my own Favourite  Qualifications: M.sc in Mathematics(B.ed)
+
+4. Souvik Dey
+   Profile ID: 6a3ba268936477876923e83d
+   Type: tutor
+   Score: 0.8518
+
+5. Bhola Sankar Dutta
+   Profile ID: 6a3ba26b936477876923e86e
+   Type: tutor
+   Score: 0.8504
+
+--- Semantic Search Evaluation ---
+Query: "teacher who explains difficult concepts step by step"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 985ms
+
+1. Kingshuk k sen
+   Profile ID: 6a410aeecf1680646a260b78
+   Type: tutor
+   Score: 0.8602
+   Bio Snippet: An NIT Nagpur B.Tech graduate and highly qualified Physics educator with 15 years of experience, spe...
+
+2. Subhasish Saha
+   Profile ID: 6a41f68fc3852cae40a09f12
+   Type: tutor
+   Score: 0.8574
+   Bio Snippet: I am a dedicated private tutor specializing in Mathematics and Science for Classes 6ΓÇô10, along with ...
+
+3. RAHUL SAH
+   Profile ID: 6a3ba268936477876923e82f
+   Type: tutor
+   Score: 0.8488
+   Bio Snippet: School Teacher  Qualifications: M.Sc(Mathematics), B.Ed, BLIS
+
+4. SHREYASI SAHA
+   Profile ID: 6a3ba275936477876923e93a
+   Type: tutor
+   Score: 0.8405
+   Bio Snippet: I am a dedicated educator with expertise in Accountancy, Economics, and Commerce. With a passion for...
+
+5. Debarshi Nandi
+   Profile ID: 6a3ba274936477876923e92e
+   Type: tutor
+   Score: 0.8397
+   Bio Snippet: ΓÜ½Science Group of Class VI, VII, VIII of WBBSE, ICSE and CBSE.rnΓÜ½Science Group of Class IX & X of CB...
+
+--- Semantic Search Evaluation ---
+Query: "exam-oriented science tutor"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1331ms
+
+1. Subhasish Saha
+   Profile ID: 6a41f68fc3852cae40a09f12
+   Type: tutor
+   Score: 0.8767
+   Bio Snippet: I am a dedicated private tutor specializing in Mathematics and Science for Classes 6ΓÇô10, along with ...
+
+2. Kingshuk k sen
+   Profile ID: 6a410aeecf1680646a260b78
+   Type: tutor
+   Score: 0.8760
+   Bio Snippet: An NIT Nagpur B.Tech graduate and highly qualified Physics educator with 15 years of experience, spe...
+
+3. Ranadhir Kundu
+   Profile ID: 6a3ba26d936477876923e892
+   Type: tutor
+   Score: 0.8675
+   Bio Snippet: Private tutor of science group.having experience 12 years job in health department  Qualifications: ...
+
+4. Debraj Ghosh
+   Profile ID: 6a3ba26a936477876923e85b
+   Type: tutor
+   Score: 0.8639
+   Bio Snippet: Qualifications: M.sc in Zoology ( B.ed , D.el.ed)
+
+5. Debarshi Nandi
+   Profile ID: 6a3ba274936477876923e92e
+   Type: tutor
+   Score: 0.8620
+   Bio Snippet: ΓÜ½Science Group of Class VI, VII, VIII of WBBSE, ICSE and CBSE.rnΓÜ½Science Group of Class IX & X of CB...
+
+--- Semantic Search Evaluation ---
+Query: "female mathematics tutor who speaks Bengali"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1162ms
+
+1. Liza Chanda
+   Profile ID: 6a3ba273936477876923e91c
+   Type: tutor
+   Score: 0.9031
+
+2. RAHUL SAH
+   Profile ID: 6a3ba268936477876923e82f
+   Type: tutor
+   Score: 0.9026
+   Bio Snippet: School Teacher  Qualifications: M.Sc(Mathematics), B.Ed, BLIS
+
+3. Souvik Dey
+   Profile ID: 6a3ba268936477876923e83d
+   Type: tutor
+   Score: 0.8993
+
+4. Bhola Sankar Dutta
+   Profile ID: 6a3ba26b936477876923e86e
+   Type: tutor
+   Score: 0.8969
+
+5. Tanima Sengupta
+   Profile ID: 6a3ba272936477876923e904
+   Type: tutor
+   Score: 0.8967
+   Bio Snippet: I love teaching.. rnSubject - physics, chemistry, mathrnClass 7-10  Qualifications: B.sc
+
+--- Semantic Search Evaluation ---
+Query: "badminton coach for an advanced player"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1329ms
+
+1. Vaivhab Lahiri
+   Profile ID: 6a3ba26f936477876923e8bc
+   Type: sports_trainer
+   Score: 0.8344
+
+2. Sujit biswas
+   Profile ID: 6a3ba26f936477876923e8c8
+   Type: sports_trainer
+   Score: 0.8339
+
+3. Alipurduar Town club Football Academy
+   Profile ID: 6a3ba271936477876923e8ec
+   Type: sports_trainer
+   Score: 0.8177
+
+4. Kingshuk k sen
+   Profile ID: 6a410aeecf1680646a260b78
+   Type: tutor
+   Score: 0.8158
+   Bio Snippet: An NIT Nagpur B.Tech graduate and highly qualified Physics educator with 15 years of experience, spe...
+
+5. Roller Skating Association
+   Profile ID: 6a3ba271936477876923e8f2
+   Type: sports_trainer
+   Score: 0.8154
+
+--- Semantic Search Evaluation ---
+Query: "patient sports coach for a complete beginner"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1070ms
+
+1. Sujit biswas
+   Profile ID: 6a3ba26f936477876923e8c8
+   Type: sports_trainer
+   Score: 0.8400
+
+2. Vaivhab Lahiri
+   Profile ID: 6a3ba26f936477876923e8bc
+   Type: sports_trainer
+   Score: 0.8367
+
+3. Suvajit Das
+   Profile ID: 6a3ba26d936477876923e89e
+   Type: gym_yoga
+   Score: 0.8203
+   Bio Snippet: YOGA AND FITNESS TRAINER.  Qualifications: DEPLOMA (TRAINER) IN YOGA, WEST BENGAL COUNCIL OF YOGA AN...
+
+4. Subrata Roy
+   Profile ID: 6a3ba271936477876923e8e6
+   Type: gym_yoga
+   Score: 0.8196
+
+5. Bibeck Chakrabarty
+   Profile ID: 6a3ba270936477876923e8e0
+   Type: gym_yoga
+   Score: 0.8181
+   Bio Snippet: Qualifications: M A in Yoga (MAHGU), Diploma in Yoga and Naturopathy at (WBCYN)
+
+--- Semantic Search Evaluation ---
+Query: "intensive competitive sports training"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1233ms
+
+1. Sujit biswas
+   Profile ID: 6a3ba26f936477876923e8c8
+   Type: sports_trainer
+   Score: 0.8183
+
+2. Vaivhab Lahiri
+   Profile ID: 6a3ba26f936477876923e8bc
+   Type: sports_trainer
+   Score: 0.8157
+
+3. Alipurduar Town club Football Academy
+   Profile ID: 6a3ba271936477876923e8ec
+   Type: sports_trainer
+   Score: 0.8120
+
+4. Roller Skating Association
+   Profile ID: 6a3ba271936477876923e8f2
+   Type: sports_trainer
+   Score: 0.8106
+
+5. Dooars Cricket Academy
+   Profile ID: 6a424b1030a910151d6541ea
+   Type: sports_trainer
+   Score: 0.7997
+
+--- Semantic Search Evaluation ---
+Query: "beginner-friendly dance instructor"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1111ms
+
+1. AfterZ Dance Company (ADC)
+   Profile ID: 6a40133dcc76935f2c4a827a
+   Type: arts_trainer
+   Score: 0.8648
+   Bio Snippet: ΓÇï9 Years of Excellence: AlipurduarΓÇÖs #1 Dance & Zumba Hub! ≡ƒÅå ΓÇï≡ƒ⌐░ Dance & Gymnastics: From kids to a...
+
+2. Subrata Roy
+   Profile ID: 6a3ba271936477876923e8e6
+   Type: gym_yoga
+   Score: 0.8277
+
+3. Indrajit Bhowmick
+   Profile ID: 6a3ba26c936477876923e886
+   Type: arts_trainer
+   Score: 0.8237
+   Bio Snippet: If u want to learn natural singing & all singing vocal styles..rnall type of songs how to record + P...
+
+4. Pranpriya Nandi
+   Profile ID: 6a3ba26e936477876923e8b0
+   Type: arts_trainer
+   Score: 0.8187
+
+5. Bijay dey
+   Profile ID: 6a3ba274936477876923e928
+   Type: arts_trainer
+   Score: 0.8177
+
+--- Semantic Search Evaluation ---
+Query: "music teacher who teaches gently and step by step"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1023ms
+
+1. Subhasish Saha
+   Profile ID: 6a41f68fc3852cae40a09f12
+   Type: tutor
+   Score: 0.8415
+   Bio Snippet: I am a dedicated private tutor specializing in Mathematics and Science for Classes 6ΓÇô10, along with ...
+
+2. Indrajit Bhowmick
+   Profile ID: 6a3ba26c936477876923e886
+   Type: arts_trainer
+   Score: 0.8396
+   Bio Snippet: If u want to learn natural singing & all singing vocal styles..rnall type of songs how to record + P...
+
+3. RAHUL SAH
+   Profile ID: 6a3ba268936477876923e82f
+   Type: tutor
+   Score: 0.8394
+   Bio Snippet: School Teacher  Qualifications: M.Sc(Mathematics), B.Ed, BLIS
+
+4. SHREYASI SAHA
+   Profile ID: 6a3ba275936477876923e93a
+   Type: tutor
+   Score: 0.8384
+   Bio Snippet: I am a dedicated educator with expertise in Accountancy, Economics, and Commerce. With a passion for...
+
+5. Sushen Ghosh
+   Profile ID: 6a3ba269936477876923e843
+   Type: tutor
+   Score: 0.8373
+   Bio Snippet: I am my own Favourite  Qualifications: M.sc in Mathematics(B.ed)
+
+--- Semantic Search Evaluation ---
+Query: "fine arts classes for an intermediate learner"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1653ms
+
+1. Bijay dey
+   Profile ID: 6a3ba274936477876923e928
+   Type: arts_trainer
+   Score: 0.8506
+
+2. Sudipta Roy
+   Profile ID: 6a3ba26c936477876923e880
+   Type: arts_trainer
+   Score: 0.8494
+
+3. Indrajit Bhowmick
+   Profile ID: 6a3ba26c936477876923e886
+   Type: arts_trainer
+   Score: 0.8360
+   Bio Snippet: If u want to learn natural singing & all singing vocal styles..rnall type of songs how to record + P...
+
+4. Pranpriya Nandi
+   Profile ID: 6a3ba26e936477876923e8b0
+   Type: arts_trainer
+   Score: 0.8290
+
+5. Suvadeep Karmakar
+   Profile ID: 6a3ba270936477876923e8d4
+   Type: tutor
+   Score: 0.8280
+   Bio Snippet: Qualifications: B.A (English Honours) and M.A (English Literature)
+
+--- Semantic Search Evaluation ---
+Query: "gentle yoga instructor for a beginner"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1116ms
+
+1. Bibeck Chakrabarty
+   Profile ID: 6a3ba270936477876923e8e0
+   Type: gym_yoga
+   Score: 0.8547
+   Bio Snippet: Qualifications: M A in Yoga (MAHGU), Diploma in Yoga and Naturopathy at (WBCYN)
+
+2. Suvajit Das
+   Profile ID: 6a3ba26d936477876923e89e
+   Type: gym_yoga
+   Score: 0.8504
+   Bio Snippet: YOGA AND FITNESS TRAINER.  Qualifications: DEPLOMA (TRAINER) IN YOGA, WEST BENGAL COUNCIL OF YOGA AN...
+
+3. Subrata Roy
+   Profile ID: 6a3ba271936477876923e8e6
+   Type: gym_yoga
+   Score: 0.8468
+
+4. Subhasish Saha
+   Profile ID: 6a41f68fc3852cae40a09f12
+   Type: tutor
+   Score: 0.8181
+   Bio Snippet: I am a dedicated private tutor specializing in Mathematics and Science for Classes 6ΓÇô10, along with ...
+
+5. Sujit biswas
+   Profile ID: 6a3ba26f936477876923e8c8
+   Type: sports_trainer
+   Score: 0.8172
+
+--- Semantic Search Evaluation ---
+Query: "intensive personal trainer"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1125ms
+
+1. Kingshuk k sen
+   Profile ID: 6a410aeecf1680646a260b78
+   Type: tutor
+   Score: 0.7958
+   Bio Snippet: An NIT Nagpur B.Tech graduate and highly qualified Physics educator with 15 years of experience, spe...
+
+2. Suvajit Das
+   Profile ID: 6a3ba26d936477876923e89e
+   Type: gym_yoga
+   Score: 0.7957
+   Bio Snippet: YOGA AND FITNESS TRAINER.  Qualifications: DEPLOMA (TRAINER) IN YOGA, WEST BENGAL COUNCIL OF YOGA AN...
+
+3. Subrata Roy
+   Profile ID: 6a3ba271936477876923e8e6
+   Type: gym_yoga
+   Score: 0.7927
+
+4. Bibeck Chakrabarty
+   Profile ID: 6a3ba270936477876923e8e0
+   Type: gym_yoga
+   Score: 0.7921
+   Bio Snippet: Qualifications: M A in Yoga (MAHGU), Diploma in Yoga and Naturopathy at (WBCYN)
+
+5. AfterZ Dance Company (ADC)
+   Profile ID: 6a40133dcc76935f2c4a827a
+   Type: arts_trainer
+   Score: 0.7914
+   Bio Snippet: ΓÇï9 Years of Excellence: AlipurduarΓÇÖs #1 Dance & Zumba Hub! ≡ƒÅå ΓÇï≡ƒ⌐░ Dance & Gymnastics: From kids to a...
+
+--- Semantic Search Evaluation ---
+Query: "gym for strength and fitness training"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1008ms
+
+1. Subrata Roy
+   Profile ID: 6a3ba271936477876923e8e6
+   Type: gym_yoga
+   Score: 0.8086
+
+2. Suvajit Das
+   Profile ID: 6a3ba26d936477876923e89e
+   Type: gym_yoga
+   Score: 0.8072
+   Bio Snippet: YOGA AND FITNESS TRAINER.  Qualifications: DEPLOMA (TRAINER) IN YOGA, WEST BENGAL COUNCIL OF YOGA AN...
+
+3. Bibeck Chakrabarty
+   Profile ID: 6a3ba270936477876923e8e0
+   Type: gym_yoga
+   Score: 0.8048
+   Bio Snippet: Qualifications: M A in Yoga (MAHGU), Diploma in Yoga and Naturopathy at (WBCYN)
+
+4. AfterZ Dance Company (ADC)
+   Profile ID: 6a40133dcc76935f2c4a827a
+   Type: arts_trainer
+   Score: 0.7985
+   Bio Snippet: ΓÇï9 Years of Excellence: AlipurduarΓÇÖs #1 Dance & Zumba Hub! ≡ƒÅå ΓÇï≡ƒ⌐░ Dance & Gymnastics: From kids to a...
+
+5. Sujit biswas
+   Profile ID: 6a3ba26f936477876923e8c8
+   Type: sports_trainer
+   Score: 0.7943
+
+--- Semantic Search Evaluation ---
+Query: "coaching centre for Class 10 science"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1003ms
+
+1. Subhasish Saha
+   Profile ID: 6a41f68fc3852cae40a09f12
+   Type: tutor
+   Score: 0.8713
+   Bio Snippet: I am a dedicated private tutor specializing in Mathematics and Science for Classes 6ΓÇô10, along with ...
+
+2. Asim Mohanta
+   Profile ID: 6a3ba26d936477876923e8a4
+   Type: tutor
+   Score: 0.8701
+
+3. Debraj Ghosh
+   Profile ID: 6a3ba26a936477876923e85b
+   Type: tutor
+   Score: 0.8695
+   Bio Snippet: Qualifications: M.sc in Zoology ( B.ed , D.el.ed)
+
+4. Chhanu Nag(bura sir)
+   Profile ID: 6a3ba269936477876923e84f
+   Type: tutor
+   Score: 0.8669
+
+5. Ranadhir Kundu
+   Profile ID: 6a3ba26d936477876923e892
+   Type: tutor
+   Score: 0.8666
+   Bio Snippet: Private tutor of science group.having experience 12 years job in health department  Qualifications: ...
+
+--- Semantic Search Evaluation ---
+Query: "dance academy for beginners"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1331ms
+
+1. AfterZ Dance Company (ADC)
+   Profile ID: 6a40133dcc76935f2c4a827a
+   Type: arts_trainer
+   Score: 0.8264
+   Bio Snippet: ΓÇï9 Years of Excellence: AlipurduarΓÇÖs #1 Dance & Zumba Hub! ≡ƒÅå ΓÇï≡ƒ⌐░ Dance & Gymnastics: From kids to a...
+
+2. Indrajit Bhowmick
+   Profile ID: 6a3ba26c936477876923e886
+   Type: arts_trainer
+   Score: 0.7761
+   Bio Snippet: If u want to learn natural singing & all singing vocal styles..rnall type of songs how to record + P...
+
+3. Bijay dey
+   Profile ID: 6a3ba274936477876923e928
+   Type: arts_trainer
+   Score: 0.7699
+
+4. Alipurduar Town club Football Academy
+   Profile ID: 6a3ba271936477876923e8ec
+   Type: sports_trainer
+   Score: 0.7691
+
+5. Sudipta Roy
+   Profile ID: 6a3ba26c936477876923e880
+   Type: arts_trainer
+   Score: 0.7647
+
+--- Semantic Search Evaluation ---
+Query: "yoga centre for beginners"
+Limit: 5
+----------------------------------
+
+Retrieved 5 results in 1038ms
+
+1. Bibeck Chakrabarty
+   Profile ID: 6a3ba270936477876923e8e0
+   Type: gym_yoga
+   Score: 0.8550
+   Bio Snippet: Qualifications: M A in Yoga (MAHGU), Diploma in Yoga and Naturopathy at (WBCYN)
+
+2. Suvajit Das
+   Profile ID: 6a3ba26d936477876923e89e
+   Type: gym_yoga
+   Score: 0.8507
+   Bio Snippet: YOGA AND FITNESS TRAINER.  Qualifications: DEPLOMA (TRAINER) IN YOGA, WEST BENGAL COUNCIL OF YOGA AN...
+
+3. Subrata Roy
+   Profile ID: 6a3ba271936477876923e8e6
+   Type: gym_yoga
+   Score: 0.8388
+
+4. AfterZ Dance Company (ADC)
+   Profile ID: 6a40133dcc76935f2c4a827a
+   Type: arts_trainer
+   Score: 0.8175
+   Bio Snippet: ΓÇï9 Years of Excellence: AlipurduarΓÇÖs #1 Dance & Zumba Hub! ≡ƒÅå ΓÇï≡ƒ⌐░ Dance & Gymnastics: From kids to a...
+
+5. Sujit biswas
+   Profile ID: 6a3ba26f936477876923e8c8
+   Type: sports_trainer
+   Score: 0.8092
+
