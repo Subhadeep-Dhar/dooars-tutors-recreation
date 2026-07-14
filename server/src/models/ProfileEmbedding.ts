@@ -21,7 +21,8 @@ export interface IProfileEmbeddingDocument {
   boards?: BoardType[];
   languages?: string[];
   serviceModes?: ServiceModeType[];
-  feePerMonth?: number;
+  minFee?: number;
+  maxFee?: number;
   experience?: number;
   ratingAverage?: number;
 }
@@ -44,7 +45,8 @@ const ProfileEmbeddingSchema = new Schema<IProfileEmbeddingDocument>({
   boards: { type: [String], default: undefined },
   languages: { type: [String], default: undefined },
   serviceModes: { type: [String], default: undefined },
-  feePerMonth: { type: Number },
+  minFee: { type: Number },
+  maxFee: { type: Number },
   experience: { type: Number },
   ratingAverage: { type: Number },
 }, { timestamps: true });

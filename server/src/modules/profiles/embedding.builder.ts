@@ -1,8 +1,83 @@
 import * as crypto from 'crypto';
 import { IProfileDocument, IAcademicSlotDocument, INonAcademicSlotDocument } from '../../models/Profile';
-import { resolveProfileKind } from '@dooars/shared';
+import { resolveProfileKind, ProfileType, GenderType, BoardType, ServiceModeType } from '@dooars/shared';
+
+// Defined overlap threshold as a constant
+const OVERLAP_THRESHOLD = 0.70;
 
 export class EmbeddingBuilder {
+
+  static isProfileEligibleForRag(profile: IProfileDocument): boolean {
+    return profile.isActive === true &&
+           profile.verificationStatus === "verified" &&
+           typeof profile.displayName === "string" &&
+           profile.displayName.trim().length > 0;
+  }
+
+  static isSubstantiallyDuplicative(text1: string, text2: string): boolean {
+    if (!text1 || !text2) return false;
+
+    // Normalize: lowercase, replace punctuation with spaces, collapse whitespace, trim
+    const normalize = (str: string) => str.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, ' ').replace(/\s{2,}/g, ' ').trim();
+    
+    const tokens1 = new Set(normalize(text1).split(' ').filter(t => t.length > 0));
+    const tokens2 = new Set(normalize(text2).split(' ').filter(t => t.length > 0));
+
+    if (tokens1.size === 0 || tokens2.size === 0) return false;
+
+    let intersectionSize = 0;
+    for (const token of tokens1) {
+      if (tokens2.has(token)) {
+        intersectionSize++;
+      }
+    }
+
+    const minSize = Math.min(tokens1.size, tokens2.size);
+    if (minSize === 0) return false;
+
+    const overlap = intersectionSize / minSize;
+    return overlap >= OVERLAP_THRESHOLD;
+  }
+
+  static extractFees(profile: IProfileDocument): { minFee?: number, maxFee?: number } {
+    let minFee = Infinity;
+    let maxFee = -Infinity;
+    let found = false;
+
+    if (Array.isArray(profile.teachingSlots)) {
+      for (const slot of profile.teachingSlots) {
+        if (typeof slot.feePerMonth === 'number' && !isNaN(slot.feePerMonth) && slot.feePerMonth > 0) {
+          if (slot.feePerMonth < minFee) minFee = slot.feePerMonth;
+          if (slot.feePerMonth > maxFee) maxFee = slot.feePerMonth;
+          found = true;
+        }
+      }
+    }
+    
+    return found ? { minFee, maxFee } : {};
+  }
+
+  static buildFilterSnapshot(profile: IProfileDocument) {
+    const kind = resolveProfileKind(profile.type);
+    const { minFee, maxFee } = this.extractFees(profile);
+    
+    return {
+      type: profile.type as ProfileType,
+      providerKind: kind,
+      isActive: profile.isActive,
+      verificationStatus: profile.verificationStatus,
+      gender: profile.gender,
+      subjects: Array.isArray(profile.subjects) ? [...profile.subjects].sort() : undefined,
+      classes: Array.isArray(profile.classes) ? [...profile.classes].sort() : undefined,
+      boards: Array.isArray(profile.boards) ? [...profile.boards].sort() as BoardType[] : undefined,
+      languages: Array.isArray(profile.languages) ? [...profile.languages].sort() : undefined,
+      serviceModes: Array.isArray(profile.serviceModes) ? [...profile.serviceModes].sort() as ServiceModeType[] : undefined,
+      minFee,
+      maxFee,
+      experience: typeof profile.experience === 'number' ? profile.experience : undefined,
+      ratingAverage: profile.rating?.average || 0
+    };
+  }
 
   static buildCanonicalText(profile: IProfileDocument): string {
     const kind = resolveProfileKind(profile.type);
@@ -26,18 +101,20 @@ export class EmbeddingBuilder {
     const ageGroups = new Set<string>();
     const learnerLevels = new Set<string>();
 
-    for (const slot of profile.teachingSlots) {
-      if ('subject' in slot) {
-        const acSlot = slot as IAcademicSlotDocument;
-        if (acSlot.subject) subjects.add(acSlot.subject);
-        if (acSlot.board) boards.add(acSlot.board);
-        if (acSlot.medium) mediums.add(acSlot.medium);
-        if (acSlot.classes) acSlot.classes.forEach(c => classes.add(c));
-      } else {
-        const nonAcSlot = slot as INonAcademicSlotDocument;
-        if (nonAcSlot.activity) activities.add(nonAcSlot.activity);
-        if (nonAcSlot.level) learnerLevels.add(nonAcSlot.level);
-        if (nonAcSlot.ageGroups) nonAcSlot.ageGroups.forEach(ag => ageGroups.add(ag));
+    if (Array.isArray(profile.teachingSlots)) {
+      for (const slot of profile.teachingSlots) {
+        if ('subject' in slot) {
+          const acSlot = slot as IAcademicSlotDocument;
+          if (acSlot.subject) subjects.add(acSlot.subject);
+          if (acSlot.board) boards.add(acSlot.board);
+          if (acSlot.medium) mediums.add(acSlot.medium);
+          if (Array.isArray(acSlot.classes)) acSlot.classes.forEach(c => classes.add(c));
+        } else {
+          const nonAcSlot = slot as INonAcademicSlotDocument;
+          if (nonAcSlot.activity) activities.add(nonAcSlot.activity);
+          if (nonAcSlot.level) learnerLevels.add(nonAcSlot.level);
+          if (Array.isArray(nonAcSlot.ageGroups)) nonAcSlot.ageGroups.forEach(ag => ageGroups.add(ag));
+        }
       }
     }
 
@@ -54,17 +131,16 @@ export class EmbeddingBuilder {
       lines.push(`Teaching Styles: ${(profile as any).teachingStyles.sort().join(', ')}`);
     }
 
-    if (profile.languages && profile.languages.length > 0) {
-      lines.push(`Languages: ${profile.languages.sort().join(', ')}`);
+    if (Array.isArray(profile.languages) && profile.languages.length > 0) {
+      lines.push(`Languages: ${[...profile.languages].sort().join(', ')}`);
     }
 
     // Bio and enrichedDescription rules:
-    // User-authored bio takes precedence. Include enrichedDescription only if it adds semantic information.
     let bioStr = (profile.bio || '').trim();
     let enrichedStr = (profile.enrichedDescription || '').trim();
 
     if (bioStr && enrichedStr) {
-      if (!bioStr.toLowerCase().includes(enrichedStr.toLowerCase().substring(0, 30))) {
+      if (!this.isSubstantiallyDuplicative(bioStr, enrichedStr)) {
         bioStr += `\nAdditional Details: ${enrichedStr}`;
       }
     } else if (!bioStr && enrichedStr) {
