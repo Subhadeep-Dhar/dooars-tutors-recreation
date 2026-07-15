@@ -13,6 +13,15 @@ export const ragConfig = {
     model: 'gemini-2.5-flash',
     timeoutMs: 15000,
     maxRetries: 2,
-    parserVersion: 1
+    parserVersion: 2
+  },
+  geo: {
+    defaultRadiusKm: 20,
+    maxRadiusKm: 200,
+    maxCandidates: 500
+  },
+  retrieval: {
+    overfetchMultiplier: 3,
+    maxOverfetchCap: 200
   }
 };
