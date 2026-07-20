@@ -20,12 +20,24 @@ export interface AtlasFilterBuilderOptions {
   geoCandidateIds?: mongoose.Types.ObjectId[];
 }
 
+export type AtlasFilterPrimitive = string | number | boolean | mongoose.Types.ObjectId;
+
+export interface AtlasFilterCondition {
+  $eq?: AtlasFilterPrimitive;
+  $in?: AtlasFilterPrimitive[];
+  $lte?: number;
+}
+
+export interface AtlasVectorFilter {
+  $and: Record<string, AtlasFilterCondition>[];
+}
+
 export class AtlasFilterBuilder {
   /**
    * Constructs a strictly validated MongoDB Atlas $vectorSearch filter
    * based on the provided query plan and optional geo candidates.
    */
-  public static build(plan: AiSearchQueryPlan, options?: AtlasFilterBuilderOptions): Record<string, any> {
+  public static build(plan: AiSearchQueryPlan, options?: AtlasFilterBuilderOptions): AtlasVectorFilter {
     const filters: any = plan.filters || {};
     
     // 1. Mandatory eligibility & schema constraints

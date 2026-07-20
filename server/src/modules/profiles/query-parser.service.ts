@@ -3,6 +3,16 @@ import { z } from 'zod';
 import * as crypto from 'crypto';
 import * as redisCacheModule from '../../config/redis';
 import { ragConfig } from '../../config/rag.config';
+import { StrictIntentGuard } from './strict-intent.guard';
+
+export class StructuredParsingUnavailableError extends Error {
+  public readonly reason: string;
+  constructor(reason: string) {
+    super("Search is temporarily unable to safely apply all requested constraints. Please try again shortly.");
+    this.name = 'StructuredParsingUnavailableError';
+    this.reason = reason;
+  }
+}
 
 export const redisCache = { ...redisCacheModule };
 import {
@@ -145,7 +155,11 @@ export class QueryParserService {
     try {
       normalizedQuery = this.normalizeQuery(query);
     } catch (e: any) {
-      console.warn(JSON.stringify({ event: 'ai_query_parser_fallback', reason: 'validation_error', parserVersion: ragConfig.parser.parserVersion, error: e.message }));
+      const reason = 'validation_error';
+      console.warn(JSON.stringify({ event: 'ai_query_parser_fallback', reason, parserVersion: ragConfig.parser.parserVersion, error: e.message }));
+      if (StrictIntentGuard.hasStrictIntent(query)) {
+        throw new StructuredParsingUnavailableError(reason);
+      }
       return this.getFallbackPlan(query);
     }
 
@@ -261,14 +275,22 @@ export class QueryParserService {
       try {
         parsedJson = JSON.parse(responseText);
       } catch (parseError) {
-        console.warn(JSON.stringify({ event: 'ai_query_parser_fallback', reason: 'invalid_json', parserVersion: ragConfig.parser.parserVersion }));
+        const reason = 'invalid_json';
+        console.warn(JSON.stringify({ event: 'ai_query_parser_fallback', reason, parserVersion: ragConfig.parser.parserVersion }));
+        if (StrictIntentGuard.hasStrictIntent(normalizedQuery)) {
+          throw new StructuredParsingUnavailableError(reason);
+        }
         return this.getFallbackPlan(normalizedQuery);
       }
 
       // Strict Zod Runtime Validation
       const validationResult = AiSearchQueryPlanSchema.safeParse(parsedJson);
       if (!validationResult.success) {
-        console.warn(JSON.stringify({ event: 'ai_query_parser_fallback', reason: 'schema_validation', parserVersion: ragConfig.parser.parserVersion, details: validationResult.error.message }));
+        const reason = 'schema_validation';
+        console.warn(JSON.stringify({ event: 'ai_query_parser_fallback', reason, parserVersion: ragConfig.parser.parserVersion, details: validationResult.error.message }));
+        if (StrictIntentGuard.hasStrictIntent(normalizedQuery)) {
+          throw new StructuredParsingUnavailableError(reason);
+        }
         return this.getFallbackPlan(normalizedQuery);
       }
 
@@ -287,6 +309,11 @@ export class QueryParserService {
       return plan;
 
     } catch (error: any) {
+      // Re-throw if it was already explicitly triggered by strict intent
+      if (error instanceof StructuredParsingUnavailableError) {
+        throw error;
+      }
+
       // Catch timeout or temporary provider failures
       let reason = 'unknown';
       if (error.message?.includes('429')) reason = 'rate_limit';
@@ -295,6 +322,9 @@ export class QueryParserService {
       else if (error.status) reason = 'provider_error';
       
       console.warn(JSON.stringify({ event: 'ai_query_parser_fallback', reason, parserVersion: ragConfig.parser.parserVersion, error: error.message }));
+      if (StrictIntentGuard.hasStrictIntent(normalizedQuery)) {
+        throw new StructuredParsingUnavailableError(reason);
+      }
       return this.getFallbackPlan(normalizedQuery);
     }
   }

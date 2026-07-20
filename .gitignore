@@ -41,3 +41,13 @@ coverage/
 temp.txt
 
 context
+
+server/src/scripts/eval_results.json
+
+server/src/scripts/eval-summary.txt
+
+server/src/scripts/eval_parser_results.txt
+
+server/src/scripts/final_evaluation.txt
+
+eval_parser_results.txt

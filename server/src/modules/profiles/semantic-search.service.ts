@@ -4,6 +4,7 @@ import { ProfileEmbedding } from '../../models/ProfileEmbedding';
 import { Profile, IProfileDocument } from '../../models/Profile';
 import { ProfileType, GenderType, BoardType, ServiceModeType } from '@dooars/shared';
 import mongoose from 'mongoose';
+import { AtlasVectorFilter } from './atlas-filter.builder';
 
 export interface SemanticSearchInput {
   query: string;
@@ -111,7 +112,7 @@ export class SemanticSearchService {
   /**
    * Safe projection explicitly stripping sensitive fields.
    */
-  private toPublicSafeProfile(doc: any): PublicSafeProfile {
+  public toPublicSafeProfile(doc: IProfileDocument): PublicSafeProfile {
     return {
       _id: doc._id.toString(),
       type: doc.type,
@@ -197,20 +198,15 @@ export class SemanticSearchService {
   }
 
   /**
-   * Executes the standalone semantic search pipeline.
+   * Executes a raw vector search using a fully resolved query vector and pre-built Atlas filter.
+   * This is the strictly-typed seam for the HybridSearchService orchestrator.
    */
-  public async search(input: SemanticSearchInput): Promise<SemanticSearchResult[]> {
-    const normalizedQuery = this.normalizeAndValidateQuery(input.query);
-    
-    let limit = typeof input.limit === 'number' ? input.limit : 10;
-    if (limit < 1) limit = 1;
-    if (limit > 20) limit = 20;
-    
-    const queryVector = await this.generateQueryEmbedding(normalizedQuery);
-    const filter = this.buildVectorSearchFilter(input.filters);
-
-    // Number of candidates bounds how deep Atlas traverses the graph before culling
-    // Since we have 50 exact documents, numCandidates = 50 covers the whole current space.
+  public async executeVectorSearch(
+    semanticQuery: string,
+    filter: AtlasVectorFilter,
+    limit: number
+  ): Promise<{ profileId: string; score: number }[]> {
+    const queryVector = await this.generateQueryEmbedding(semanticQuery);
     const numCandidates = 50; 
 
     const pipeline = [
@@ -235,6 +231,30 @@ export class SemanticSearchService {
     const rawResults = await ProfileEmbedding.aggregate(pipeline).exec();
 
     if (!rawResults || rawResults.length === 0) {
+      return [];
+    }
+
+    return rawResults.map(r => ({
+      profileId: r.profileId.toString(),
+      score: r.score
+    }));
+  }
+
+  /**
+   * Executes the standalone semantic search pipeline.
+   */
+  public async search(input: SemanticSearchInput): Promise<SemanticSearchResult[]> {
+    const normalizedQuery = this.normalizeAndValidateQuery(input.query);
+    
+    let limit = typeof input.limit === 'number' ? input.limit : 10;
+    if (limit < 1) limit = 1;
+    if (limit > 20) limit = 20;
+    
+    const filter = this.buildVectorSearchFilter(input.filters);
+
+    const rawResults = await this.executeVectorSearch(normalizedQuery, filter as any, limit);
+
+    if (rawResults.length === 0) {
       return [];
     }
 

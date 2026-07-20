@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert';
-import { QueryParserService, redisCache } from './query-parser.service';
+import { QueryParserService, redisCache, StructuredParsingUnavailableError } from './query-parser.service';
 import { ragConfig } from '../../config/rag.config';
 import * as crypto from 'crypto';
 
@@ -64,36 +64,78 @@ test('QueryParserService', async (t) => {
       restore();
     });
 
-    await tt.test('should fallback on invalid JSON and scrub raw error', async () => {
+    await tt.test('should fallback on invalid JSON and scrub raw error for pure semantic queries', async () => {
       const restore = mockLlm("{ invalid json ");
-      const result = await service.parseQuery("test query");
+      const result = await service.parseQuery("patient teacher");
       
-      assert.strictEqual(result.semanticQuery, 'test query');
+      assert.strictEqual(result.semanticQuery, 'patient teacher');
       assert.strictEqual(result.parserMetadata.warnings[0], "Structured parsing unavailable; semantic fallback used.");
       
       restore();
     });
 
-    await tt.test('should fallback on Zod schema validation failure and scrub raw error', async () => {
+    await tt.test('should fallback on Zod schema validation failure for pure semantic queries', async () => {
       // Return valid JSON but missing required fields
-      const mockJson = JSON.stringify({ originalQuery: "test" });
+      const mockJson = JSON.stringify({ originalQuery: "patient teacher" });
       const restore = mockLlm(mockJson);
       
-      const result = await service.parseQuery("test query");
+      const result = await service.parseQuery("patient teacher");
       
-      assert.strictEqual(result.semanticQuery, 'test query');
+      assert.strictEqual(result.semanticQuery, 'patient teacher');
       assert.strictEqual(result.parserMetadata.warnings[0], "Structured parsing unavailable; semantic fallback used.");
       
       restore();
     });
 
-    await tt.test('should fallback on provider timeout/error (like 429) and scrub raw error', async () => {
+    await tt.test('should fallback on provider timeout/error (like 429) for pure semantic queries', async () => {
       const restore = mockLlm("", new Error("429 Too Many Requests"));
-      const result = await service.parseQuery("test query");
+      const result = await service.parseQuery("patient teacher");
       
-      assert.strictEqual(result.semanticQuery, 'test query');
+      assert.strictEqual(result.semanticQuery, 'patient teacher');
       assert.strictEqual(result.parserMetadata.warnings[0], "Structured parsing unavailable; semantic fallback used.");
       
+      restore();
+    });
+
+    await tt.test('should throw StructuredParsingUnavailableError on 429 for strict queries', async () => {
+      const restore = mockLlm("", new Error("429 Too Many Requests"));
+      let errorThrown = false;
+      try {
+        await service.parseQuery("female maths tutor near me");
+      } catch (err: any) {
+        errorThrown = true;
+        assert.ok(err instanceof StructuredParsingUnavailableError);
+        assert.strictEqual(err.reason, 'rate_limit');
+      }
+      assert.ok(errorThrown);
+      restore();
+    });
+
+    await tt.test('should throw StructuredParsingUnavailableError on timeout for strict queries', async () => {
+      const restore = mockLlm("", new Error("fetch failed"));
+      let errorThrown = false;
+      try {
+        await service.parseQuery("budget tutor under 2000");
+      } catch (err: any) {
+        errorThrown = true;
+        assert.ok(err instanceof StructuredParsingUnavailableError);
+        assert.strictEqual(err.reason, 'timeout');
+      }
+      assert.ok(errorThrown);
+      restore();
+    });
+
+    await tt.test('should throw StructuredParsingUnavailableError on invalid JSON for strict queries', async () => {
+      const restore = mockLlm("{ invalid json ");
+      let errorThrown = false;
+      try {
+        await service.parseQuery("CBSE class 10 tutor");
+      } catch (err: any) {
+        errorThrown = true;
+        assert.ok(err instanceof StructuredParsingUnavailableError);
+        assert.strictEqual(err.reason, 'invalid_json');
+      }
+      assert.ok(errorThrown);
       restore();
     });
 

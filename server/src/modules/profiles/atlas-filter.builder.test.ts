@@ -29,17 +29,17 @@ describe('AtlasFilterBuilder', () => {
     const profileIdCondition = filter.$and.find((c: any) => c.profileId);
     
     assert.ok(profileIdCondition);
-    assert.ok(profileIdCondition.profileId.$in[0] instanceof mongoose.Types.ObjectId);
-    assert.strictEqual(profileIdCondition.profileId.$in[0].toString(), '60b9b3b3e6b3f3b3b3b3b3b3');
+    assert.ok(profileIdCondition.profileId!.$in![0] instanceof mongoose.Types.ObjectId);
+    assert.strictEqual(profileIdCondition.profileId!.$in![0].toString(), '60b9b3b3e6b3f3b3b3b3b3b3');
   });
 
   it('injects empty array short-circuit if geo candidates are zero', () => {
     const plan: any = { query: 'test', filters: {} };
     const filter = AtlasFilterBuilder.build(plan, { geoCandidateIds: [] });
     
-    const profileIdCondition = filter.$and.find((c: any) => c.profileId);
-    assert.ok(profileIdCondition);
-    assert.deepStrictEqual(profileIdCondition.profileId.$in, []);
+    const profileIdCondition = filter.$and.find((c: any) => c.profileId) as any;
+    assert.ok(profileIdCondition.profileId!.$in);
+    assert.strictEqual(profileIdCondition.profileId!.$in.length, 0);
   });
 
   it('filters taxonomy values procedurally via allowlist', () => {
@@ -55,13 +55,16 @@ describe('AtlasFilterBuilder', () => {
     
     const filter = AtlasFilterBuilder.build(plan);
     
-    const typeCond = filter.$and.find((c: any) => c.type);
+    const typeCond = filter.$and.find((c: any) => c.type) as any;
+    assert.ok(typeCond);
     assert.deepStrictEqual(typeCond.type.$in, ['tutor']); // Discarded hallucination
 
-    const boardCond = filter.$and.find((c: any) => c.boards);
+    const boardCond = filter.$and.find((c: any) => c.boards) as any;
+    assert.ok(boardCond);
     assert.deepStrictEqual(boardCond.boards.$in, ['CBSE']); // Discarded FakeBoard
 
-    const modeCond = filter.$and.find((c: any) => c.serviceModes);
+    const modeCond = filter.$and.find((c: any) => c.serviceModes) as any;
+    assert.ok(modeCond);
     assert.deepStrictEqual(modeCond.serviceModes.$in, ['online']); // Discarded telepathy
   });
 
@@ -105,8 +108,8 @@ describe('AtlasFilterBuilder', () => {
     };
     
     const filter = AtlasFilterBuilder.build(plan);
-    const subCond = filter.$and.find((c: any) => c.subjects);
-    const actCond = filter.$and.find((c: any) => c.activities);
+    const subCond = filter.$and.find((c: any) => c.subjects) as any;
+    const actCond = filter.$and.find((c: any) => c.activities) as any;
     
     assert.deepStrictEqual(subCond.subjects.$in, ['Math']);
     assert.deepStrictEqual(actCond.activities.$in, ['Guitar']);
@@ -148,7 +151,7 @@ describe('AtlasFilterBuilder', () => {
     };
     
     const filter = AtlasFilterBuilder.build(plan);
-    const typeCond = filter.$and.find((c: any) => c.type);
+    const typeCond = filter.$and.find((c: any) => c.type) as any;
     
     assert.deepStrictEqual(typeCond.type.$in, ['tutor', 'tutor']);
   });
