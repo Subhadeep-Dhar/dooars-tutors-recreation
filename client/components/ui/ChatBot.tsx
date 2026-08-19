@@ -14,8 +14,24 @@ export function ChatBot() {
   const { user } = useAuthStore();
   const pathname = usePathname();
   
-  // Daily limit constant
-  const DAILY_LIMIT = 1;
+  const [dailyLimit, setDailyLimit] = useState(1); // Default to 1 before fetch
+
+  // Fetch dynamic AI limit from backend
+  useEffect(() => {
+    async function fetchLimit() {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+        const res = await fetch(`${apiUrl}/settings/public`);
+        const data = await res.json();
+        if (data.success && data.data?.aiDailyLimit !== undefined) {
+          setDailyLimit(data.data.aiDailyLimit);
+        }
+      } catch (e) {
+        console.error('Failed to fetch AI daily limit', e);
+      }
+    }
+    fetchLimit();
+  }, []);
 
   // Initialize query count from local storage
   useEffect(() => {
@@ -65,7 +81,7 @@ export function ChatBot() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !user || queryCount >= DAILY_LIMIT) return;
+    if (!input.trim() || !user || queryCount >= dailyLimit) return;
     
     sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] });
     incrementQueryCount();
@@ -232,10 +248,10 @@ export function ChatBot() {
                 </Link>
               </div>
             </div>
-          ) : queryCount >= DAILY_LIMIT ? (
+          ) : queryCount >= dailyLimit ? (
             <div className="text-center p-3 bg-orange-50 dark:bg-orange-950/30 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800/50 rounded-xl">
               <p className="text-sm font-medium">Daily Limit Reached</p>
-              <p className="text-xs mt-1 opacity-80">You've used your {DAILY_LIMIT} free AI query for today. Please come back tomorrow!</p>
+              <p className="text-xs mt-1 opacity-80">You've used your {dailyLimit} free AI {dailyLimit === 1 ? 'query' : 'queries'} for today. Please come back tomorrow!</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
@@ -258,7 +274,7 @@ export function ChatBot() {
                 </button>
               </div>
               <div className="text-[10px] text-center text-slate-400">
-                AI Queries remaining today: {DAILY_LIMIT - queryCount}
+                AI Queries remaining today: {Math.max(0, dailyLimit - queryCount)}
               </div>
             </form>
           )}

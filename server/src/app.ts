@@ -18,6 +18,7 @@ import adminRoutes from './modules/admin/admin.routes';
 import mediaRoutes from './modules/media/media.routes';
 import reportRoutes from './modules/reports/report.routes';
 import statsRoutes from './modules/stats/stats.routes';
+import settingsRoutes from './modules/settings/settings.routes';
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/reports', reportRoutes);
 app.use('/api/v1/stats', statsRoutes);
+app.use('/api/v1/settings', settingsRoutes);
 app.use('/api/v1', mediaRoutes);
 
 // ── 404 handler ──────────────────────────────────────

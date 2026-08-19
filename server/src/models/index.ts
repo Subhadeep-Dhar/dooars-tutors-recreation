@@ -21,3 +21,4 @@ export type { IImportSummaryDocument } from './ImportSummary';
 
 export * from './PlatformStat';
 export * from './Report';
+export * from './SystemSetting';
