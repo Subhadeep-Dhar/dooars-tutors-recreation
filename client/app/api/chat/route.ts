@@ -42,7 +42,8 @@ Instructions:
 3. Be concise but helpful. Do not hallucinate tutors that are not in the provided context.
 4. If no tutors are found in the context, politely inform the user that you couldn't find an exact match and suggest they adjust their search terms.
 5. Keep your tone professional and encouraging.
-6. When recommending specific tutors from the context, YOU MUST call the \`showTutorProfiles\` tool and YOU MUST pass the array of tutor objects to the \`tutors\` parameter. Never call the tool without providing the tutors data!`;
+6. CRITICAL: When recommending specific tutors from the context, YOU MUST call the 'showTutorProfiles' tool and pass the array of tutor objects to the 'tutors' parameter.
+7. CRITICAL: NEVER write tutor details (name, experience, etc.) in plain text. YOU MUST EXCLUSIVELY use the tool to display them!`;
 
     const googleProvider = createGoogleGenerativeAI({
       apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || '',

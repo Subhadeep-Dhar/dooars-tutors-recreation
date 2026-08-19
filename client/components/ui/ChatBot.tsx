@@ -207,7 +207,11 @@ export function ChatBot() {
                       );
                     } else if (part.type === 'tool-result' && (!tutors || tutors.length === 0)) {
                       // If the tool finished but there are no tutors, don't show the loading spinner forever
-                      return null;
+                      return (
+                        <div key={`tool-empty-${index}`} className="mt-2 text-sm text-slate-600 dark:text-slate-300 italic">
+                          No matching tutors found in the database.
+                        </div>
+                      );
                     }
                   }
                   return null;
