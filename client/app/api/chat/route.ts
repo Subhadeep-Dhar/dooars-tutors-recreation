@@ -51,7 +51,10 @@ Instructions:
     const result = await streamText({
       model: googleProvider('gemini-1.5-flash') as any, // or whichever model is active
       system: systemPrompt,
-      messages: await convertToModelMessages(messages),
+      messages: messages.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content || msg.parts?.map((p: any) => p.text).join('') || ''
+      })),
       tools: {
         // @ts-ignore - Bypass Vercel AI SDK generic type inference bug for client-side tools
         showTutorProfiles: tool({
