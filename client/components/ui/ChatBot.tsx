@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { MessageCircle, X, Send, User, Bot, Loader2, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 
 export function ChatBot() {
@@ -11,6 +12,7 @@ export function ChatBot() {
   const [input, setInput] = useState('');
   const [queryCount, setQueryCount] = useState(0);
   const { user } = useAuthStore();
+  const pathname = usePathname();
   
   // Daily limit constant
   const DAILY_LIMIT = 1;
@@ -69,6 +71,11 @@ export function ChatBot() {
     incrementQueryCount();
     setInput('');
   };
+
+  // Do not render on admin or dashboard routes
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/dashboard')) {
+    return null;
+  }
 
   return (
     <>
