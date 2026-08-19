@@ -52,6 +52,7 @@ Instructions:
       system: systemPrompt,
       messages: await convertToModelMessages(messages),
       tools: {
+        // @ts-ignore - Bypass Vercel AI SDK generic type inference bug for client-side tools
         showTutorProfiles: tool({
           description: 'Show tutor profiles as interactive cards in the chat UI. Call this tool when recommending specific tutors to the user.',
           parameters: z.object({
@@ -64,10 +65,7 @@ Instructions:
               location: z.string().optional().describe('City or area'),
               fee: z.number().optional().describe('Monthly fee')
             }))
-          }),
-          execute: async ({ tutors }: any) => {
-            return tutors;
-          }
+          })
         })
       }
     });
