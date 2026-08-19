@@ -1,13 +1,54 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
-import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, User, Bot, Loader2, Lock } from 'lucide-react';
 import Link from 'next/link';
+import { useAuthStore } from '@/store/authStore';
 
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [queryCount, setQueryCount] = useState(0);
+  const { user } = useAuthStore();
+  
+  // Daily limit constant
+  const DAILY_LIMIT = 1;
+
+  // Initialize query count from local storage
+  useEffect(() => {
+    if (user) {
+      // Use _id instead of id for MongoDB documents
+      const userId = (user as any)._id || (user as any).id || 'unknown';
+      const storedData = localStorage.getItem(`ai_queries_${userId}`);
+      if (storedData) {
+        try {
+          const { date, count } = JSON.parse(storedData);
+          const today = new Date().toISOString().split('T')[0];
+          if (date === today) {
+            setQueryCount(count);
+          } else {
+            // New day, reset count
+            setQueryCount(0);
+            localStorage.setItem(`ai_queries_${userId}`, JSON.stringify({ date: today, count: 0 }));
+          }
+        } catch (e) {
+          console.error('Error parsing query count', e);
+        }
+      }
+    }
+  }, [user]);
+
+  const incrementQueryCount = () => {
+    if (user) {
+      const userId = (user as any)._id || (user as any).id || 'unknown';
+      const today = new Date().toISOString().split('T')[0];
+      const newCount = queryCount + 1;
+      setQueryCount(newCount);
+      localStorage.setItem(`ai_queries_${userId}`, JSON.stringify({ date: today, count: newCount }));
+    }
+  };
+
   const { messages, sendMessage, status, error, stop } = useChat({
     onError: (e) => {
       console.error('Chat error:', e);
@@ -22,9 +63,10 @@ export function ChatBot() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || !user || queryCount >= DAILY_LIMIT) return;
     
     sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] });
+    incrementQueryCount();
     setInput('');
   };
 
@@ -59,7 +101,7 @@ export function ChatBot() {
               <Bot size={20} />
             </div>
             <div>
-              <h3 className="font-semibold text-lg leading-tight">Dooars Tutors Assistant</h3>
+              <h3 className="font-semibold text-lg leading-tight">Dooars Tutors Agent</h3>
               <p className="text-white/80 text-xs">Ask me to find a tutor</p>
             </div>
           </div>
@@ -131,7 +173,6 @@ export function ChatBot() {
                         </div>
                       );
                     }
-                    // If output is available but no tutors were provided in input
                     return null;
                   }
                   return null;
@@ -170,23 +211,50 @@ export function ChatBot() {
               </button>
             </div>
           )}
-          <form onSubmit={handleSubmit} className="relative flex items-center">
-            <input
-              value={input || ''}
-              onChange={handleInputChange}
-              placeholder="Ask something..."
-              className="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:border-transparent text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
-              style={{ '--tw-ring-color': 'var(--color-brand)' } as React.CSSProperties}
-            />
-            <button
-              type="submit"
-              disabled={isLoading || !(input || '').trim()}
-              className="absolute right-2 p-2 rounded-full text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              style={{ background: 'var(--color-brand)' }}
-            >
-              <Send size={16} />
-            </button>
-          </form>
+          
+          {!user ? (
+            <div className="flex flex-col items-center text-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+              <Lock size={16} className="text-slate-400 mb-2" />
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Sign in to use the Dooars Tutors Agent</p>
+              <div className="flex gap-2 w-full">
+                <Link href="/login" className="flex-1 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                  Log in
+                </Link>
+                <Link href="/register" className="flex-1 py-2 bg-brand text-white rounded-lg text-xs font-medium hover:bg-brand/90 transition-colors" style={{ background: 'var(--color-brand)' }}>
+                  Sign up
+                </Link>
+              </div>
+            </div>
+          ) : queryCount >= DAILY_LIMIT ? (
+            <div className="text-center p-3 bg-orange-50 dark:bg-orange-950/30 text-orange-800 dark:text-orange-300 border border-orange-200 dark:border-orange-800/50 rounded-xl">
+              <p className="text-sm font-medium">Daily Limit Reached</p>
+              <p className="text-xs mt-1 opacity-80">You've used your {DAILY_LIMIT} free AI query for today. Please come back tomorrow!</p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="relative flex flex-col gap-2">
+              <div className="flex items-center relative">
+                <input
+                  value={input || ''}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask anything..."
+                  className="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent dark:text-white"
+                  style={{ '--tw-ring-color': 'var(--color-brand)' } as React.CSSProperties}
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || isLoading}
+                  className="absolute right-2 p-2 bg-brand text-white rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  style={{ background: 'var(--color-brand)' }}
+                >
+                  <Send size={16} />
+                </button>
+              </div>
+              <div className="text-[10px] text-center text-slate-400">
+                AI Queries remaining today: {DAILY_LIMIT - queryCount}
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </>
