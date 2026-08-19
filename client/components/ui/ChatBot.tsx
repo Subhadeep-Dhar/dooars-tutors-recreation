@@ -199,12 +199,15 @@ export function ChatBot() {
                           ))}
                         </div>
                       );
-                    } else if (part.state !== 'result') {
+                    } else if (part.type === 'tool-call' || part.state === 'call') {
                       return (
                         <div key={`tool-load-${index}`} className="mt-2 text-xs text-slate-500 flex items-center gap-2 animate-pulse">
                           <Loader2 size={12} className="animate-spin" /> Fetching tutor profiles...
                         </div>
                       );
+                    } else if (part.type === 'tool-result' && (!tutors || tutors.length === 0)) {
+                      // If the tool finished but there are no tutors, don't show the loading spinner forever
+                      return null;
                     }
                   }
                   return null;
