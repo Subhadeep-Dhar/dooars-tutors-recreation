@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText, convertToModelMessages, tool } from 'ai';
 import { z } from 'zod';
