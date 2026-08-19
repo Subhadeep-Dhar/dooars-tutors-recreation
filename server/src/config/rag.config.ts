@@ -10,7 +10,7 @@ export const ragConfig = {
     similarityMetric: 'cosine'
   },
   parser: {
-    model: 'gemini-3.6-flash',
+    model: 'gemini-1.5-flash',
     timeoutMs: 15000,
     maxRetries: 2,
     parserVersion: 3
