@@ -128,13 +128,6 @@ const FUN_FACTS = [
   <>Tip: Found a bug or have a suggestion? Use the feedback links at the bottom to contact the founders directly.</>,
   <>Did you know? The platform is optimized to work beautifully on both mobile phones and desktop computers.</>,
   <>Tip: Look for the <strong>Tutor of the Year</strong> and <strong>Top Rated</strong> badges to find exceptional educators.</>,
-  <>Fun fact: The name "Dooars" comes from the word "doors", as the region is the historical gateway to Bhutan.</>,
-  <>Tip: Tutors can list their exact teaching slots, making it easy to see if their schedule matches yours.</>,
-  <>Did you know? You can easily share a tutor's profile with friends using the URL in your browser.</>,
-  <>Tip: Look for detailed bios on tutor profiles to understand their teaching philosophy.</>,
-  <>Fun fact: Our team is continuously adding new features based on community feedback.</>,
-  <>Tip: Looking for dance or music classes? Browse the <strong>Arts & Culture</strong> category!</>,
-  <>Did you know? By using this platform, you are supporting a 100% locally built tech initiative.</>,
 ];
 
 export default function HomePage() {
@@ -1142,18 +1135,18 @@ export default function HomePage() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 50, scale: 0.95 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 sm:max-w-sm z-50"
+            className="fixed bottom-32 left-4 right-4 sm:left-auto sm:bottom-7 sm:right-24 sm:max-w-sm z-50 pointer-events-none"
           >
-          <div className="relative">
+          <div className="relative pointer-events-auto">
             <GlowEffect
               colors={['#10b981', '#3b82f6', '#f59e0b', '#ec4899']}
               mode='colorShift'
               blur='soft'
               duration={3}
               scale={1.02}
-              className="rounded-xl"
+              className="rounded-2xl rounded-br-sm"
             />
-            <div className="relative bg-zinc-900 border border-zinc-800 text-white px-4 py-3 rounded-xl shadow-2xl flex items-start sm:items-center justify-between gap-3">
+            <div className="relative bg-zinc-900 border border-zinc-800 text-white px-4 py-3 rounded-2xl rounded-br-sm shadow-2xl flex items-start sm:items-center justify-between gap-3">
               <span className="text-sm leading-snug">{activeFact}</span>
               <button onClick={() => setActiveFact(null)} className="text-zinc-400 hover:text-white transition-colors p-1 shrink-0 mt-0.5 sm:mt-0">
                 <X size={16} />

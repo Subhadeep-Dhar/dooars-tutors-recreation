@@ -9,11 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.45",
+    "@ai-sdk/react": "^4.0.71",
     "@dooars/shared": "file:../shared",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/supabase-js": "^2.108.2",
     "@types/canvas-confetti": "^1.9.0",
     "@vis.gl/react-google-maps": "^1.8.3",
+    "ai": "^7.0.68",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

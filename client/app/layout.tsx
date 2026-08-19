@@ -39,6 +39,7 @@ import { Toaster } from '@/components/ui/sonner';
 import AuthProvider from '@/components/AuthProvider';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import Loader from '@/components/Loader';
+import { ChatBot } from '@/components/ui/ChatBot';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -67,7 +68,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <head>
-        <script
+        <Script
+          id="loader-script"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('hasSeenLoader')) {
@@ -99,6 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AuthProvider>
             <Navbar />
             {children}
+            <ChatBot />
             <Toaster />
           </AuthProvider>
         </ThemeProvider>

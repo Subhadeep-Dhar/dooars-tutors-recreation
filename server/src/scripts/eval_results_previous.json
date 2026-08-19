@@ -1,0 +1,20 @@
+{
+  "Q01": {
+    "queryId": "Q01",
+    "category": "A",
+    "rawQuery": "patient maths tutor for a weak student",
+    "expectedBehavior": {
+      "outcome": "RESULTS"
+    },
+    "timings": {
+      "durationMs": 573
+    },
+    "errorName": "StructuredParsingUnavailableError",
+    "errorMessage": "Search is temporarily unable to safely apply all requested constraints. Please try again shortly.",
+    "sanitizedParserFailureCategory": "rate_limit",
+    "executionStatus": "NOT_EXECUTED_QUOTA",
+    "structuredFailureReasons": [
+      "Search is temporarily unable to safely apply all requested constraints. Please try again shortly."
+    ]
+  }
+}
