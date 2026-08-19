@@ -49,7 +49,7 @@ Instructions:
     });
 
     const result = await streamText({
-      model: googleProvider('gemini-3.6-flash') as any, // or whichever model is active
+      model: googleProvider('gemini-1.5-flash') as any, // or whichever model is active
       system: systemPrompt,
       messages: await convertToModelMessages(messages),
       tools: {
