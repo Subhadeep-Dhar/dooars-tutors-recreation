@@ -70,6 +70,16 @@ export function ChatBot() {
   const { messages, sendMessage, status, error, stop } = useChat({
     onError: (e) => {
       console.error('Chat error:', e);
+      // Refund the query count if an error occurs
+      if (user) {
+        setQueryCount(prev => {
+          const newCount = Math.max(0, prev - 1);
+          const userId = (user as any)._id || (user as any).id || 'unknown';
+          const today = new Date().toISOString().split('T')[0];
+          localStorage.setItem(`ai_queries_${userId}`, JSON.stringify({ date: today, count: newCount }));
+          return newCount;
+        });
+      }
     }
   });
 
@@ -217,7 +227,7 @@ export function ChatBot() {
           
           {error && (
             <div className="text-center p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100">
-              {error.message || 'An error occurred. Please try again.'}
+              {error.message === 'An error occurred.' ? 'The AI provider rejected the request. Please check your API keys in the Vercel/Render dashboard.' : (error.message || 'An error occurred. Please try again.')}
             </div>
           )}
         </div>

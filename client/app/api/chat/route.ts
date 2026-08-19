@@ -77,14 +77,24 @@ Instructions:
     return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error('Chat API Error:', error);
+    const errorMessage = error?.message || 'An error occurred during chat processing.';
+    
     // If we get a 429 quota error, we handle it gracefully here so the UI doesn't break
-    if (error?.message?.includes('429') || error?.status === 429 || error?.message?.includes('credits')) {
+    if (errorMessage.includes('429') || error?.status === 429 || errorMessage.includes('credits')) {
       return new Response(
         JSON.stringify({ error: 'I am currently experiencing high traffic and my API limits have been reached. Please try again later.' }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    return new Response(JSON.stringify({ error: 'An error occurred during chat processing.' }), {
+    
+    if (errorMessage.includes('403') || errorMessage.includes('API key') || errorMessage.includes('unregistered callers')) {
+      return new Response(
+        JSON.stringify({ error: 'The Gemini API Key is missing or invalid on the server (Vercel). Please check your environment variables.' }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
