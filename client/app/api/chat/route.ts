@@ -1,5 +1,6 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { streamText, convertToModelMessages } from 'ai';
+import { streamText, convertToModelMessages, tool } from 'ai';
+import { z } from 'zod';
 
 export async function POST(req: Request) {
   try {
@@ -39,7 +40,8 @@ Instructions:
 2. If the context contains relevant tutors, recommend them by name, mention their rating, fee, and subjects.
 3. Be concise but helpful. Do not hallucinate tutors that are not in the provided context.
 4. If no tutors are found in the context, politely inform the user that you couldn't find an exact match and suggest they adjust their search terms.
-5. Keep your tone professional and encouraging.`;
+5. Keep your tone professional and encouraging.
+6. When recommending specific tutors from the context, YOU MUST call the \`showTutorProfiles\` tool and YOU MUST pass the array of tutor objects to the \`tutors\` parameter. Never call the tool without providing the tutors data!`;
 
     const googleProvider = createGoogleGenerativeAI({
       apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || '',
@@ -49,6 +51,25 @@ Instructions:
       model: googleProvider('gemini-3.6-flash') as any, // or whichever model is active
       system: systemPrompt,
       messages: await convertToModelMessages(messages),
+      tools: {
+        showTutorProfiles: tool({
+          description: 'Show tutor profiles as interactive cards in the chat UI. Call this tool when recommending specific tutors to the user.',
+          parameters: z.object({
+            tutors: z.array(z.object({
+              id: z.string().describe('The unique ID of the tutor'),
+              name: z.string().describe('The name of the tutor or organization'),
+              experience: z.number().optional().describe('Years of experience'),
+              rating: z.number().optional().describe('Rating out of 5'),
+              subjects: z.array(z.string()).optional().describe('List of subjects taught'),
+              location: z.string().optional().describe('City or area'),
+              fee: z.number().optional().describe('Monthly fee')
+            }))
+          }),
+          execute: async ({ tutors }: any) => {
+            return tutors;
+          }
+        })
+      }
     });
 
     return result.toUIMessageStreamResponse();

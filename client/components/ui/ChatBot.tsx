@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, sendMessage, status, error, stop } = useChat({
     onError: (e) => {
       console.error('Chat error:', e);
     }
@@ -76,7 +77,7 @@ export function ChatBot() {
             <div className="text-center text-slate-500 dark:text-slate-400 mt-10">
               <MessageCircle size={40} className="mx-auto mb-3 text-slate-300 dark:text-slate-600" />
               <p className="font-medium text-slate-600 dark:text-slate-300">How can I help you today?</p>
-              <p className="text-sm mt-1">Try asking: &quot;Find me a physics tutor under 2000&quot;</p>
+              <p className="text-sm mt-1">Try asking: &quot;Find me a physics tutor in Alipurduar&quot;</p>
             </div>
           )}
 
@@ -97,7 +98,44 @@ export function ChatBot() {
                 }`}
                 style={m.role === 'user' ? {} : { background: 'var(--color-brand)' }}
               >
-                <div className="whitespace-pre-wrap">{m.parts?.map(p => p.type === 'text' ? p.text : '').join('') || ''}</div>
+                <div className="whitespace-pre-wrap">{m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || ''}</div>
+                {m.parts?.map((part: any, index: number) => {
+                  const isOurTool = part.type === 'tool-showTutorProfiles' || part.toolName === 'showTutorProfiles';
+                  if (isOurTool) {
+                    const tutors = part.output?.tutors || part.input?.tutors || part.args?.tutors;
+                    if (tutors && Array.isArray(tutors) && tutors.length > 0) {
+                      return (
+                        <div key={index} className="flex flex-col gap-3 mt-3 w-[250px] max-w-full">
+                          {tutors.map((tutor: any) => (
+                            <div key={tutor.id} className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                              <h4 className="font-semibold text-slate-800 dark:text-slate-100">{tutor.name}</h4>
+                              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 flex flex-col gap-1">
+                                {tutor.experience ? <p>• {tutor.experience} yrs exp.</p> : null}
+                                {tutor.subjects?.length > 0 ? <p className="truncate">• {tutor.subjects.join(', ')}</p> : null}
+                                {tutor.location ? <p className="truncate">• {tutor.location}</p> : null}
+                              </div>
+                              <Link 
+                                href={`/profiles/${tutor.id}`}
+                                className="mt-3 block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors"
+                              >
+                                View Profile
+                              </Link>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    } else if (part.state === 'input-streaming') {
+                      return (
+                        <div key={index} className="mt-2 text-xs text-slate-500 flex items-center gap-2 animate-pulse">
+                          <Loader2 size={12} className="animate-spin" /> Fetching tutor profiles...
+                        </div>
+                      );
+                    }
+                    // If output is available but no tutors were provided in input
+                    return null;
+                  }
+                  return null;
+                })}
               </div>
             </div>
           ))}
@@ -121,7 +159,17 @@ export function ChatBot() {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 relative">
+          {isLoading && (
+            <div className="absolute -top-10 left-0 right-0 flex justify-center pointer-events-none">
+              <button 
+                onClick={(e) => { e.preventDefault(); stop(); }}
+                className="bg-slate-800 text-slate-200 hover:bg-slate-700 dark:bg-slate-200 dark:text-slate-800 dark:hover:bg-slate-300 pointer-events-auto px-4 py-1.5 rounded-full text-xs font-medium shadow-md flex items-center gap-2 transition-colors"
+              >
+                <div className="w-2 h-2 bg-current rounded-sm" /> Stop generating
+              </button>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="relative flex items-center">
             <input
               value={input || ''}
