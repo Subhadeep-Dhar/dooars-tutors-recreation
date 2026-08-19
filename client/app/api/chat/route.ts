@@ -69,7 +69,10 @@ Instructions:
               location: z.string().optional().describe('City or area'),
               fee: z.number().optional().describe('Monthly fee')
             }))
-          })
+          }),
+          execute: async ({ tutors }) => {
+            return { tutors };
+          }
         })
       }
     });

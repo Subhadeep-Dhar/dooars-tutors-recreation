@@ -22,9 +22,9 @@ export function ChatBot() {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
         const res = await fetch(`${apiUrl}/settings/public`);
-        const data = await res.json();
-        if (data.success && data.data?.aiDailyLimit !== undefined) {
-          setDailyLimit(data.data.aiDailyLimit);
+        const responseData = await res.json();
+        if (responseData.success && responseData.data) {
+          setDailyLimit(responseData.data.aiDailyLimit || 1);
         }
       } catch (e) {
         console.error('Failed to fetch AI daily limit', e);
@@ -175,9 +175,9 @@ export function ChatBot() {
               >
                 <div className="whitespace-pre-wrap">{m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || ''}</div>
                 {m.parts?.map((part: any, index: number) => {
-                  const isOurTool = part.type === 'tool-showTutorProfiles' || part.toolName === 'showTutorProfiles';
+                  const isOurTool = part.type === 'tool-showTutorProfiles' || part.toolName === 'showTutorProfiles' || part.type === 'tool-invocation';
                   if (isOurTool) {
-                    const tutors = part.output?.tutors || part.input?.tutors || part.args?.tutors;
+                    const tutors = part.result?.tutors || part.output?.tutors || part.input?.tutors || part.args?.tutors;
                     if (tutors && Array.isArray(tutors) && tutors.length > 0) {
                       return (
                         <div key={index} className="flex flex-col gap-3 mt-3 w-[250px] max-w-full">
@@ -199,14 +199,13 @@ export function ChatBot() {
                           ))}
                         </div>
                       );
-                    } else if (part.state === 'input-streaming') {
+                    } else if (part.state !== 'result') {
                       return (
-                        <div key={index} className="mt-2 text-xs text-slate-500 flex items-center gap-2 animate-pulse">
+                        <div key={`tool-load-${index}`} className="mt-2 text-xs text-slate-500 flex items-center gap-2 animate-pulse">
                           <Loader2 size={12} className="animate-spin" /> Fetching tutor profiles...
                         </div>
                       );
                     }
-                    return null;
                   }
                   return null;
                 })}
