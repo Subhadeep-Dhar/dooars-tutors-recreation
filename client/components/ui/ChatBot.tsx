@@ -203,7 +203,7 @@ export function ChatBot() {
                           ))}
                         </div>
                       );
-                    } else if (part.state === 'result' || part.type === 'tool-result') {
+                    } else if (part.state === 'result' || part.type === 'tool-result' || !isLoading) {
                       // If the tool finished but there are no tutors, don't show the loading spinner forever
                       return (
                         <div key={`tool-empty-${index}`} className="mt-2 text-sm text-slate-600 dark:text-slate-300 italic">

@@ -78,7 +78,7 @@ Instructions:
       }
     });
 
-    return result.toDataStreamResponse();
+    return result.toUIMessageStreamResponse();
   } catch (error: any) {
     console.error('Chat API Error:', error);
     const errorMessage = error?.message || 'An error occurred during chat processing.';
