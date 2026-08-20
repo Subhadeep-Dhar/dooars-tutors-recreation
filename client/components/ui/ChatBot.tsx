@@ -173,11 +173,15 @@ export function ChatBot() {
                 }`}
                 style={m.role === 'user' ? {} : { background: 'var(--color-brand)' }}
               >
-                <div className="whitespace-pre-wrap">{m.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || ''}</div>
-                {m.parts?.map((part: any, index: number) => {
+                <div className="whitespace-pre-wrap">{m.parts ? (m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || '') : (m as any).content}</div>
+                {(m.parts || (m as any).toolInvocations)?.map((part: any, index: number) => {
                   const isOurTool = part.type === 'tool-showTutorProfiles' || part.toolName === 'showTutorProfiles' || part.type === 'tool-invocation';
                   if (isOurTool) {
-                    const tutors = part.result?.tutors || part.output?.tutors || part.input?.tutors || part.args?.tutors;
+                    let tutors = part.result?.tutors || part.output?.tutors || part.input?.tutors || part.args?.tutors;
+                    if (tutors && !Array.isArray(tutors)) {
+                      tutors = [tutors];
+                    }
+                    
                     if (tutors && Array.isArray(tutors) && tutors.length > 0) {
                       return (
                         <div key={index} className="flex flex-col gap-3 mt-3 w-[250px] max-w-full">
@@ -199,20 +203,28 @@ export function ChatBot() {
                           ))}
                         </div>
                       );
-                    } else if (part.type === 'tool-call' || part.state === 'call') {
-                      return (
-                        <div key={`tool-load-${index}`} className="mt-2 text-xs text-slate-500 flex items-center gap-2 animate-pulse">
-                          <Loader2 size={12} className="animate-spin" /> Fetching tutor profiles...
-                        </div>
-                      );
-                    } else if ((part.type === 'tool-result' || part.state === 'result') && (!tutors || tutors.length === 0)) {
+                    } else if (part.state === 'result' || part.type === 'tool-result') {
                       // If the tool finished but there are no tutors, don't show the loading spinner forever
                       return (
                         <div key={`tool-empty-${index}`} className="mt-2 text-sm text-slate-600 dark:text-slate-300 italic">
                           No matching tutors found in the database.
                         </div>
                       );
+                    } else {
+                      // Fallback for 'call', 'partial-call', or any other intermediate state
+                      return (
+                        <div key={`tool-load-${index}`} className="mt-2 text-xs text-slate-500 flex items-center gap-2 animate-pulse">
+                          <Loader2 size={12} className="animate-spin" /> Fetching tutor profiles...
+                        </div>
+                      );
                     }
+                  } else if (part.type === 'tool-invocation' || part.type?.startsWith('tool-')) {
+                     // Catch-all for unknown tools or malformed tool parts
+                     return (
+                        <div key={`tool-unknown-${index}`} className="mt-2 text-xs text-red-400">
+                          [Tool Execution Error: {part.toolName || 'Unknown Tool'}]
+                        </div>
+                     );
                   }
                   return null;
                 })}
