@@ -96,5 +96,42 @@ export async function uploadAvatar(userId: string, file: Express.Multer.File) {
   user.avatar = { url: result.secure_url, publicId: result.public_id };
   await user.save();
 
+  // Sync to Profile if exists
+  const { Profile } = await import('../../models');
+  await Profile.updateMany(
+    { userId },
+    { $set: { avatar: user.avatar } }
+  );
+
+  // Invalidate search cache for this profile
+  const { cacheDel } = await import('../../config/redis');
+  await cacheDel(`search:*`);
+
+  return user;
+}
+
+export async function deleteAvatar(userId: string) {
+  const { User } = await import('../../models');
+  const user = await User.findById(userId);
+  if (!user) throw new AppError('User not found', 404);
+
+  if (user.avatar?.publicId) {
+    await cloudinary.uploader.destroy(user.avatar.publicId).catch(() => {});
+  }
+
+  user.avatar = undefined;
+  await user.save();
+
+  // Sync to Profile if exists
+  const { Profile } = await import('../../models');
+  await Profile.updateMany(
+    { userId },
+    { $unset: { avatar: "" } }
+  );
+
+  // Invalidate search cache for this profile
+  const { cacheDel } = await import('../../config/redis');
+  await cacheDel(`search:*`);
+
   return user;
 }

@@ -35,3 +35,10 @@ export async function uploadAvatar(req: Request, res: Response, next: NextFuncti
     res.json({ success: true, data: { user }, message: 'Avatar updated' });
   } catch (err) { next(err); }
 }
+
+export async function deleteAvatar(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = await MediaService.deleteAvatar(req.user!.userId);
+    res.json({ success: true, data: { user }, message: 'Avatar removed' });
+  } catch (err) { next(err); }
+}

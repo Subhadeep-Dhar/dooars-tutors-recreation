@@ -637,9 +637,13 @@ export default function HomePage() {
                     </div>
 
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shrink-0"
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shrink-0 overflow-hidden"
                       style={{ backgroundColor: color }}>
-                      {profile.displayName.charAt(0)}
+                      {profile.avatar?.url ? (
+                        <img src={profile.avatar.url} alt={profile.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        profile.displayName?.charAt(0)?.toUpperCase() ?? '?'
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-[1.1rem] truncate" style={{ color: 'var(--text-primary)' }}>{profile.displayName}</p>

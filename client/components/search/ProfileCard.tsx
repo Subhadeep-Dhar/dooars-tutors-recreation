@@ -30,8 +30,12 @@ export default function ProfileCard({ profile }: { profile: any }) {
       <CardContent className="p-5">
         <div className="flex gap-4">
           {/* Avatar */}
-          <div className="w-14 h-14 rounded-xl bg-slate-900 flex items-center justify-center text-white font-semibold text-lg shrink-0">
-            {profile.displayName.charAt(0)}
+          <div className="w-14 h-14 rounded-xl bg-slate-900 flex items-center justify-center text-white font-semibold text-lg shrink-0 overflow-hidden">
+            {profile.avatar?.url ? (
+              <img src={profile.avatar.url} alt={profile.displayName} className="w-full h-full object-cover" />
+            ) : (
+              profile.displayName?.charAt(0)?.toUpperCase() ?? '?'
+            )}
           </div>
 
           {/* Main content */}

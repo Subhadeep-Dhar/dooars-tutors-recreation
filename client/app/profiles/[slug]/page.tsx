@@ -666,10 +666,15 @@ export default function ProfilePage() {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#fff', fontWeight: 700, fontSize: '1.6rem',
                 transition: 'transform 0.2s',
+                overflow: 'hidden'
               }}
                 onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1.04)'; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}>
-                {profile.displayName?.charAt(0)?.toUpperCase() ?? '?'}
+                {profile.avatar?.url ? (
+                  <img src={profile.avatar.url} alt={profile.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  profile.displayName?.charAt(0)?.toUpperCase() ?? '?'
+                )}
               </div>
 
               {/* Name + meta */}

@@ -1,6 +1,6 @@
 import slugify from 'slugify';
 import mongoose from 'mongoose';
-import { Profile } from '../../models';
+import { Profile, User } from '../../models';
 import { AppError } from '../../middleware/errorHandler';
 import { ProfileType, BoardType, MediumType, ServiceModeType, LearnerLevelType, TeachingStyleType, GenderType, IAvailabilityDay, calculateAge } from '@dooars/shared';
 import { cacheDel } from '../../config/redis';
@@ -99,6 +99,8 @@ export async function createProfile(userId: string, data: {
   const existing = await Profile.findOne({ userId });
   if (existing) throw new AppError('Profile already exists for this account', 409);
 
+  const user = await User.findById(userId).select('avatar').lean();
+
   const slug = await generateUniqueSlug(data.displayName);
   
   let coordinates: [number, number] = [89.527100, 26.491890]; // default Alipurduar
@@ -129,6 +131,7 @@ export async function createProfile(userId: string, data: {
     tagline: data.tagline,
     bio: userProvidedBio || undefined,
     bioSource,
+    avatar: user?.avatar,
     // isOrganisation: no default set -- undefined = unknown for gym_yoga
     ...(typeof data.isOrganisation === 'boolean' ? { isOrganisation: data.isOrganisation } : {}),
     gender: data.gender,

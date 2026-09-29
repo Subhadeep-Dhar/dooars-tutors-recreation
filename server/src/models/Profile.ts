@@ -62,6 +62,7 @@ export interface IProfileDocument extends Document {
     };
     experience?: number;
     languages: string[];
+    avatar?: { url: string; publicId: string };
     media: IMediaDocument[];
     rating: { average: number; count: number };
     isFeatured: boolean;
@@ -207,6 +208,10 @@ const ProfileSchema = new Schema<IProfileDocument>(
 
         experience: { type: Number, min: 0 },
         languages: [{ type: String }],
+        avatar: {
+            url: { type: String },
+            publicId: { type: String }
+        },
         media: [MediaSchema],
 
         rating: {

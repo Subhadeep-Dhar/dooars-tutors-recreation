@@ -7,7 +7,7 @@ import { useTheme } from 'next-themes';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { GraduationCap, Sun, Moon, Menu, LayoutDashboard, User, LogOut, Search, LogIn, UserPlus, Globe, Grid, Sparkles, Info, Home } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform, MotionValue } from 'framer-motion';
@@ -166,6 +166,7 @@ export default function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 hover:opacity-80 transition-opacity ml-1">
                     <Avatar className="h-8 w-8">
+                      {user.avatar?.url && <AvatarImage src={user.avatar.url} alt={user.name} style={{ objectFit: 'cover' }} />}
                       <AvatarFallback className="text-xs text-white" style={{ backgroundColor: 'var(--color-brand)' }}>{initials}</AvatarFallback>
                     </Avatar>
                   </button>
@@ -321,6 +322,7 @@ export default function Navbar() {
                       <div className="space-y-3">
                         <div className="px-3 py-2 flex items-center gap-3">
                           <Avatar className="h-10 w-10">
+                            {user.avatar?.url && <AvatarImage src={user.avatar.url} alt={user.name} style={{ objectFit: 'cover' }} />}
                             <AvatarFallback className="text-sm text-white" style={{ backgroundColor: 'var(--color-brand)' }}>{initials}</AvatarFallback>
                           </Avatar>
                           <div>

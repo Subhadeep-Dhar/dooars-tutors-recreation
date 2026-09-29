@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { toast } from 'sonner';
-import { GraduationCap, Building2, Activity, Palette, Dumbbell, User, Users, Tag, FileText, Calendar, Languages, Briefcase, MapPin, Phone, Mail, MessageCircle, Info, Sparkles, BookOpen, UserRound, Bot, Navigation } from 'lucide-react';
+import { GraduationCap, Building2, Activity, Palette, Dumbbell, User, Users, Tag, FileText, Calendar, Languages, Briefcase, MapPin, Phone, Mail, MessageCircle, Info, Sparkles, BookOpen, UserRound, Bot, Navigation, Camera, Upload, X, Loader2 } from 'lucide-react';
 import { FluidDropdown } from '@/components/ui/fluid-dropdown';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import api from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
@@ -139,6 +140,7 @@ const normalizeLanguages = (input: string) => {
 
 export default function ProfileEditorPage() {
   const router = useRouter();
+  const { user, fetchMe } = useAuthStore();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -150,6 +152,9 @@ export default function ProfileEditorPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [deletingAccount, setDeletingAccount] = useState(false);
+
+  // Avatar upload
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(1);
   const { register, handleSubmit, reset, watch, control, trigger, getFieldState, formState, setValue } = useForm({
@@ -217,9 +222,58 @@ export default function ProfileEditorPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      await api.post('/users/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      await fetchMe();
+      toast.success('Profile picture updated successfully');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to upload profile picture');
+    } finally {
+      setIsUploadingAvatar(false);
+      if (e.target) e.target.value = '';
+    }
+  };
+
+  const handleAvatarDelete = async () => {
+    if (!confirm('Are you sure you want to remove your profile picture?')) return;
+    setIsUploadingAvatar(true);
+    try {
+      await api.delete('/users/avatar');
+      await fetchMe();
+      toast.success('Profile picture removed');
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to remove profile picture');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
   const typeWatch = watch('type');
   const isOrganisationWatch = watch('isOrganisation');
   const serviceModesWatch = watch('serviceModes') || [];
+
+  const initials = user?.name
+  ? user.name
+      .split(' ')
+      .map((n: string) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  : '';
 
   const profileKind = typeWatch ? resolveProfileKind(typeWatch, isOrganisationWatch === 'true' || isOrganisationWatch === true ? true : isOrganisationWatch === 'false' || isOrganisationWatch === false ? false : undefined) : 'unknown';
   const applicability = typeWatch ? getProfileFieldApplicability(typeWatch, profileKind) : null;
@@ -377,6 +431,32 @@ export default function ProfileEditorPage() {
               <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                 <CardHeader><CardTitle className="text-lg font-semibold tracking-tight flex items-center gap-2"><User className="w-5 h-5 text-blue-500" /> Basic info</CardTitle></CardHeader>
                 <CardContent className="p-5 sm:p-6 space-y-5">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 p-4 rounded-lg border bg-[var(--bg-elevated)]" style={{ borderColor: 'var(--border)' }}>
+                    <Avatar className="h-24 w-24 border-4" style={{ borderColor: 'var(--bg-card)' }}>
+                      {user?.avatar?.url && <AvatarImage src={user.avatar.url} alt="Profile Picture" style={{ objectFit: 'cover' }} />}
+                      <AvatarFallback className="text-2xl text-white" style={{ backgroundColor: 'var(--color-brand)' }}>{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 space-y-2">
+                      <Label className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>Profile Picture</Label>
+                      <p className="text-sm opacity-80" style={{ color: 'var(--text-secondary)' }}>This will be displayed on your profile and search results.</p>
+                      <div className="flex flex-wrap items-center gap-3 pt-2">
+                        <Label className="cursor-pointer relative overflow-hidden group">
+                          <Button type="button" variant="outline" className="gap-2 pointer-events-none" disabled={isUploadingAvatar}>
+                            {isUploadingAvatar ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                            {isUploadingAvatar ? 'Uploading...' : 'Upload new'}
+                          </Button>
+                          <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" onChange={handleAvatarUpload} disabled={isUploadingAvatar} />
+                        </Label>
+                        {user?.avatar?.url && (
+                          <Button type="button" variant="ghost" className="text-red-500 hover:text-red-600 hover:bg-red-500/10 gap-2" onClick={handleAvatarDelete} disabled={isUploadingAvatar}>
+                            <X className="w-4 h-4" />
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-1.5" id="field-type">
                       <Label style={{ color: 'var(--text-primary)' }} className="flex items-center gap-1.5"><Briefcase className="w-4 h-4 text-blue-500" /> Profile type <span className="text-red-500">*</span></Label>

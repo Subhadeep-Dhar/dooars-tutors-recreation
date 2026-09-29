@@ -472,8 +472,8 @@ function TutorCardGrid({ profile }: { profile: any }) {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '85px', flexShrink: 0 }}>
         {/* Avatar Container */}
         <div style={{ position: 'relative', width: '75px', height: '75px', marginBottom: '0.8rem' }}>
-          {profile.avatar ? (
-            <img src={profile.avatar} alt={profile.displayName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+          {profile.avatar?.url ? (
+            <img src={profile.avatar.url} alt={profile.displayName} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--color-brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.8rem', fontWeight: 'bold' }}>
               {profile.displayName?.charAt(0)?.toUpperCase() ?? '?'}
@@ -611,8 +611,13 @@ function TutorCard({ profile, variant = 'list' }: { profile: any, variant?: 'lis
           background: 'var(--color-brand)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff', fontWeight: 700, fontSize: '1.05rem',
+          overflow: 'hidden'
         }}>
-          {profile.displayName?.charAt(0)?.toUpperCase() ?? '?'}
+          {profile.avatar?.url ? (
+            <img src={profile.avatar.url} alt={profile.displayName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            profile.displayName?.charAt(0)?.toUpperCase() ?? '?'
+          )}
         </div>
 
         {/* Info */}

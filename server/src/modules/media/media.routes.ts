@@ -3,7 +3,7 @@ import { verifyToken } from '../../middleware/auth';
 import { requireRole } from '../../middleware/auth';
 import { uploadLimiter } from '../../middleware/rateLimiter';
 import { upload } from '../../middleware/upload';
-import { uploadMedia, deleteMedia, uploadAvatar } from './media.controller';
+import { uploadMedia, deleteMedia, uploadAvatar, deleteAvatar } from './media.controller';
 
 const router = Router();
 
@@ -29,6 +29,12 @@ router.post(
   uploadLimiter,
   upload.single('file'),
   uploadAvatar
+);
+
+router.delete(
+  '/users/avatar',
+  verifyToken,
+  deleteAvatar
 );
 
 export default router;
