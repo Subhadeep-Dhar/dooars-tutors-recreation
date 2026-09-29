@@ -45,13 +45,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       type: 'profile',
       url: `https://dooarstutors.in/profiles/${resolvedParams.slug}`,
-      images: profile.avatar ? [{ url: profile.avatar }] : [],
+      images: profile.avatar?.url ? [{ url: profile.avatar.url }] : [],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
-      images: profile.avatar ? [profile.avatar] : [],
+      images: profile.avatar?.url ? [profile.avatar.url] : [],
     },
     alternates: {
       canonical: `https://dooarstutors.in/profiles/${resolvedParams.slug}`,
@@ -81,7 +81,7 @@ export default async function ProfileLayout({
       '@type': profile.type === 'coaching_center' ? 'EducationalOrganization' : 'Person',
       name: name,
       url: `https://dooarstutors.in/profiles/${resolvedParams.slug}`,
-      image: profile.avatar || undefined,
+      image: profile.avatar?.url || undefined,
       description: profile.bio || `Verified profile of ${name} on Dooars Tutors.`,
       address: {
         '@type': 'PostalAddress',
