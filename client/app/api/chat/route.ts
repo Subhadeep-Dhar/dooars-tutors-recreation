@@ -23,12 +23,20 @@ export async function POST(req: Request) {
     // 1. Strict length enforcement to minimize useless token consumption
     const latestMessage = latestRaw.trim().slice(0, MAX_QUERY_CHARS);
 
+    let rawContextProfiles: any[] = [];
     let contextText = 'No specific tutors found for this query.';
 
     if (latestMessage) {
       try {
-        // Fetch context from backend with proper port 4000 fallback & timeout
-        const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+        // Resolve backend URL: process.env.API_URL -> NEXT_PUBLIC_API_URL -> Render production if in prod -> localhost:4000
+        const defaultProductionUrl = 'https://dooars-tutors-api.onrender.com/api/v1';
+        let apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL;
+        if (!apiUrl || (apiUrl.includes('localhost') && process.env.NODE_ENV === 'production')) {
+          apiUrl = defaultProductionUrl;
+        }
+        if (!apiUrl) {
+          apiUrl = 'http://localhost:4000/api/v1';
+        }
         
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 9000);
@@ -42,6 +50,7 @@ export async function POST(req: Request) {
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.context) && data.context.length > 0) {
+            rawContextProfiles = data.context;
             contextText = JSON.stringify(data.context, null, 2);
           }
         }
@@ -56,12 +65,10 @@ Here are the top matching tutor profiles retrieved from the platform database fo
 ${contextText}
 
 Guidelines:
-1. Answer the user conversationally, warmly, and helpfully.
-2. If matching tutors are present in the context, recommend them by name and highlight their subject, location, rating, and fee.
-3. Be concise and accurate. NEVER hallucinate or invent tutor profiles not present in the provided context.
-4. If no tutors are found in the context, politely inform the user that no exact match is currently listed for those specific criteria and recommend trying related subjects or nearby towns.
-5. CRITICAL: When recommending specific tutors from the context, YOU MUST invoke the 'showTutorProfiles' tool with the tutor details so cards appear in the UI.
-6. CRITICAL: Do NOT print repetitive raw data blocks in text; let the interactive cards display the structured details.`;
+1. Always begin by answering the user conversationally and warmly with 1-2 helpful introductory sentences recommending the best match(es).
+2. If matching tutors are present in the context, YOU MUST call the 'showTutorProfiles' tool to display their cards in the chat.
+3. If no tutors are found in the context, politely inform the user that no exact match is currently listed for those specific criteria and recommend trying related subjects or nearby towns.
+4. Be accurate and helpful. Never invent or hallucinate tutor names not present in the context.`;
 
     const googleProvider = createGoogleGenerativeAI({
       apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || '',
@@ -87,14 +94,16 @@ Guidelines:
               id: z.string().describe('The unique ID of the tutor'),
               name: z.string().describe('The name of the tutor or organization'),
               experience: z.number().optional().describe('Years of experience'),
-              rating: z.number().optional().describe('Rating out of 5'),
+              rating: z.any().optional().describe('Rating out of 5 or rating object'),
               subjects: z.array(z.string()).optional().describe('List of subjects taught'),
               location: z.string().optional().describe('City or area'),
               fee: z.number().optional().describe('Monthly fee')
-            }))
+            })).optional()
           }),
           execute: async ({ tutors }) => {
-            return { tutors };
+            // If the model passed specific tutor items, use them; otherwise automatically inject the retrieved database context
+            const list = (Array.isArray(tutors) && tutors.length > 0) ? tutors : rawContextProfiles;
+            return { tutors: list };
           }
         })
       }

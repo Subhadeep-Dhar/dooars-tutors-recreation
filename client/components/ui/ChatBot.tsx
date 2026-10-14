@@ -177,27 +177,40 @@ export function ChatBot() {
               >
                 <div className="whitespace-pre-wrap">{m.parts ? (m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') || '') : (m as any).content}</div>
                 {(m.parts || (m as any).toolInvocations)?.map((part: any, index: number) => {
-                  const isOurTool = part.type === 'tool-showTutorProfiles' || part.toolName === 'showTutorProfiles' || part.type === 'tool-invocation';
+                  const inv = part.toolInvocation || part;
+                  const toolName = inv.toolName || part.toolName || (part.type?.startsWith('tool-') ? part.type.replace('tool-', '') : '');
+                  const isOurTool = toolName === 'showTutorProfiles' || part.type === 'tool-showTutorProfiles' || part.type === 'tool-invocation';
+                  
                   if (isOurTool) {
-                    let tutors = part.result?.tutors || part.output?.tutors || part.input?.tutors || part.args?.tutors;
+                    let tutors = 
+                      inv.result?.tutors || 
+                      inv.output?.tutors || 
+                      inv.args?.tutors || 
+                      inv.input?.tutors || 
+                      part.result?.tutors || 
+                      part.output?.tutors || 
+                      part.args?.tutors || 
+                      part.input?.tutors;
+
                     if (tutors && !Array.isArray(tutors)) {
                       tutors = [tutors];
                     }
                     
                     if (tutors && Array.isArray(tutors) && tutors.length > 0) {
                       return (
-                        <div key={index} className="flex flex-col gap-3 mt-3 w-[250px] max-w-full">
+                        <div key={index} className="flex flex-col gap-3 mt-3 w-[260px] max-w-full">
                           {tutors.map((tutor: any) => (
-                            <div key={tutor.id} className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                              <h4 className="font-semibold text-slate-800 dark:text-slate-100">{tutor.name}</h4>
+                            <div key={tutor.id} className="bg-slate-50 dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-slate-800 dark:text-slate-100">
+                              <h4 className="font-semibold text-sm">{tutor.name}</h4>
                               <div className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 flex flex-col gap-1">
                                 {tutor.experience ? <p>• {tutor.experience} yrs exp.</p> : null}
-                                {tutor.subjects?.length > 0 ? <p className="truncate">• {tutor.subjects.join(', ')}</p> : null}
+                                {tutor.subjects?.length > 0 ? <p className="truncate">• {Array.isArray(tutor.subjects) ? tutor.subjects.join(', ') : tutor.subjects}</p> : null}
                                 {tutor.location ? <p className="truncate">• {tutor.location}</p> : null}
+                                {tutor.fee ? <p className="font-medium text-emerald-600 dark:text-emerald-400">• ₹{tutor.fee}/month</p> : null}
                               </div>
                               <Link 
                                 href={`/profiles/${tutor.id}`}
-                                className="mt-3 block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors"
+                                className="mt-3 block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-colors shadow-sm"
                               >
                                 View Profile
                               </Link>
@@ -205,26 +218,23 @@ export function ChatBot() {
                           ))}
                         </div>
                       );
-                    } else if (part.state === 'result' || part.type === 'tool-result' || !isLoading) {
-                      // If the tool finished but there are no tutors, don't show the loading spinner forever
+                    } else if (inv.state === 'result' || part.state === 'result' || part.type === 'tool-result' || !isLoading) {
                       return (
-                        <div key={`tool-empty-${index}`} className="mt-2 text-sm text-slate-600 dark:text-slate-300 italic">
+                        <div key={`tool-empty-${index}`} className="mt-2 text-sm text-slate-200 dark:text-slate-300 italic opacity-90">
                           No matching tutors found in the database.
                         </div>
                       );
                     } else {
-                      // Fallback for 'call', 'partial-call', or any other intermediate state
                       return (
-                        <div key={`tool-load-${index}`} className="mt-2 text-xs text-slate-500 flex items-center gap-2 animate-pulse">
+                        <div key={`tool-load-${index}`} className="mt-2 text-xs text-slate-200 flex items-center gap-2 animate-pulse">
                           <Loader2 size={12} className="animate-spin" /> Fetching tutor profiles...
                         </div>
                       );
                     }
                   } else if (part.type === 'tool-invocation' || part.type?.startsWith('tool-')) {
-                     // Catch-all for unknown tools or malformed tool parts
                      return (
                         <div key={`tool-unknown-${index}`} className="mt-2 text-xs text-red-400">
-                          [Tool Execution Error: {part.toolName || 'Unknown Tool'}]
+                          [Tool Execution Error: {toolName || 'Unknown Tool'}]
                         </div>
                      );
                   }
