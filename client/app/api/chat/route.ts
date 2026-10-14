@@ -73,8 +73,10 @@ Guidelines:
       content: (msg.content || msg.parts?.map((p: any) => p.text).join('') || '').slice(0, MAX_QUERY_CHARS),
     }));
 
+    const modelName = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+
     const result = await streamText({
-      model: googleProvider('gemini-2.5-flash') as any,
+      model: googleProvider(modelName) as any,
       system: systemPrompt,
       messages: boundedMessages,
       tools: {
