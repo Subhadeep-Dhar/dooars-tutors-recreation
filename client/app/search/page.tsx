@@ -760,7 +760,7 @@ function SearchPageInner() {
   const [selBoards,  setSelBoards]  = useState<string[]>([]);
   const [minRating,  setMinRating]  = useState('');
   const [maxFee,     setMaxFee]     = useState('');
-  const [place,      setPlace]      = useState('');
+  const [place,      setPlace]      = useState(() => searchParams.get('place') ?? searchParams.get('location') ?? '');
   const [sortBy,     setSortBy]     = useState('highest rated');
   const [gender,     setGender]     = useState('');
   const [selLanguages, setSelLanguages] = useState<string[]>([]);

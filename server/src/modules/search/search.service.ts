@@ -228,4 +228,170 @@ export async function getNearbyProfiles(lat: number, lng: number, radius = 10) {
     verificationStatus: 'verified', isActive: true,
     location: { $near: { $geometry: { type: 'Point', coordinates: [+lng, +lat] }, $maxDistance: radius * 1000 } },
   }).limit(50).lean();
-}
+}
+
+export interface SuggestionSubject {
+  name: string;
+  count: number;
+}
+
+export interface SuggestionLocation {
+  name: string;
+  type: 'town' | 'area' | 'district';
+  count: number;
+  parent?: string;
+}
+
+export interface SuggestionTutor {
+  name: string;
+  type: string;
+  town?: string;
+  slug: string;
+}
+
+export interface SuggestionsData {
+  subjects: SuggestionSubject[];
+  locations: SuggestionLocation[];
+  tutors: SuggestionTutor[];
+}
+
+const KNOWN_DOOARS_TOWNS = [
+  'Alipurduar', 'Falakata', 'Jaigaon', 'Birpara', 'Madarihat',
+  'Hasimara', 'Kalchini', 'Kumargram', 'Cooch Behar', 'Jalpaiguri',
+  'Malbazar', 'Maynaguri', 'Dhupguri', 'Lataguri', 'Chalsa',
+  'Nagrakata', 'Banarhat', 'Totopara', 'Mathabhanga', 'Dinhata', 'Siliguri'
+];
+
+export async function getSearchSuggestions(q?: string, field?: 'subject' | 'location'): Promise<SuggestionsData> {
+  const normalizedQ = q?.trim().toLowerCase();
+  const cacheKey = normalizedQ
+    ? `search:suggest:${field || 'all'}:${crypto.createHash('md5').update(normalizedQ).digest('hex')}`
+    : 'search:suggest:all';
+
+  const cached = await cacheGet(cacheKey);
+  if (cached) {
+    try {
+      return JSON.parse(cached);
+    } catch {
+      // ignore parse error and re-fetch
+    }
+  }
+
+  const baseMatch = { verificationStatus: 'verified', isActive: true };
+
+  // 1. Subjects & Activities
+  let subjects: SuggestionSubject[] = [];
+  if (!field || field === 'subject') {
+    const subjectAgg = await Profile.aggregate([
+      { $match: baseMatch },
+      { $unwind: '$_subjectIndex' },
+      {
+        $match: normalizedQ
+          ? { _subjectIndex: { $regex: escapeRegex(normalizedQ), $options: 'i' } }
+          : { _subjectIndex: { $exists: true, $ne: '' } }
+      },
+      { $group: { _id: '$_subjectIndex', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: normalizedQ ? 15 : 60 }
+    ]);
+
+    subjects = subjectAgg.map(s => ({
+      name: s._id,
+      count: s.count
+    }));
+  }
+
+  // 2. Locations (Towns & Areas)
+  let locations: SuggestionLocation[] = [];
+  if (!field || field === 'location') {
+    const townAgg = await Profile.aggregate([
+      { $match: { ...baseMatch, 'address.town': { $exists: true, $ne: '' } } },
+      {
+        $match: normalizedQ
+          ? { 'address.town': { $regex: escapeRegex(normalizedQ), $options: 'i' } }
+          : {}
+      },
+      { $group: { _id: '$address.town', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: normalizedQ ? 15 : 40 }
+    ]);
+
+    const areaAgg = await Profile.aggregate([
+      { $match: { ...baseMatch, 'address.area': { $exists: true, $ne: '' } } },
+      {
+        $match: normalizedQ
+          ? { 'address.area': { $regex: escapeRegex(normalizedQ), $options: 'i' } }
+          : {}
+      },
+      {
+        $group: {
+          _id: { area: '$address.area', town: '$address.town' },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $limit: normalizedQ ? 15 : 40 }
+    ]);
+
+    const existingTowns = new Set(townAgg.map(t => t._id.toLowerCase()));
+    
+    locations = [
+      ...townAgg.map(t => ({
+        name: t._id,
+        type: 'town' as const,
+        count: t.count
+      })),
+      ...areaAgg.map(a => ({
+        name: a._id.area,
+        parent: a._id.town,
+        type: 'area' as const,
+        count: a.count
+      }))
+    ];
+
+    // Merge in known Dooars towns if not present in DB results
+    for (const kt of KNOWN_DOOARS_TOWNS) {
+      if (!existingTowns.has(kt.toLowerCase())) {
+        if (!normalizedQ || kt.toLowerCase().includes(normalizedQ)) {
+          locations.push({
+            name: kt,
+            type: 'town',
+            count: 0
+          });
+        }
+      }
+    }
+  }
+
+  // 3. Tutors & Coaching Centers (for subject / name field)
+  let tutors: SuggestionTutor[] = [];
+  if (!field || field === 'subject') {
+    const tutorFilter: any = { ...baseMatch };
+    if (normalizedQ) {
+      tutorFilter.displayName = { $regex: escapeRegex(normalizedQ), $options: 'i' };
+    }
+    const tutorDocs = await Profile.find(
+      tutorFilter,
+      { displayName: 1, type: 1, 'address.town': 1, slug: 1 }
+    )
+      .sort({ 'rating.score': -1, isFeatured: -1 })
+      .limit(normalizedQ ? 10 : 30)
+      .lean();
+
+    tutors = tutorDocs.map((doc: any) => ({
+      name: doc.displayName,
+      type: doc.type,
+      town: doc.address?.town,
+      slug: doc.slug
+    }));
+  }
+
+  const result: SuggestionsData = { subjects, locations, tutors };
+
+  // Cache: full set for 1 hour (3600s), filtered for 5 mins (300s)
+  const ttl = normalizedQ ? 300 : 3600;
+  await cacheSet(cacheKey, JSON.stringify(result), ttl);
+
+  return result;
+}
+

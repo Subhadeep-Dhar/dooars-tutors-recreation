@@ -15,6 +15,7 @@ import { FAQ } from '@/components/ui/faq-tabs';
 import { GlowEffect } from '@/components/motion-primitives/glow-effect';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import HeroSearchBar from '@/components/search/HeroSearchBar';
 
 const categories = [
   { label: 'Private Tutors', value: 'tutor', icon: BookOpen },
@@ -454,43 +455,8 @@ export default function HomePage() {
             Connect with verified tutors, coaching centers, sports trainers, and more — right in your area.
           </p>
 
-          {/* Search bar */}
-          <form onSubmit={handleSearch}
-            className="max-w-2xl mx-auto"
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-buttons)',
-              padding: '0.375rem',
-              display: 'flex',
-              flexDirection: 'row',
-              gap: '0.25rem',
-              boxShadow: 'var(--shadow-md)',
-            }}>
-            <div className="flex items-center gap-3 flex-1 px-4 py-2">
-              <Search size={16} style={{ color: 'var(--text-muted)' }} className="shrink-0" />
-              <input
-                placeholder="Subject, activity, or name..."
-                value={query}
-                onChange={e => setQuery(e.target.value)}
-                className="input-base border-0 p-0 text-sm"
-                style={{ background: 'transparent', boxShadow: 'none' }}
-              />
-            </div>
-            <div className="hidden md:flex items-center gap-3 flex-1 px-4 py-2" style={{ borderLeft: '1px solid var(--border)' }}>
-              <MapPin size={16} style={{ color: 'var(--text-muted)' }} className="shrink-0" />
-              <input
-                placeholder="Town or area..."
-                value={location}
-                onChange={e => setLocation(e.target.value)}
-                className="input-base border-0 p-0 text-sm"
-                style={{ background: 'transparent', boxShadow: 'none' }}
-              />
-            </div>
-            <button type="submit" className="btn-primary px-6 py-2.5 text-sm shrink-0">
-              Search
-            </button>
-          </form>
+          {/* Search bar with instant autocomplete suggestions */}
+          <HeroSearchBar initialQuery={query} initialLocation={location} />
         </div>
 
         {/* Seamless transition gradient to next section */}

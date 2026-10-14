@@ -22,7 +22,7 @@ export async function search(req: Request, res: Response, next: NextFunction) {
       minFee: req.query.minFee ? Number(req.query.minFee) : undefined,
       maxFee: req.query.maxFee ? Number(req.query.maxFee) : undefined,
       minRating: req.query.minRating ? Number(req.query.minRating) : undefined,
-      place: parseString(req.query.place),
+      place: parseString(req.query.place) || parseString(req.query.location),
       sort: (parseString(req.query.sort) as any) ?? 'rating',
       page: req.query.page ? Number(req.query.page) : 1,
       limit: req.query.limit ? Number(req.query.limit) : 20,
@@ -30,6 +30,17 @@ export async function search(req: Request, res: Response, next: NextFunction) {
 
     const result = await SearchService.searchProfiles(params);
     res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSuggestions(req: Request, res: Response, next: NextFunction) {
+  try {
+    const q = parseString(req.query.q);
+    const field = parseString(req.query.field) as 'subject' | 'location' | undefined;
+    const data = await SearchService.getSearchSuggestions(q, field);
+    res.json({ success: true, data });
   } catch (err) {
     next(err);
   }
