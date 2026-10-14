@@ -57,6 +57,23 @@ export class SlotValidatorUtil {
       return false; // No valid slot matched budget
     }
 
+    const normalizeSubj = (s: string) => {
+      const lower = (s || '').toLowerCase().trim();
+      if (lower === 'math' || lower === 'maths' || lower === 'mathematics') return 'mathematics';
+      if (lower === 'bangla' || lower === 'bengali') return 'bengali';
+      if (lower === 'cs' || lower === 'computer' || lower === 'computer science') return 'computer science';
+      return lower;
+    };
+
+    const normalizeCls = (c: string) => {
+      const cleaned = (c || '').toLowerCase().replace(/class|grade|th|st|nd|rd/g, '').trim();
+      if (cleaned === 'x') return '10';
+      if (cleaned === 'ix') return '9';
+      if (cleaned === 'xi') return '11';
+      if (cleaned === 'xii') return '12';
+      return cleaned;
+    };
+
     // Evaluate Academic Requirements
     if (hasAcademicConstraints || hasBudgetConstraint) {
       for (const slot of profile.teachingSlots) {
@@ -65,20 +82,29 @@ export class SlotValidatorUtil {
         let slotPasses = true;
 
         if (filters.subjects && filters.subjects.length > 0) {
-          if (!filters.subjects.includes(slot.subject)) slotPasses = false;
+          const slotSubjNorm = normalizeSubj(slot.subject);
+          const matches = filters.subjects.some(fs => {
+            const fsNorm = normalizeSubj(fs);
+            return slotSubjNorm === fsNorm || slotSubjNorm.includes(fsNorm) || fsNorm.includes(slotSubjNorm);
+          });
+          if (!matches) slotPasses = false;
         }
 
         if (filters.classes && filters.classes.length > 0) {
           if (!slot.classes || !Array.isArray(slot.classes)) {
             slotPasses = false;
           } else {
-            const intersects = slot.classes.some(c => filters.classes!.includes(c));
+            const filterNorms = filters.classes.map(normalizeCls);
+            const intersects = slot.classes.some(c => {
+              const cNorm = normalizeCls(c);
+              return filterNorms.includes(cNorm) || filters.classes!.includes(c);
+            });
             if (!intersects) slotPasses = false;
           }
         }
 
         if (filters.boards && filters.boards.length > 0) {
-          if (!slot.board || !filters.boards.includes(slot.board as any)) slotPasses = false;
+          if (!slot.board || !filters.boards.some(b => b.toLowerCase() === (slot.board || '').toLowerCase())) slotPasses = false;
         }
 
         if (maxBudget !== undefined) {
@@ -100,7 +126,12 @@ export class SlotValidatorUtil {
         let slotPasses = true;
 
         if (filters.activities && filters.activities.length > 0) {
-          if (!filters.activities.includes(slot.activity)) slotPasses = false;
+          const slotAct = (slot.activity || '').toLowerCase();
+          const matches = filters.activities.some(act => {
+            const a = act.toLowerCase();
+            return slotAct === a || slotAct.includes(a) || a.includes(slotAct);
+          });
+          if (!matches) slotPasses = false;
         }
 
         if (maxBudget !== undefined) {

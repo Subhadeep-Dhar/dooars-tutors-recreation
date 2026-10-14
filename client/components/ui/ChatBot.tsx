@@ -91,9 +91,11 @@ export function ChatBot() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || !user || queryCount >= dailyLimit) return;
+    const cleanInput = input.trim();
+    if (!cleanInput || !user || queryCount >= dailyLimit) return;
+    if (cleanInput.length > 300) return;
     
-    sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] });
+    sendMessage({ role: 'user', parts: [{ type: 'text', text: cleanInput }] });
     incrementQueryCount();
     setInput('');
   };
@@ -286,23 +288,27 @@ export function ChatBot() {
               <div className="flex items-center relative">
                 <input
                   value={input || ''}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask anything..."
+                  onChange={(e) => setInput(e.target.value.slice(0, 300))}
+                  placeholder="Ask anything... (e.g. Math tutor in Falakata)"
+                  maxLength={300}
                   className="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent dark:text-white"
                   style={{ '--tw-ring-color': 'var(--color-brand)' } as React.CSSProperties}
                   disabled={isLoading}
                 />
                 <button
                   type="submit"
-                  disabled={!input.trim() || isLoading}
+                  disabled={!input.trim() || input.trim().length > 300 || isLoading}
                   className="absolute right-2 p-2 bg-brand text-white rounded-full hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   style={{ background: 'var(--color-brand)' }}
                 >
                   <Send size={16} />
                 </button>
               </div>
-              <div className="text-[10px] text-center text-slate-400">
-                AI Queries remaining today: {Math.max(0, dailyLimit - queryCount)}
+              <div className="flex items-center justify-between text-[10px] text-slate-400 px-2">
+                <span>AI Queries remaining today: {Math.max(0, dailyLimit - queryCount)}</span>
+                <span className={input.length >= 280 ? 'text-amber-500 font-medium' : 'text-slate-400'}>
+                  {input.length}/300
+                </span>
               </div>
             </form>
           )}

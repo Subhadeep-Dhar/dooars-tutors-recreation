@@ -99,7 +99,30 @@ export class HybridSearchService {
     const hasNearestSort = sortIntent?.preference === 'nearest';
 
     if (hasPlaceText) {
-      throw new LocationResolutionRequiredError(`Cannot resolve textual place: "${locationIntent.placeText}". Geocoding not supported in Phase 7D.`);
+      try {
+        const placeRegex = new RegExp(locationIntent!.placeText!.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+        const placeProfiles = await Profile.find(
+          {
+            verificationStatus: 'verified',
+            isActive: true,
+            $or: [
+              { 'address.town': placeRegex },
+              { 'address.area': placeRegex },
+              { 'address.district': placeRegex },
+            ]
+          },
+          { _id: 1 }
+        ).limit(200).lean();
+
+        if (placeProfiles.length > 0) {
+          geoCandidates = placeProfiles.map(p => ({
+            profileId: p._id as any,
+            distanceKm: 0
+          }));
+        }
+      } catch (err) {
+        // Fallback gracefully without throwing
+      }
     }
 
     if (hasExplicitRadius || hasNearMe || hasNearestSort) {
