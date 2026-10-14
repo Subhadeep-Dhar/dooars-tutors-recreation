@@ -334,7 +334,7 @@ export default function HeroSearchBar({
   }
 
   return (
-    <div className="max-w-2xl mx-auto relative w-full">
+    <div className="max-w-2xl mx-auto relative w-full" style={{ zIndex: 60 }}>
       <form
         onSubmit={handleSubmit}
         style={{
@@ -347,7 +347,7 @@ export default function HeroSearchBar({
           gap: '0.25rem',
           boxShadow: 'var(--shadow-md)',
           position: 'relative',
-          zIndex: 30,
+          zIndex: 60,
         }}
       >
         {/* ── Field 1: Subject, Activity, or Name ── */}
@@ -395,11 +395,12 @@ export default function HeroSearchBar({
               style={{
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                zIndex: 50,
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                zIndex: 100,
                 maxHeight: '360px',
                 overflowY: 'auto',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--border)',
               }}
             >
               {/* Header Title */}
@@ -627,15 +628,16 @@ export default function HeroSearchBar({
           {/* ── Field 2 Dropdown Popover ── */}
           {locationFocused && (
             <div
-              className="absolute left-0 top-[calc(100%+10px)] w-[calc(100%+20px)] sm:w-[320px] md:w-[380px] rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+              className="absolute right-0 top-[calc(100%+10px)] w-[calc(100%+20px)] sm:w-[320px] md:w-[380px] rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
               style={{
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                zIndex: 50,
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+                zIndex: 100,
                 maxHeight: '360px',
                 overflowY: 'auto',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--border)',
               }}
             >
               <div

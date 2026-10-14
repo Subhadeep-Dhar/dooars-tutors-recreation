@@ -346,11 +346,11 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <section 
         onMouseMove={handleMouseMove}
-        style={{ background: 'var(--bg-base)', paddingTop: '5rem', paddingBottom: '5rem', position: 'relative', overflow: 'hidden' }}
+        style={{ background: 'var(--bg-base)', paddingTop: '5rem', paddingBottom: '5rem', position: 'relative', zIndex: 30 }}
       >
         
         {/* Floating Background Tags with Fade-out Mask */}
-        <div className="absolute inset-0 pointer-events-none select-none" style={{ 
+        <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" style={{ 
           zIndex: 0,
           maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 95%)',
           WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 95%)'
@@ -412,7 +412,7 @@ export default function HomePage() {
           })}
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 text-center relative" style={{ zIndex: 10 }}>
+        <div className="max-w-5xl mx-auto px-4 text-center relative" style={{ zIndex: 40 }}>
           <div 
             className="mb-4 flex items-center justify-center"
             onMouseEnter={() => setIsGreetingHovered(true)}
@@ -470,7 +470,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Categories ── */}
-      <section id="categories" style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem' }}>
+      <section id="categories" style={{ background: 'var(--bg-section)', padding: 'var(--section-gap) 1rem', position: 'relative', zIndex: 10 }}>
         <div className="max-w-[1200px] mx-auto">
           <p className="eyebrow text-center mb-2">CATEGORIES</p>
           <h2 style={{
