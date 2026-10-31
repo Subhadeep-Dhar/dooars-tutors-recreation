@@ -299,7 +299,7 @@ export function ChatBot() {
                 <input
                   value={input || ''}
                   onChange={(e) => setInput(e.target.value.slice(0, 300))}
-                  placeholder="Ask anything... (e.g. Math tutor in Falakata)"
+                  placeholder="Math tutor in Alipurduar"
                   maxLength={300}
                   className="w-full pl-4 pr-12 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent dark:text-white"
                   style={{ '--tw-ring-color': 'var(--color-brand)' } as React.CSSProperties}
